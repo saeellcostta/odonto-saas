@@ -1,0 +1,17 @@
+{
+  "query": "SELECT id, name, phone, clinicId, isActive FROM patients WHERE phone = '(85) 98765-4321' ORDER BY id DESC LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3oCPfWeBHeZbvmV.root --database ZxQkmxiVcK2LVVsppAdeCn --execute SELECT id, name, phone, clinicId, isActive FROM patients WHERE phone = '(85) 98765-4321' ORDER BY id DESC LIMIT 1;",
+  "rows": [
+    {
+      "id": "30002",
+      "name": "João Silva Teste",
+      "phone": "(85) 98765-4321",
+      "clinicId": "1",
+      "isActive": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tphone\tclinicId\tisActive\n30002\tJoão Silva Teste\t(85) 98765-4321\t1\t1\n",
+  "stderr": "",
+  "execution_time_ms": 60
+}

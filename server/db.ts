@@ -1106,6 +1106,34 @@ export async function getCheckins(status?: string, clinicId?: number) {
 export async function createCheckin(data: InsertCheckin) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+  
+  // Se não tem patientId mas tem nome e telefone, cadastrar paciente automaticamente
+  if (!data.patientId && data.patientName && data.phone) {
+    // Verificar se já existe paciente com esse telefone
+    const [existingPatient] = await db.select()
+      .from(patients)
+      .where(and(
+        eq(patients.phone, data.phone),
+        eq(patients.clinicId, data.clinicId!)
+      ))
+      .limit(1);
+    
+    if (existingPatient) {
+      // Usar paciente existente
+      data.patientId = existingPatient.id;
+    } else {
+      // Criar novo paciente
+      const newPatient = await db.insert(patients).values({
+        name: data.patientName,
+        phone: data.phone,
+        clinicId: data.clinicId!,
+        isActive: true,
+        createdAt: new Date(),
+      });
+      data.patientId = newPatient[0].insertId;
+    }
+  }
+  
   const result = await db.insert(checkins).values(data);
   return { id: result[0].insertId };
 }

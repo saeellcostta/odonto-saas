@@ -21,7 +21,7 @@ export default function PatientCheckin() {
     patientName: "",
     phone: "",
     reason: "",
-    queueType: "budget" as "budget" | "dentist" | "orthodontics" | "implant" | "prosthetics",
+    queueType: "budget" as const, // Sempre entra na fila do Orçamentista
   });
 
   // Obter clinicId da URL (ex: /checkin?clinic=1)
@@ -158,7 +158,7 @@ export default function PatientCheckin() {
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Check-in Realizado!</h2>
             <p className="text-gray-600 mb-4">
               Olá, <strong>{checkinData.patientName}</strong>!<br />
-              Você foi adicionado à fila de <strong>{getQueueTypeLabel(checkinData.queueType)}</strong>.
+              Você foi adicionado à fila de <strong>Orçamento / Avaliação</strong>.
             </p>
             <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
               <p className="text-sm text-orange-700 flex items-center justify-center gap-2">
@@ -194,7 +194,7 @@ export default function PatientCheckin() {
                 {queuePosition !== null ? `${queuePosition}º` : <Loader2 className="h-12 w-12 animate-spin mx-auto" />}
               </div>
               <Badge variant="outline" className="text-orange-600 border-orange-300">
-                {getQueueTypeLabel(checkinData.queueType)}
+                Orçamento / Avaliação
               </Badge>
             </CardContent>
           </Card>
@@ -326,25 +326,6 @@ export default function PatientCheckin() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="queueType">Tipo de Atendimento</Label>
-              <Select
-                value={checkinData.queueType}
-                onValueChange={(v: any) => setCheckinData({ ...checkinData, queueType: v })}
-              >
-                <SelectTrigger className="h-12">
-                  <SelectValue placeholder="Selecione o tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="budget">Orçamento / Avaliação</SelectItem>
-                  <SelectItem value="dentist">Consulta com Dentista</SelectItem>
-                  <SelectItem value="orthodontics">Ortodontia</SelectItem>
-                  <SelectItem value="implant">Implante</SelectItem>
-                  <SelectItem value="prosthetics">Prótese</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="reason">Motivo da Visita (opcional)</Label>
               <Input
                 id="reason"
@@ -385,8 +366,8 @@ export default function PatientCheckin() {
               <div>
                 <p className="font-medium text-gray-900">Como funciona?</p>
                 <p className="text-sm text-gray-600">
-                  Após o check-in, você entrará na fila e poderá acompanhar sua posição. 
-                  Quando for sua vez, você será chamado pelo painel ou receberá uma mensagem no WhatsApp.
+                  Após o check-in, você entrará automaticamente na fila do Orçamentista para avaliação. 
+                  Acompanhe sua posição e aguarde ser chamado pelo painel ou WhatsApp.
                 </p>
               </div>
             </div>

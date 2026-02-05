@@ -1086,3 +1086,11 @@
 - [x] Funções getClinicSettings e upsertClinicSettings agora filtram por clinicId
 - [x] Cada clínica agora tem suas próprias configurações separadas
 - [ ] Testar edição completa dos dados e upload de logo
+
+## Simplificação Check-in (05/02/2026)
+- [x] Remover campo "Tipo de Atendimento" do formulário de check-in
+- [x] Cadastrar paciente automaticamente na área de Pacientes ao fazer check-in
+- [x] Colocar paciente automaticamente na fila do Orçamentista (queueType fixo em "budget")
+- [x] Simplificar texto explicativo do check-in
+- [x] Verificar se paciente já existe pelo telefone antes de criar duplicado
+- [x] Vincular check-in ao paciente criado/existente
