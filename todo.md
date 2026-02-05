@@ -1071,3 +1071,11 @@
 - [x] Usuário é redirecionado para gestao.manus.space após pagamento (404)
 - [x] Alterado success_url para redirecionar para /inadimplente que detecta status ativo
 - [x] Página de inadimplente agora redireciona automaticamente para /painel se status for ativo
+
+## Melhorias Planos Dinâmicos (05/02/2026)
+- [x] Página de Perfil: buscar plano atual do banco de dados ao invés de hardcoded
+- [x] Modal "Alterar Plano": buscar todos os planos do banco ao invés de hardcoded
+- [x] Garantir que edições no Admin reflitam em todas as páginas do sistema
+- [x] Procedure getSubscriptionInfo atualizada para incluir dados completos do plano
+- [x] Página de Perfil agora formata preço dinamicamente do banco
+- [x] Modal de planos agora renderiza planos do banco com ícones e cores dinâmicas

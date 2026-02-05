@@ -125,6 +125,9 @@ export default function Perfil() {
   // Buscar informações da assinatura
   const { data: subscriptionInfo, isLoading: isLoadingSubscription } = trpc.admin.subscriptions.getSubscriptionInfo.useQuery();
   
+  // Buscar planos do banco de dados
+  const { data: dbPlans, isLoading: isLoadingPlans } = trpc.admin.plans.listActive.useQuery();
+  
   // Mutation para criar sessão do portal
   const createPortalMutation = trpc.admin.subscriptions.createCustomerPortal.useMutation({
     onSuccess: (data) => {
@@ -222,17 +225,33 @@ export default function Perfil() {
   };
 
   const getPlanInfo = () => {
-    if (!subscriptionInfo) return { name: "Carregando...", price: "..." };
+    if (!subscriptionInfo) return { name: "Carregando...", price: "...", description: "" };
     
     // Mapear planos baseado no status ou informações disponíveis
     if (subscriptionInfo.status === "trial") {
       return { name: "Período de Teste", price: "Grátis", description: "30 dias de acesso completo" };
     }
     
-    // Se tiver informações do plano
+    // Se tiver informações do plano do banco de dados
+    if ((subscriptionInfo as any).plan) {
+      const plan = (subscriptionInfo as any).plan;
+      const priceFormatted = new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+        minimumFractionDigits: 0,
+      }).format(parseFloat(plan.price));
+      
+      return { 
+        name: plan.name, 
+        price: priceFormatted,
+        description: plan.description || "Acesso completo a todas as funcionalidades"
+      };
+    }
+    
+    // Fallback
     return { 
-      name: (subscriptionInfo as any).planName || "Plano Profissional", 
-      price: "R$ 299",
+      name: "Plano Ativo", 
+      price: "-",
       description: "Acesso completo a todas as funcionalidades"
     };
   };
@@ -553,82 +572,156 @@ export default function Perfil() {
 
           {/* Plans Grid */}
           <div className="grid md:grid-cols-3 gap-4 mt-4">
-            {PLANS.map((plan) => (
-              <Card 
-                key={plan.id}
-                className={cn(
-                  "relative overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer",
-                  plan.highlighted && "ring-2 ring-orange-500 scale-[1.02]",
-                  selectedPlan === plan.id && "ring-2 ring-orange-500"
-                )}
-                onClick={() => setSelectedPlan(plan.id)}
-              >
-                {/* Badge */}
-                {plan.badge && (
-                  <div className={cn(
-                    "absolute top-0 right-0 px-3 py-1 text-xs font-bold text-white rounded-bl-lg",
-                    plan.highlighted ? "bg-orange-500" : "bg-purple-600"
-                  )}>
-                    {plan.badge}
-                  </div>
-                )}
+            {isLoadingPlans ? (
+              <div className="col-span-3 text-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
+                <p className="text-sm text-muted-foreground mt-2">Carregando planos...</p>
+              </div>
+            ) : !dbPlans || dbPlans.length === 0 ? (
+              <div className="col-span-3 text-center py-8">
+                <p className="text-muted-foreground">Nenhum plano disponível</p>
+              </div>
+            ) : (
+              dbPlans.map((plan) => {
+                // Determinar ícone e gradiente baseado no slug
+                const planIcon = plan.slug === 'basico' ? <Star className="h-6 w-6" /> :
+                                plan.slug === 'profissional' ? <Zap className="h-6 w-6" /> :
+                                <Crown className="h-6 w-6" />;
+                                
+                const planGradient = plan.slug === 'basico' ? 'from-gray-500 to-gray-600' :
+                                    plan.slug === 'profissional' ? 'from-orange-500 to-amber-500' :
+                                    'from-purple-600 to-indigo-600';
+                                    
+                const isHighlighted = plan.slug === 'profissional';
+                const planBadge = plan.slug === 'profissional' ? 'Mais Popular' :
+                                 plan.slug === 'premium' ? 'Completo' : null;
+                                 
+                // Formatar preço
+                const priceFormatted = new Intl.NumberFormat('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
+                  minimumFractionDigits: 0,
+                }).format(parseFloat(plan.price));
                 
-                {/* Header with gradient */}
-                <div className={cn(
-                  "bg-gradient-to-r p-4 text-white",
-                  plan.gradient
-                )}>
-                  <div className="flex items-center gap-2 mb-1">
-                    {plan.icon}
-                    <h3 className="text-lg font-bold">{plan.name}</h3>
-                  </div>
-                  <p className="text-white/80 text-sm">{plan.description}</p>
-                  <div className="mt-3">
-                    <span className="text-3xl font-bold">{plan.priceDisplay}</span>
-                    <span className="text-white/80">/mês</span>
-                  </div>
-                </div>
+                // Construir lista de features a partir dos campos booleanos
+                const features: string[] = [];
                 
-                <CardContent className="p-4">
-                  <ul className="space-y-2">
-                    {plan.features.map((feature, index) => (
-                      <li key={index} className="flex items-start gap-2 text-sm">
-                        <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-700">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSubscribe(plan.id);
-                    }}
-                    disabled={isRedirecting && selectedPlan === plan.id}
+                // Adicionar limites
+                if ((plan as any).maxPatients) {
+                  const maxPatients = (plan as any).maxPatients;
+                  features.push(maxPatients === -1 ? 'Pacientes ilimitados' : `Até ${maxPatients} pacientes`);
+                }
+                if ((plan as any).maxUsers) {
+                  const maxUsers = (plan as any).maxUsers;
+                  features.push(maxUsers === -1 ? 'Usuários ilimitados' : `${maxUsers} usuários`);
+                }
+                
+                // Adicionar recursos
+                features.push('Agenda e prontuário');
+                features.push('Orçamentos');
+                
+                if ((plan as any).hasAIAnalysis) {
+                  features.push('Análise de IA');
+                }
+                if ((plan as any).hasWhatsAppNotifications) {
+                  features.push('Notificações WhatsApp');
+                }
+                if ((plan as any).hasTVPanel) {
+                  features.push('Painel TV');
+                }
+                if ((plan as any).hasAdvancedReports) {
+                  features.push('Relatórios avançados');
+                }
+                if ((plan as any).hasMultipleLocations) {
+                  features.push('Múltiplas clínicas');
+                }
+                if ((plan as any).hasAPIAccess) {
+                  features.push('API para integrações');
+                }
+                if ((plan as any).hasPrioritySupport) {
+                  features.push('Suporte prioritário 24/7');
+                } else {
+                  features.push('Suporte por email');
+                }
+                
+                return (
+                  <Card 
+                    key={plan.id}
                     className={cn(
-                      "w-full mt-4 h-10",
-                      plan.highlighted 
-                        ? "bg-orange-600 hover:bg-orange-700" 
-                        : plan.id === "premium"
-                          ? "bg-purple-600 hover:bg-purple-700"
-                          : "bg-gray-600 hover:bg-gray-700"
+                      "relative overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer",
+                      isHighlighted && "ring-2 ring-orange-500 scale-[1.02]",
+                      selectedPlan === plan.slug && "ring-2 ring-orange-500"
                     )}
+                    onClick={() => setSelectedPlan(plan.slug)}
                   >
-                    {isRedirecting && selectedPlan === plan.id ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Redirecionando...
-                      </>
-                    ) : (
-                      <>
-                        <CreditCard className="mr-2 h-4 w-4" />
-                        Assinar {plan.name}
-                      </>
+                    {/* Badge */}
+                    {planBadge && (
+                      <div className={cn(
+                        "absolute top-0 right-0 px-3 py-1 text-xs font-bold text-white rounded-bl-lg",
+                        isHighlighted ? "bg-orange-500" : "bg-purple-600"
+                      )}>
+                        {planBadge}
+                      </div>
                     )}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+                    
+                    {/* Header with gradient */}
+                    <div className={cn(
+                      "bg-gradient-to-r p-4 text-white",
+                      planGradient
+                    )}>
+                      <div className="flex items-center gap-2 mb-1">
+                        {planIcon}
+                        <h3 className="text-lg font-bold">{plan.name}</h3>
+                      </div>
+                      <p className="text-white/80 text-sm">{plan.description}</p>
+                      <div className="mt-3">
+                        <span className="text-3xl font-bold">{priceFormatted}</span>
+                        <span className="text-white/80">/mês</span>
+                      </div>
+                    </div>
+                    
+                    <CardContent className="p-4">
+                      <ul className="space-y-2">
+                        {features.map((feature, index) => (
+                          <li key={index} className="flex items-start gap-2 text-sm">
+                            <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                            <span className="text-gray-700">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      
+                      <Button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSubscribe(plan.slug);
+                        }}
+                        disabled={isRedirecting && selectedPlan === plan.slug}
+                        className={cn(
+                          "w-full mt-4 h-10",
+                          isHighlighted 
+                            ? "bg-orange-600 hover:bg-orange-700" 
+                            : plan.slug === "premium"
+                              ? "bg-purple-600 hover:bg-purple-700"
+                              : "bg-gray-600 hover:bg-gray-700"
+                        )}
+                      >
+                        {isRedirecting && selectedPlan === plan.slug ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Redirecionando...
+                          </>
+                        ) : (
+                          <>
+                            <CreditCard className="mr-2 h-4 w-4" />
+                            Assinar {plan.name}
+                          </>
+                        )}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })
+            )}
           </div>
 
           {/* Footer */}

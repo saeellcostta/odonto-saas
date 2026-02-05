@@ -2631,6 +2631,22 @@ Formate sua resposta de forma clara e organizada.`;
           canAccess = false;
         }
         
+        // Buscar dados do plano se existir
+        let planData = null;
+        if (clinic.planId) {
+          const plan = await db.getPlanById(clinic.planId);
+          if (plan) {
+            planData = {
+              id: plan.id,
+              name: plan.name,
+              slug: plan.slug,
+              price: plan.price,
+              description: plan.description,
+              billingCycle: plan.billingCycle,
+            };
+          }
+        }
+        
         return {
           status: clinic.subscriptionStatus,
           isTrialExpired,
@@ -2640,6 +2656,7 @@ Formate sua resposta de forma clara e organizada.`;
           trialEndsAt: clinic.trialEndsAt,
           planId: clinic.planId,
           clinicName: clinic.name,
+          plan: planData,
         };
       }),
       
