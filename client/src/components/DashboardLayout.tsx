@@ -92,6 +92,7 @@ const managementItems = [
 
 const analyticsItems = [
   { icon: BarChart3, label: "Relatórios", path: "/relatorios", permission: "canViewRelatorios" as PermissionKey },
+  { icon: TrendingUp, label: "Produtividade Dentistas", path: "/relatorio-produtividade", permission: "canViewRelatorios" as PermissionKey },
   { icon: Sparkles, label: "Dentrics IA", path: "/dentrics-ia", permission: "canViewAnaliseIA" as PermissionKey },
   { icon: Smile, label: "Smile Design", path: "/smile-design", permission: "canViewAnaliseIA" as PermissionKey },
   { icon: TrendingUp, label: "Conversões Smile", path: "/smile-design-reports", permission: "canViewAnaliseIA" as PermissionKey },

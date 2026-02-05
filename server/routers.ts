@@ -5939,6 +5939,19 @@ Responda de forma natural, direta e útil. Você é o assistente mais inteligent
         };
       }),
   }),
+
+  // ==================== REPORTS ====================
+  reports: router({
+    dentistProductivity: publicProcedure
+      .input(z.object({
+        dentistId: z.number().optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      }))
+      .query(async ({ input }) => {
+        return db.getDentistProductivity(input);
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

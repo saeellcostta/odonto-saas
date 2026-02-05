@@ -3658,3 +3658,120 @@ export async function getMedicalDocumentsByClinic(clinicId: number, type?: strin
     .where(and(...conditions))
     .orderBy(desc(medicalDocuments.createdAt));
 }
+
+
+// ============================================
+// RELATÓRIO DE PRODUTIVIDADE POR DENTISTA
+// ============================================
+
+export async function getDentistProductivity(params: {
+  dentistId?: number;
+  startDate?: string;
+  endDate?: string;
+}) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { dentistId, startDate, endDate } = params;
+  
+  // Filtros opcionais
+  const conditions = [
+    eq(treatmentProcedures.status, "completed"),
+    sql`${treatmentProcedures.completedBy} IS NOT NULL`,
+  ];
+
+  if (dentistId) {
+    conditions.push(eq(treatmentProcedures.completedBy, dentistId));
+  }
+
+  if (startDate) {
+    conditions.push(gte(treatmentProcedures.completedAt, new Date(startDate)));
+  }
+
+  if (endDate) {
+    conditions.push(lte(treatmentProcedures.completedAt, new Date(endDate)));
+  }
+
+  const procedures = await db
+    .select({
+      dentistId: treatmentProcedures.completedBy,
+      dentistName: sql<string>`(SELECT name FROM dentists WHERE id = ${treatmentProcedures.completedBy})`,
+      dentistCommission: sql<string>`(SELECT commission FROM dentists WHERE id = ${treatmentProcedures.completedBy})`,
+      procedureName: treatmentProcedures.procedureName,
+      price: treatmentProcedures.price,
+      completedAt: treatmentProcedures.completedAt,
+      patientId: treatmentProcedures.patientId,
+    })
+    .from(treatmentProcedures)
+    .where(and(...conditions));
+
+  // Agrupar por dentista
+  const dentistMap = new Map<number, {
+    dentistId: number;
+    dentistName: string;
+    dentistCommission: number;
+    totalPatients: number;
+    totalRevenue: number;
+    totalCommission: number;
+    procedures: Map<string, {
+      procedureName: string;
+      count: number;
+      totalValue: number;
+    }>;
+    uniquePatients: Set<number>;
+  }>();
+
+  for (const proc of procedures) {
+    if (!proc.dentistId) continue;
+
+    if (!dentistMap.has(proc.dentistId)) {
+      dentistMap.set(proc.dentistId, {
+        dentistId: proc.dentistId,
+        dentistName: proc.dentistName || "Desconhecido",
+        dentistCommission: parseFloat(proc.dentistCommission || "0"),
+        totalPatients: 0,
+        totalRevenue: 0,
+        totalCommission: 0,
+        procedures: new Map(),
+        uniquePatients: new Set(),
+      });
+    }
+
+    const dentist = dentistMap.get(proc.dentistId)!;
+    
+    // Adicionar paciente único
+    if (proc.patientId) {
+      dentist.uniquePatients.add(proc.patientId);
+    }
+
+    // Agrupar procedimentos
+    const procName = proc.procedureName;
+    if (!dentist.procedures.has(procName)) {
+      dentist.procedures.set(procName, {
+        procedureName: procName,
+        count: 0,
+        totalValue: 0,
+      });
+    }
+
+    const procData = dentist.procedures.get(procName)!;
+    procData.count += 1;
+    procData.totalValue += parseFloat(proc.price?.toString() || "0");
+
+    // Somar receita total
+    dentist.totalRevenue += parseFloat(proc.price?.toString() || "0");
+  }
+
+  // Calcular comissões e formatar resultado
+  const result = Array.from(dentistMap.values()).map(dentist => ({
+    dentistId: dentist.dentistId,
+    dentistName: dentist.dentistName,
+    dentistCommission: dentist.dentistCommission,
+    totalPatients: dentist.uniquePatients.size,
+    totalRevenue: dentist.totalRevenue,
+    totalCommission: (dentist.totalRevenue * dentist.dentistCommission) / 100,
+    procedures: Array.from(dentist.procedures.values()),
+  }));
+
+  return result;
+}

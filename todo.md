@@ -1150,3 +1150,15 @@
 - [x] Área Buco-Maxilo-Facial: corrigir queueType para "maxillofacial"
 - [x] Área Odontopediatria: corrigir queueType para "pediatric"
 - [x] Adicionar opções no dropdown "Adicionar à Fila" do atendente
+
+
+## Relatório de Produtividade por Dentista (05/02/2026)
+- [x] Campo "commission" já existe na tabela dentists
+- [x] Criar query backend getDentistProductivity para buscar procedimentos realizados por dentista
+- [x] Agrupar procedimentos por tipo com contagem e valores
+- [x] Calcular total faturado por dentista
+- [x] Calcular comissão automaticamente baseada na porcentagem configurada
+- [x] Criar interface de relatório com filtros (dentista, período)
+- [x] Exibir tabela detalhada: tipo de procedimento, quantidade, valor total
+- [x] Exibir resumo: total de pacientes atendidos, total faturado, comissão a receber
+- [x] Adicionar rota /relatorio-produtividade no menu lateral
