@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE treatment_procedures ADD COLUMN dentistId INT AFTER patientId;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3oCPfWeBHeZbvmV.root --database ZxQkmxiVcK2LVVsppAdeCn --execute ALTER TABLE treatment_procedures ADD COLUMN dentistId INT AFTER patientId;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 862
+}

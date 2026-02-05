@@ -1169,3 +1169,19 @@
 - [x] Problema: clinicId do usuário logado (60002) diferente do clinicId dos dentistas (1)
 - [x] Solução: atualizado clinicId de dentistas e pacientes para 60002
 - [x] Dropdown agora mostra todos os dentistas corretamente
+
+
+## Correção Relatório de Produtividade (05/02/2026)
+- [ ] Todos os procedimentos estão sendo atribuídos ao "Dr. Carlos Test" (dentista inexistente)
+- [ ] Procedimentos dos outros dentistas não estão sendo contabilizados
+- [ ] Investigar vínculo de procedimentos com dentistas na tabela treatment_procedures
+- [ ] Corrigir dentistId dos procedimentos existentes
+
+
+## Correção Relatório de Produtividade (05/02/2026)
+- [x] Todos procedimentos apareciam para "Dr. Carlos Test" que não existe mais
+- [x] Outros dentistas não apareciam no relatório
+- [x] Adicionado campo dentistId na tabela treatment_procedures
+- [x] Corrigida query getDentistProductivity para usar dentistId
+- [x] Atualizados procedimentos existentes com dentistId correto (ID 60003)
+- [x] Corrigido problema de clinicId incompatível entre procedimentos e dentistas

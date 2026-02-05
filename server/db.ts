@@ -3677,11 +3677,11 @@ export async function getDentistProductivity(params: {
   // Filtros opcionais
   const conditions = [
     eq(treatmentProcedures.status, "completed"),
-    sql`${treatmentProcedures.completedBy} IS NOT NULL`,
+    sql`${treatmentProcedures.dentistId} IS NOT NULL`,
   ];
 
   if (dentistId) {
-    conditions.push(eq(treatmentProcedures.completedBy, dentistId));
+    conditions.push(eq(treatmentProcedures.dentistId, dentistId));
   }
 
   if (startDate) {
@@ -3694,9 +3694,9 @@ export async function getDentistProductivity(params: {
 
   const procedures = await db
     .select({
-      dentistId: treatmentProcedures.completedBy,
-      dentistName: sql<string>`(SELECT name FROM dentists WHERE id = ${treatmentProcedures.completedBy})`,
-      dentistCommission: sql<string>`(SELECT commission FROM dentists WHERE id = ${treatmentProcedures.completedBy})`,
+      dentistId: treatmentProcedures.dentistId,
+      dentistName: sql<string>`(SELECT name FROM dentists WHERE id = ${treatmentProcedures.dentistId})`,
+      dentistCommission: sql<string>`(SELECT commission FROM dentists WHERE id = ${treatmentProcedures.dentistId})`,
       procedureName: treatmentProcedures.procedureName,
       price: treatmentProcedures.price,
       completedAt: treatmentProcedures.completedAt,

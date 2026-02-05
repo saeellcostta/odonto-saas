@@ -1,0 +1,110 @@
+{
+  "query": "SELECT id, patientId, procedureName, price, status, completedBy, completedAt, createdAt FROM treatment_procedures LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3oCPfWeBHeZbvmV.root --database ZxQkmxiVcK2LVVsppAdeCn --execute SELECT id, patientId, procedureName, price, status, completedBy, completedAt, createdAt FROM treatment_procedures LIMIT 10;",
+  "rows": [
+    {
+      "id": "1",
+      "patientId": "3",
+      "procedureName": "Metálica ",
+      "price": "17.00",
+      "status": "completed",
+      "completedBy": "1",
+      "completedAt": "2026-02-05 13:17:29",
+      "createdAt": "2026-02-05 13:14:12"
+    },
+    {
+      "id": "2",
+      "patientId": "3",
+      "procedureName": "Metálica ",
+      "price": "17.00",
+      "status": "completed",
+      "completedBy": "1",
+      "completedAt": "2026-02-05 13:17:29",
+      "createdAt": "2026-02-05 13:14:12"
+    },
+    {
+      "id": "3",
+      "patientId": "3",
+      "procedureName": "Metálica ",
+      "price": "17.00",
+      "status": "completed",
+      "completedBy": "1",
+      "completedAt": "2026-02-05 13:17:29",
+      "createdAt": "2026-02-05 13:14:12"
+    },
+    {
+      "id": "4",
+      "patientId": "3",
+      "procedureName": "Metálica ",
+      "price": "17.00",
+      "status": "completed",
+      "completedBy": "1",
+      "completedAt": "2026-02-05 13:17:29",
+      "createdAt": "2026-02-05 13:14:12"
+    },
+    {
+      "id": "5",
+      "patientId": "3",
+      "procedureName": "Metálica ",
+      "price": "17.00",
+      "status": "completed",
+      "completedBy": "1",
+      "completedAt": "2026-02-05 13:17:29",
+      "createdAt": "2026-02-05 13:14:12"
+    },
+    {
+      "id": "6",
+      "patientId": "3",
+      "procedureName": "Metálica ",
+      "price": "17.00",
+      "status": "completed",
+      "completedBy": "1",
+      "completedAt": "2026-02-05 13:17:29",
+      "createdAt": "2026-02-05 13:14:12"
+    },
+    {
+      "id": "7",
+      "patientId": "3",
+      "procedureName": "Metálica ",
+      "price": "17.00",
+      "status": "completed",
+      "completedBy": "1",
+      "completedAt": "2026-02-05 13:24:09",
+      "createdAt": "2026-02-05 13:14:12"
+    },
+    {
+      "id": "8",
+      "patientId": "60001",
+      "procedureName": "Metálica ",
+      "price": "17.00",
+      "status": "completed",
+      "completedBy": "1",
+      "completedAt": "2026-02-05 18:16:44",
+      "createdAt": "2026-02-05 13:37:59"
+    },
+    {
+      "id": "9",
+      "patientId": "60007",
+      "procedureName": "Metálica  (Arcada Completa)",
+      "price": "100.00",
+      "status": "pending",
+      "completedBy": "NULL",
+      "completedAt": "NULL",
+      "createdAt": "2026-02-05 14:30:10"
+    },
+    {
+      "id": "10",
+      "patientId": "60007",
+      "procedureName": "Metálica  (Arcada Completa)",
+      "price": "100.00",
+      "status": "pending",
+      "completedBy": "NULL",
+      "completedAt": "NULL",
+      "createdAt": "2026-02-05 14:30:14"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tpatientId\tprocedureName\tprice\tstatus\tcompletedBy\tcompletedAt\tcreatedAt\n1\t3\tMetálica \t17.00\tcompleted\t1\t2026-02-05 13:17:29\t2026-02-05 13:14:12\n2\t3\tMetálica \t17.00\tcompleted\t1\t2026-02-05 13:17:29\t2026-02-05 13:14:12\n3\t3\tMetálica \t17.00\tcompleted\t1\t2026-02-05 13:17:29\t2026-02-05 13:14:12\n4\t3\tMetálica \t17.00\tcompleted\t1\t2026-02-05 13:17:29\t2026-02-05 13:14:12\n5\t3\tMetálica \t17.00\tcompleted\t1\t2026-02-05 13:17:29\t2026-02-05 13:14:12\n6\t3\tMetálica \t17.00\tcompleted\t1\t2026-02-05 13:17:29\t2026-02-05 13:14:12\n7\t3\tMetálica \t17.00\tcompleted\t1\t2026-02-05 13:24:09\t2026-02-05 13:14:12\n8\t60001\tMetálica \t17.00\tcompleted\t1\t2026-02-05 18:16:44\t2026-02-05 13:37:59\n9\t60007\tMetálica  (Arcada Completa)\t100.00\tpending\tNULL\tNULL\t2026-02-05 14:30:10\n10\t60007\tMetálica  (Arcada Completa)\t100.00\tpending\tNULL\tNULL\t2026-02-05 14:30:14\n",
+  "stderr": "",
+  "execution_time_ms": 396
+}

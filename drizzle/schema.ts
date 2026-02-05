@@ -994,6 +994,7 @@ export const treatmentProcedures = mysqlTable("treatment_procedures", {
   id: int("id").autoincrement().primaryKey(),
   clinicId: int("clinicId").notNull(),
   patientId: int("patientId").notNull(),
+  dentistId: int("dentistId"), // Dentista responsável pelo procedimento
   budgetId: int("budgetId"), // Orçamento vinculado
   queueEntryId: int("queueEntryId"), // Entrada na fila de atendimento
   procedureId: int("procedureId"), // Procedimento do catálogo
