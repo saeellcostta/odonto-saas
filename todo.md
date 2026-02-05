@@ -1140,3 +1140,7 @@
 - [x] Criar teste automatizado para validar assinaturas
 - [x] Assinatura profissional centralizada em Atestado e Receituário
 - [x] Assinaturas digitais aparecem como imagem nos PDFs gerados
+
+## Correção Modal de Encaminhamento (05/02/2026)
+- [x] Adicionar opção "Buco-Maxilo-Facial" no dropdown de encaminhamento
+- [x] Adicionar opção "Odontopediatria" no dropdown de encaminhamento

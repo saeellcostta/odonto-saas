@@ -855,7 +855,7 @@ export const appRouter = router({
     add: clinicProcedure
       .input(z.object({
         patientId: z.number(),
-        queueType: z.enum(["budget", "dentist", "orthodontics", "implant", "prosthetics"]).optional(),
+        queueType: z.enum(["budget", "dentist", "orthodontics", "implant", "prosthetics", "maxillofacial", "pediatric"]).optional(),
         priority: z.enum(["normal", "high", "urgent"]).optional(),
         dentistId: z.number().optional(),
         notes: z.string().optional(),
@@ -1303,7 +1303,7 @@ Formate sua resposta de forma clara e organizada.`;
         patientName: z.string(),
         phone: z.string(),
         reason: z.string().optional(),
-        queueType: z.enum(["budget", "dentist", "orthodontics", "implant", "prosthetics"]).optional(),
+        queueType: z.enum(["budget", "dentist", "orthodontics", "implant", "prosthetics", "maxillofacial", "pediatric"]).optional(),
         clinicId: z.number(),
       }))
       .mutation(async ({ input }) => {
@@ -1718,7 +1718,7 @@ Formate sua resposta de forma clara e organizada.`;
       .input(z.object({
         patientId: z.number(),
         patientName: z.string(),
-        queueType: z.enum(["reception", "budget", "dentist", "orthodontics", "implant", "prosthetics"]),
+        queueType: z.enum(["reception", "budget", "dentist", "orthodontics", "implant", "prosthetics", "maxillofacial", "pediatric"]),
         priority: z.enum(["normal", "high", "urgent"]).optional(),
         notes: z.string().optional(),
       }))

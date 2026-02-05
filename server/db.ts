@@ -2066,6 +2066,8 @@ export async function getServiceQueueStats() {
     orthodontics: 0,
     implant: 0,
     prosthetics: 0,
+    maxillofacial: 0,
+    pediatric: 0,
     total: 0,
   };
   
@@ -2088,6 +2090,8 @@ export async function getServiceQueueStats() {
     orthodontics: 0,
     implant: 0,
     prosthetics: 0,
+    maxillofacial: 0,
+    pediatric: 0,
     total: 0,
   };
   

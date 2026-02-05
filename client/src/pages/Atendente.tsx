@@ -33,7 +33,7 @@ import {
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
-type QueueType = "reception" | "budget" | "dentist" | "orthodontics" | "implant" | "prosthetics";
+type QueueType = "reception" | "budget" | "dentist" | "orthodontics" | "implant" | "prosthetics" | "maxillofacial" | "pediatric";
 
 const queueLabels: Record<QueueType, string> = {
   reception: "Recepção",
@@ -42,6 +42,8 @@ const queueLabels: Record<QueueType, string> = {
   orthodontics: "Ortodontia",
   implant: "Implante",
   prosthetics: "Prótese",
+  maxillofacial: "Buco-Maxilo-Facial",
+  pediatric: "Odontopediatria",
 };
 
 const queueColors: Record<QueueType, string> = {
@@ -51,6 +53,8 @@ const queueColors: Record<QueueType, string> = {
   orthodontics: "bg-purple-500",
   implant: "bg-rose-500",
   prosthetics: "bg-cyan-500",
+  maxillofacial: "bg-orange-500",
+  pediatric: "bg-pink-500",
 };
 
 // Componente para mostrar paciente pago com procedimentos pendentes
@@ -1152,6 +1156,8 @@ export default function Atendente() {
                     <SelectItem value="orthodontics">Ortodontia</SelectItem>
                     <SelectItem value="implant">Implante</SelectItem>
                     <SelectItem value="prosthetics">Prótese</SelectItem>
+                    <SelectItem value="maxillofacial">Buco-Maxilo-Facial</SelectItem>
+                    <SelectItem value="pediatric">Odontopediatria</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1201,6 +1207,8 @@ export default function Atendente() {
                     <SelectItem value="orthodontics">Ortodontia</SelectItem>
                     <SelectItem value="implant">Implante</SelectItem>
                     <SelectItem value="prosthetics">Prótese</SelectItem>
+                    <SelectItem value="maxillofacial">Buco-Maxilo-Facial</SelectItem>
+                    <SelectItem value="pediatric">Odontopediatria</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

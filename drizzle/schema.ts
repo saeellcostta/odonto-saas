@@ -449,7 +449,7 @@ export const waitingQueue = mysqlTable("waiting_queue", {
   id: int("id").autoincrement().primaryKey(),
   clinicId: int("clinicId"), // Multi-tenancy: ID da clínica
   patientId: int("patientId").notNull(),
-  queueType: mysqlEnum("queueType", ["budget", "dentist", "orthodontics", "implant", "prosthetics"]).default("dentist"),
+  queueType: mysqlEnum("queueType", ["budget", "dentist", "orthodontics", "implant", "prosthetics", "maxillofacial", "pediatric"]).default("dentist"),
   priority: mysqlEnum("priority", ["normal", "high", "urgent"]).default("normal"),
   status: mysqlEnum("status", ["waiting", "in_service", "completed", "cancelled"]).default("waiting"),
   arrivalTime: timestamp("arrivalTime").defaultNow().notNull(),
@@ -560,7 +560,7 @@ export const checkins = mysqlTable("checkins", {
   patientName: varchar("patientName", { length: 255 }),
   phone: varchar("phone", { length: 20 }),
   reason: text("reason"),
-  queueType: mysqlEnum("queueType", ["budget", "dentist", "orthodontics", "implant", "prosthetics"]).default("budget"),
+  queueType: mysqlEnum("queueType", ["budget", "dentist", "orthodontics", "implant", "prosthetics", "maxillofacial", "pediatric"]).default("budget"),
   status: mysqlEnum("status", ["waiting", "called", "in_service", "completed"]).default("waiting"),
   checkinTime: timestamp("checkinTime").defaultNow().notNull(),
   calledTime: timestamp("calledTime"),
@@ -734,7 +734,7 @@ export const serviceQueue = mysqlTable("service_queue", {
   patientId: int("patientId").notNull(),
   patientName: varchar("patientName", { length: 255 }).notNull(),
   // Tipo de fila: para qual profissional o paciente está indo
-  queueType: mysqlEnum("queueType", ["reception", "budget", "dentist", "orthodontics", "implant", "prosthetics"]).default("reception").notNull(),
+  queueType: mysqlEnum("queueType", ["reception", "budget", "dentist", "orthodontics", "implant", "prosthetics", "maxillofacial", "pediatric"]).default("reception").notNull(),
   // Status do atendimento
   status: mysqlEnum("status", ["waiting", "called", "in_service", "pending_payment", "completed", "forwarded"]).default("waiting").notNull(),
   // Prioridade
