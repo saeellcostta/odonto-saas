@@ -1106,3 +1106,12 @@
 - [x] Botão "Limpar" para apagar assinatura e redesenhar
 - [x] Validação para não permitir confirmar sem desenhar assinatura
 - [ ] Testar assinatura digital em todos os tipos de documentos
+
+## Bug: Check-in cadastrando paciente na clínica errada (05/02/2026)
+- [x] Pacientes fazendo check-in em outras clínicas estão sendo cadastrados na clínica do super admin
+- [x] Identificado: backend usava clinicId = 1 como padrão quando não informado
+- [x] Tornado clinicId obrigatório na procedure checkins.create
+- [x] Adicionada validação para verificar se clínica existe antes de criar check-in
+- [x] Adicionada tela de erro quando URL não contém clinicId
+- [x] Mensagem clara orientando paciente a usar QR Code da clínica
+- [ ] Testar com múltiplas clínicas diferentes

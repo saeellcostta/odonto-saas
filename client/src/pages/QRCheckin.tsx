@@ -10,8 +10,10 @@ import { toast } from "sonner";
 import { 
   QrCode, CheckCircle, Clock, Users, Smartphone
 } from "lucide-react";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 export default function QRCheckin() {
+  const { user } = useAuth();
   const [checkinData, setCheckinData] = useState({
     patientName: "",
     phone: "",
@@ -36,12 +38,13 @@ export default function QRCheckin() {
       toast.error("Por favor, informe seu nome");
       return;
     }
-    createCheckinMutation.mutate(checkinData);
+    createCheckinMutation.mutate({ ...checkinData, clinicId });
   };
 
   // Gerar URL da página pública de check-in
   const baseUrl = window.location.origin;
-  const checkinPageUrl = `${baseUrl}/checkin?clinic=1`;
+  const clinicId = user?.clinicId || 1;
+  const checkinPageUrl = `${baseUrl}/checkin?clinic=${clinicId}`;
   
   // Generate QR Code URL (using a free QR code API)
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(checkinPageUrl)}`;

@@ -2,6 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
+import { TRPCError } from "@trpc/server";
 
 // Helper para construir origin correto a partir do request
 function getOriginFromRequest(req: any): string {
@@ -1299,16 +1300,31 @@ Formate sua resposta de forma clara e organizada.`;
     create: publicProcedure
       .input(z.object({
         patientId: z.number().optional(),
-        patientName: z.string().optional(),
-        phone: z.string().optional(),
+        patientName: z.string(),
+        phone: z.string(),
         reason: z.string().optional(),
         queueType: z.enum(["budget", "dentist", "orthodontics", "implant", "prosthetics"]).optional(),
-        clinicId: z.number().optional(),
+        clinicId: z.number(),
       }))
       .mutation(async ({ input }) => {
-        // Usa clinicId do input ou default para 1
-        const clinicId = input.clinicId || 1;
-        return db.createCheckin({ ...input, clinicId });
+        // Validar se clinicId foi informado
+        if (!input.clinicId || input.clinicId === 0) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "ID da clínica é obrigatório. Acesse o check-in através do QR Code da clínica.",
+          });
+        }
+        
+        // Verificar se a clínica existe
+        const clinic = await db.getClinicById(input.clinicId);
+        if (!clinic) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Clínica não encontrada.",
+          });
+        }
+        
+        return db.createCheckin(input);
       }),
     // Obter posição na fila (público para pacientes acompanharem)
     getQueuePosition: publicProcedure
