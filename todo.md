@@ -1094,3 +1094,15 @@
 - [x] Simplificar texto explicativo do check-in
 - [x] Verificar se paciente já existe pelo telefone antes de criar duplicado
 - [x] Vincular check-in ao paciente criado/existente
+
+## Correções Sistema de Assinaturas (05/02/2026)
+- [x] Atestado: remover assinatura do paciente, deixar apenas profissional
+- [x] Receituário: remover assinatura do paciente, deixar apenas profissional
+- [x] Contrato: manter assinaturas de paciente E profissional
+- [x] Termo de Consentimento: manter assinaturas de paciente E profissional
+- [x] Corrigir canvas de assinatura digital que não está funcionando
+- [x] Implementado react-signature-canvas com canvas real para desenhar assinatura
+- [x] Assinatura salva como imagem base64 no banco de dados
+- [x] Botão "Limpar" para apagar assinatura e redesenhar
+- [x] Validação para não permitir confirmar sem desenhar assinatura
+- [ ] Testar assinatura digital em todos os tipos de documentos

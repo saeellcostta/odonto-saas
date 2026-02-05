@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import SignatureCanvas from "react-signature-canvas";
 import { useParams, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -183,6 +184,7 @@ export default function Prontuario() {
   
   // Estados dos formulários de documentos
   const [selectedDentistId, setSelectedDentistId] = useState<number | null>(null);
+  const signatureCanvasRef = useRef<SignatureCanvas | null>(null);
   const [atestadoForm, setAtestadoForm] = useState({
     tipo: "dias" as "dias" | "presenca",
     dias: "1",
@@ -440,18 +442,29 @@ export default function Prontuario() {
         </div>
         
         <div class="signatures">
-          <div class="signature-box">
-            <div class="signature-line">
-              ${doc.dentistName || "Profissional"}<br>
-              <small>CRO: ${doc.dentistCro || ""}</small>
+          ${doc.type === "atestado" || doc.type === "receituario" ? `
+            <!-- Apenas assinatura do profissional -->
+            <div style="text-align: center; margin-top: 80px;">
+              <div class="signature-line">
+                ${doc.dentistName || "Profissional"}<br>
+                <small>CRO: ${doc.dentistCro || ""}</small>
+              </div>
             </div>
-          </div>
-          <div class="signature-box">
-            <div class="signature-line">
-              ${patient?.name || "Paciente"}<br>
-              <small>CPF: ${patient?.cpf || ""}</small>
+          ` : `
+            <!-- Assinaturas de paciente e profissional -->
+            <div class="signature-box">
+              <div class="signature-line">
+                ${doc.dentistName || "Profissional"}<br>
+                <small>CRO: ${doc.dentistCro || ""}</small>
+              </div>
             </div>
-          </div>
+            <div class="signature-box">
+              <div class="signature-line">
+                ${patient?.name || "Paciente"}<br>
+                <small>CPF: ${patient?.cpf || ""}</small>
+              </div>
+            </div>
+          `}
         </div>
         
         <div class="footer">
@@ -2152,48 +2165,55 @@ export default function Prontuario() {
                 Assinatura do {signatureType === "patient" ? `paciente ${selectedDocumentForSign?.patientName || patient?.name}` : `profissional ${selectedDocumentForSign?.dentistName}`}
               </DialogDescription>
             </DialogHeader>
-            <div className="py-4">
-              <div className="border-2 border-dashed border-primary/30 rounded-lg p-8 text-center min-h-[150px] flex flex-col items-center justify-center cursor-pointer hover:bg-primary/5 transition-colors"
-                onClick={() => {
-                  if (selectedDocumentId) {
-                    // Simular assinatura (em produção, usar canvas para desenho)
-                    const signature = signatureType === "patient" 
-                      ? `Assinado digitalmente por ${selectedDocumentForSign?.patientName || patient?.name} em ${new Date().toLocaleString('pt-BR')}`
-                      : `Assinado digitalmente por ${selectedDocumentForSign?.dentistName} em ${new Date().toLocaleString('pt-BR')}`;
-                    signDocumentMutation.mutate({
-                      id: selectedDocumentId,
-                      signatureType,
-                      signature,
-                    });
-                  }
-                }}
-              >
-                <p className="text-sm text-muted-foreground mb-2">Desenhe sua assinatura abaixo:</p>
-                <div className="w-full h-20 border border-gray-300 rounded bg-white flex items-center justify-center">
-                  {signDocumentMutation.isPending ? (
-                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                  ) : (
-                    <span className="text-muted-foreground text-sm">Clique aqui para assinar</span>
-                  )}
+            <div className="py-4 space-y-4">
+              <div className="border-2 border-primary/30 rounded-lg p-4 bg-white">
+                <p className="text-sm text-muted-foreground mb-2 text-center">Desenhe sua assinatura abaixo:</p>
+                <div className="border border-gray-300 rounded bg-white">
+                  <SignatureCanvas
+                    ref={signatureCanvasRef}
+                    canvasProps={{
+                      className: "w-full h-40 rounded cursor-crosshair",
+                      style: { touchAction: "none" }
+                    }}
+                    backgroundColor="#ffffff"
+                  />
+                </div>
+                <div className="flex gap-2 mt-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => signatureCanvasRef.current?.clear()}
+                  >
+                    Limpar
+                  </Button>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground mt-3 text-center">
+              <p className="text-xs text-muted-foreground text-center">
                 Ao assinar, você concorda com os termos do documento e confirma a autenticidade da assinatura.
               </p>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsSignatureDialogOpen(false)}>Cancelar</Button>
+              <Button variant="outline" onClick={() => {
+                setIsSignatureDialogOpen(false);
+                signatureCanvasRef.current?.clear();
+              }}>Cancelar</Button>
               <Button 
                 onClick={() => {
-                  if (selectedDocumentId) {
-                    const signature = signatureType === "patient" 
-                      ? `Assinado digitalmente por ${selectedDocumentForSign?.patientName || patient?.name} em ${new Date().toLocaleString('pt-BR')}`
-                      : `Assinado digitalmente por ${selectedDocumentForSign?.dentistName} em ${new Date().toLocaleString('pt-BR')}`;
+                  if (selectedDocumentId && signatureCanvasRef.current) {
+                    // Verificar se há assinatura desenhada
+                    if (signatureCanvasRef.current.isEmpty()) {
+                      toast.error("Por favor, desenhe sua assinatura antes de confirmar.");
+                      return;
+                    }
+                    // Obter imagem da assinatura em base64
+                    const signatureDataUrl = signatureCanvasRef.current.toDataURL();
                     signDocumentMutation.mutate({
                       id: selectedDocumentId,
                       signatureType,
-                      signature,
+                      signature: signatureDataUrl,
                     });
+                    signatureCanvasRef.current.clear();
                   }
                 }}
                 disabled={signDocumentMutation.isPending}
