@@ -1115,3 +1115,14 @@
 - [x] Adicionada tela de erro quando URL não contém clinicId
 - [x] Mensagem clara orientando paciente a usar QR Code da clínica
 - [ ] Testar com múltiplas clínicas diferentes
+
+## Correções Menu e Relatórios (05/02/2026)
+- [x] Remover página "Orçamentos" do menu lateral (sem funcionalidade)
+- [x] Remover rota /orcamentos do App.tsx
+- [x] Página Relatórios já busca dados reais do banco (implementação correta)
+- [x] Queries implementadas: trpc.dashboard.stats, trpc.appointments.list, trpc.transactions.list, trpc.patients.list
+- [x] Gráfico "Receitas x Despesas" exibe transações dos últimos 6 meses
+- [x] Gráfico "Consultas por Status" exibe distribuição de status das consultas
+- [x] Gráfico "Novos Pacientes" exibe cadastros dos últimos 6 meses
+- [x] Gráfico "Consultas por Dia da Semana" exibe distribuição semanal
+- [x] Todas as métricas funcionando: Total de Pacientes, Consultas Hoje, Receita do Mês, Itens em Baixa

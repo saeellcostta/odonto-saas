@@ -70,7 +70,6 @@ const menuItems = [
   { icon: FileText, label: "Prontuários", path: "/prontuarios", permission: "canViewProntuarios" as PermissionKey },
   { icon: Calendar, label: "Agenda", path: "/agenda", permission: "canViewAgenda" as PermissionKey },
   { icon: Calculator, label: "Orçamentista", path: "/orcamentista", permission: "canViewOrcamentista" as PermissionKey },
-  { icon: FileText, label: "Orçamentos", path: "/orcamentos", permission: "canViewOrcamentista" as PermissionKey },
 ];
 
 const specializedAreas = [

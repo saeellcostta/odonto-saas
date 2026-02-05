@@ -118,9 +118,6 @@ function Router() {
       <Route path="/orcamentista">
         <Protected><Orcamentista /></Protected>
       </Route>
-      <Route path="/orcamentos">
-        <Protected><Orcamentos /></Protected>
-      </Route>
       <Route path="/proteses">
         <Protected><Proteses /></Protected>
       </Route>
