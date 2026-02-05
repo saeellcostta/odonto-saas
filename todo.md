@@ -1048,3 +1048,4 @@
 - [x] Implementar webhooks Stripe para atualização de status - JÁ EXISTIA
 - [x] Sincronizar planos com produtos no Stripe - Checkout cria produtos dinâmicos
 - [x] Testar fluxo completo de assinatura - 133 testes passando
+- [x] Trocar para conta Stripe alternativa - Conta antiga com restrições substituída por conta funcional
