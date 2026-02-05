@@ -960,13 +960,13 @@ export const appRouter = router({
       }),
   }),
 
-  // Clinic Settings
+  // Clinic Settings - Multi-tenancy: filtra por clinicId
   settings: router({
-    get: publicProcedure.query(async () => {
-      return db.getClinicSettings();
+    get: clinicProcedure.query(async ({ ctx }) => {
+      return db.getClinicSettings(ctx.clinicId);
     }),
     
-    save: publicProcedure
+    save: clinicProcedure
       .input(z.object({
         name: z.string().optional(),
         cnpj: z.string().optional(),
@@ -983,8 +983,8 @@ export const appRouter = router({
         logoUrl: z.string().optional(),
         logoData: z.string().optional(), // Logo como base64 data URL
       }))
-      .mutation(async ({ input }) => {
-        return db.upsertClinicSettings({
+      .mutation(async ({ input, ctx }) => {
+        return db.upsertClinicSettings(ctx.clinicId, {
           ...input,
           email: input.email || undefined,
         });

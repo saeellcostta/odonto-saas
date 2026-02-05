@@ -1079,3 +1079,10 @@
 - [x] Procedure getSubscriptionInfo atualizada para incluir dados completos do plano
 - [x] Página de Perfil agora formata preço dinamicamente do banco
 - [x] Modal de planos agora renderiza planos do banco com ícones e cores dinâmicas
+
+## Bug: Edição de Dados da Clínica não Funciona (05/02/2026)
+- [x] Botão "Salvar Configurações" na página de Configurações não está salvando
+- [x] Procedure settings alterada de publicProcedure para clinicProcedure
+- [x] Funções getClinicSettings e upsertClinicSettings agora filtram por clinicId
+- [x] Cada clínica agora tem suas próprias configurações separadas
+- [ ] Testar edição completa dos dados e upload de logo

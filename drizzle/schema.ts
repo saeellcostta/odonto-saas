@@ -140,6 +140,7 @@ export type InsertRolePermission = typeof rolePermissions.$inferInsert;
 // Configurações da clínica
 export const clinicSettings = mysqlTable("clinic_settings", {
   id: int("id").autoincrement().primaryKey(),
+  clinicId: int("clinicId").notNull(), // Multi-tenancy: ID da clínica
   name: varchar("name", { length: 255 }).notNull().default("Minha Clínica"),
   cnpj: varchar("cnpj", { length: 18 }),
   cro: varchar("cro", { length: 50 }),

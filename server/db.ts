@@ -789,23 +789,23 @@ export async function createChair(data: InsertChair) {
 }
 
 // ==================== CLINIC SETTINGS ====================
-export async function getClinicSettings() {
+export async function getClinicSettings(clinicId: number) {
   const db = await getDb();
-  if (!db) return undefined;
-  const result = await db.select().from(clinicSettings).limit(1);
-  return result[0];
+  if (!db) return null;
+  const result = await db.select().from(clinicSettings).where(eq(clinicSettings.clinicId, clinicId)).limit(1);
+  return result[0] || null; // Retorna null ao invés de undefined
 }
 
-export async function upsertClinicSettings(data: InsertClinicSettings) {
+export async function upsertClinicSettings(clinicId: number, data: Omit<InsertClinicSettings, 'clinicId'>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const existing = await getClinicSettings();
+  const existing = await getClinicSettings(clinicId);
   if (existing) {
     await db.update(clinicSettings).set(data).where(eq(clinicSettings.id, existing.id));
     return { id: existing.id };
   } else {
-    const result = await db.insert(clinicSettings).values(data);
+    const result = await db.insert(clinicSettings).values({ ...data, clinicId });
     return { id: result[0].insertId };
   }
 }
