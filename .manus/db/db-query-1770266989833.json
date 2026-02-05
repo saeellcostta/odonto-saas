@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO plans (name, slug, description, price, billingCycle, maxUsers, maxPatients, maxAppointmentsPerMonth, hasAIAnalysis, hasWhatsAppNotifications, hasTVPanel, hasAdvancedReports, hasMultipleLocations, hasAPIAccess, hasPrioritySupport, isActive, sortOrder) VALUES \n('Básico', 'basico', 'Ideal para clínicas pequenas', 149.00, 'monthly', 2, 200, 100, false, false, true, false, false, false, false, true, 1),\n('Profissional', 'profissional', 'Para clínicas em crescimento', 299.00, 'monthly', 5, 999999, 500, true, true, true, true, false, false, false, true, 2),\n('Premium', 'premium', 'Solução completa para redes', 499.00, 'monthly', 999999, 999999, 999999, true, true, true, true, true, true, true, true, 3);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3oCPfWeBHeZbvmV.root --database ZxQkmxiVcK2LVVsppAdeCn --execute INSERT INTO plans (name, slug, description, price, billingCycle, maxUsers, maxPatients, maxAppointmentsPerMonth, hasAIAnalysis, hasWhatsAppNotifications, hasTVPanel, hasAdvancedReports, hasMultipleLocations, hasAPIAccess, hasPrioritySupport, isActive, sortOrder) VALUES \n('Básico', 'basico', 'Ideal para clínicas pequenas', 149.00, 'monthly', 2, 200, 100, false, false, true, false, false, false, false, true, 1),\n('Profissional', 'profissional', 'Para clínicas em crescimento', 299.00, 'monthly', 5, 999999, 500, true, true, true, true, false, false, false, true, 2),\n('Premium', 'premium', 'Solução completa para redes', 499.00, 'monthly', 999999, 999999, 999999, true, true, true, true, true, true, true, true, 3);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 138
+}

@@ -7,87 +7,82 @@ import { AlertTriangle, CreditCard, Clock, CheckCircle, Loader2, Star, Zap, Crow
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-interface SubscriptionPlan {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  priceDisplay: string;
-  features: string[];
-  highlighted?: boolean;
-  badge?: string;
-  icon: React.ReactNode;
-  gradient: string;
-}
+// Ícones baseados no slug do plano
+const getPlanIcon = (slug: string) => {
+  switch (slug) {
+    case "basic":
+    case "basico":
+      return <Star className="h-6 w-6" />;
+    case "professional":
+    case "profissional":
+      return <Zap className="h-6 w-6" />;
+    case "premium":
+      return <Crown className="h-6 w-6" />;
+    default:
+      return <Star className="h-6 w-6" />;
+  }
+};
 
-const PLANS: SubscriptionPlan[] = [
-  {
-    id: "basic",
-    name: "Básico",
-    description: "Ideal para clínicas pequenas",
-    price: 14900,
-    priceDisplay: "R$ 149",
-    icon: <Star className="h-6 w-6" />,
-    gradient: "from-gray-500 to-gray-600",
-    features: [
-      "Até 200 pacientes",
-      "2 usuários",
-      "1 dentista",
-      "Agenda e prontuário",
-      "Orçamentos básicos",
-      "Relatórios simples",
-      "Suporte por email",
-    ],
-  },
-  {
-    id: "professional",
-    name: "Profissional",
-    description: "Para clínicas em crescimento",
-    price: 29900,
-    priceDisplay: "R$ 299",
-    highlighted: true,
-    badge: "Mais Popular",
-    icon: <Zap className="h-6 w-6" />,
-    gradient: "from-orange-500 to-amber-500",
-    features: [
-      "Pacientes ilimitados",
-      "5 usuários",
-      "3 dentistas",
-      "Prontuário completo",
-      "Análise de IA",
-      "Notificações WhatsApp",
-      "Relatórios avançados",
-      "Painel TV",
-      "Suporte por chat",
-    ],
-  },
-  {
-    id: "premium",
-    name: "Premium",
-    description: "Solução completa para redes",
-    price: 49900,
-    priceDisplay: "R$ 499",
-    badge: "Completo",
-    icon: <Crown className="h-6 w-6" />,
-    gradient: "from-purple-600 to-indigo-600",
-    features: [
-      "Tudo do Profissional",
-      "Usuários ilimitados",
-      "Dentistas ilimitados",
-      "Multi-clínicas",
-      "API para integrações",
-      "IA ilimitada",
-      "Relatórios personalizados",
-      "Suporte prioritário 24/7",
-      "Treinamento dedicado",
-    ],
-  },
-];
+// Gradientes baseados no slug do plano
+const getPlanGradient = (slug: string, index: number) => {
+  switch (slug) {
+    case "basic":
+    case "basico":
+      return "from-gray-500 to-gray-600";
+    case "professional":
+    case "profissional":
+      return "from-orange-500 to-amber-500";
+    case "premium":
+      return "from-purple-600 to-indigo-600";
+    default:
+      // Gradientes padrão baseados no índice
+      const gradients = [
+        "from-gray-500 to-gray-600",
+        "from-orange-500 to-amber-500",
+        "from-purple-600 to-indigo-600",
+        "from-blue-500 to-cyan-500",
+        "from-green-500 to-emerald-500",
+      ];
+      return gradients[index % gradients.length];
+  }
+};
+
+// Gerar features baseado nos campos do plano
+const generateFeatures = (plan: any): string[] => {
+  const features: string[] = [];
+  
+  // Limites
+  if (plan.maxPatients) {
+    features.push(plan.maxPatients >= 999999 ? "Pacientes ilimitados" : `Até ${plan.maxPatients} pacientes`);
+  }
+  if (plan.maxUsers) {
+    features.push(plan.maxUsers >= 999999 ? "Usuários ilimitados" : `${plan.maxUsers} usuários`);
+  }
+  
+  // Recursos
+  if (plan.hasAIAnalysis) features.push("Análise de IA");
+  if (plan.hasWhatsAppNotifications) features.push("Notificações WhatsApp");
+  if (plan.hasTVPanel) features.push("Painel TV");
+  if (plan.hasAdvancedReports) features.push("Relatórios avançados");
+  if (plan.hasMultipleLocations) features.push("Multi-clínicas");
+  if (plan.hasAPIAccess) features.push("API para integrações");
+  if (plan.hasPrioritySupport) features.push("Suporte prioritário 24/7");
+  
+  // Se tem descrição, adicionar como feature
+  if (plan.description) {
+    features.unshift(plan.description);
+  }
+  
+  return features;
+};
 
 export default function Inadimplente() {
   const [, setLocation] = useLocation();
-  const [selectedPlan, setSelectedPlan] = useState<string>("professional");
+  const [selectedPlan, setSelectedPlan] = useState<string>("");
   const [isRedirecting, setIsRedirecting] = useState(false);
+  
+  // Buscar planos dinâmicos do banco de dados
+  const { data: dbPlans, isLoading: plansLoading } = trpc.admin.plans.listActive.useQuery();
   
   const { data: subscriptionInfo, isLoading } = trpc.admin.subscriptions.getSubscriptionInfo.useQuery();
   const createCheckout = trpc.admin.subscriptions.createSubscriptionCheckout.useMutation({
@@ -103,6 +98,15 @@ export default function Inadimplente() {
     },
   });
   
+  // Selecionar plano padrão quando carregar
+  useEffect(() => {
+    if (dbPlans && dbPlans.length > 0 && !selectedPlan) {
+      // Selecionar o plano do meio ou o primeiro
+      const middleIndex = Math.floor(dbPlans.length / 2);
+      setSelectedPlan(dbPlans[middleIndex]?.slug || dbPlans[0]?.slug || "");
+    }
+  }, [dbPlans, selectedPlan]);
+  
   // Se o usuário tem acesso, redirecionar para o painel
   useEffect(() => {
     if (subscriptionInfo?.canAccess) {
@@ -110,13 +114,13 @@ export default function Inadimplente() {
     }
   }, [subscriptionInfo, setLocation]);
   
-  const handleSubscribe = (planId: string) => {
+  const handleSubscribe = (planSlug: string) => {
     setIsRedirecting(true);
-    setSelectedPlan(planId);
-    createCheckout.mutate({ planId });
+    setSelectedPlan(planSlug);
+    createCheckout.mutate({ planId: planSlug });
   };
   
-  if (isLoading) {
+  if (isLoading || plansLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
@@ -166,6 +170,12 @@ export default function Inadimplente() {
   
   const statusInfo = getStatusInfo();
   
+  // Usar planos do banco de dados
+  const plans = dbPlans || [];
+  
+  // Identificar plano destacado (do meio ou marcado)
+  const highlightedIndex = Math.floor(plans.length / 2);
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 py-8 px-4">
       <div className="max-w-6xl mx-auto">
@@ -190,84 +200,107 @@ export default function Inadimplente() {
         </div>
         
         {/* Plans Grid */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          {PLANS.map((plan) => (
-            <Card 
-              key={plan.id}
-              className={cn(
-                "relative overflow-hidden transition-all duration-300 hover:shadow-xl cursor-pointer",
-                plan.highlighted && "ring-2 ring-orange-500 scale-105 md:scale-110 z-10",
-                selectedPlan === plan.id && "ring-2 ring-orange-500"
-              )}
-              onClick={() => setSelectedPlan(plan.id)}
-            >
-              {/* Badge */}
-              {plan.badge && (
-                <div className={cn(
-                  "absolute top-0 right-0 px-3 py-1 text-xs font-bold text-white rounded-bl-lg",
-                  plan.highlighted ? "bg-orange-500" : "bg-purple-600"
-                )}>
-                  {plan.badge}
-                </div>
-              )}
-              
-              {/* Header with gradient */}
-              <div className={cn(
-                "bg-gradient-to-r p-6 text-white",
-                plan.gradient
-              )}>
-                <div className="flex items-center gap-3 mb-2">
-                  {plan.icon}
-                  <h3 className="text-xl font-bold">{plan.name}</h3>
-                </div>
-                <p className="text-white/80 text-sm">{plan.description}</p>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold">{plan.priceDisplay}</span>
-                  <span className="text-white/80">/mês</span>
-                </div>
-              </div>
-              
-              <CardContent className="p-6">
-                <ul className="space-y-3">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-2 text-sm">
-                      <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
+        <div className={cn(
+          "grid gap-6 mb-8",
+          plans.length === 1 && "md:grid-cols-1 max-w-md mx-auto",
+          plans.length === 2 && "md:grid-cols-2 max-w-2xl mx-auto",
+          plans.length >= 3 && "md:grid-cols-3"
+        )}>
+          {plans.map((plan, index) => {
+            const isHighlighted = index === highlightedIndex;
+            const features = generateFeatures(plan);
+            const priceValue = parseFloat(plan.price);
+            const priceDisplay = `R$ ${Math.floor(priceValue)}`;
+            
+            return (
+              <Card 
+                key={plan.id}
+                className={cn(
+                  "relative overflow-hidden transition-all duration-300 hover:shadow-xl cursor-pointer",
+                  isHighlighted && "ring-2 ring-orange-500 scale-105 md:scale-110 z-10",
+                  selectedPlan === plan.slug && "ring-2 ring-orange-500"
+                )}
+                onClick={() => setSelectedPlan(plan.slug)}
+              >
+                {/* Badge */}
+                {isHighlighted && (
+                  <div className="absolute top-0 right-0 px-3 py-1 text-xs font-bold text-white rounded-bl-lg bg-orange-500">
+                    Mais Popular
+                  </div>
+                )}
+                {index === plans.length - 1 && plans.length > 1 && !isHighlighted && (
+                  <div className="absolute top-0 right-0 px-3 py-1 text-xs font-bold text-white rounded-bl-lg bg-purple-600">
+                    Completo
+                  </div>
+                )}
                 
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSubscribe(plan.id);
-                  }}
-                  disabled={isRedirecting && selectedPlan === plan.id}
-                  className={cn(
-                    "w-full mt-6 h-12",
-                    plan.highlighted 
-                      ? "bg-orange-600 hover:bg-orange-700" 
-                      : plan.id === "premium"
-                        ? "bg-purple-600 hover:bg-purple-700"
-                        : "bg-gray-600 hover:bg-gray-700"
-                  )}
-                >
-                  {isRedirecting && selectedPlan === plan.id ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Redirecionando...
-                    </>
-                  ) : (
-                    <>
-                      <CreditCard className="mr-2 h-5 w-5" />
-                      Assinar {plan.name}
-                    </>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+                {/* Header with gradient */}
+                <div className={cn(
+                  "bg-gradient-to-r p-6 text-white",
+                  getPlanGradient(plan.slug, index)
+                )}>
+                  <div className="flex items-center gap-3 mb-2">
+                    {getPlanIcon(plan.slug)}
+                    <h3 className="text-xl font-bold">{plan.name}</h3>
+                  </div>
+                  <p className="text-white/80 text-sm">{plan.description || "Plano de assinatura"}</p>
+                  <div className="mt-4">
+                    <span className="text-4xl font-bold">{priceDisplay}</span>
+                    <span className="text-white/80">/{plan.billingCycle === "yearly" ? "ano" : "mês"}</span>
+                  </div>
+                </div>
+                
+                <CardContent className="p-6">
+                  <ul className="space-y-3">
+                    {features.map((feature, featureIndex) => (
+                      <li key={featureIndex} className="flex items-start gap-2 text-sm">
+                        <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-700">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSubscribe(plan.slug);
+                    }}
+                    disabled={isRedirecting && selectedPlan === plan.slug}
+                    className={cn(
+                      "w-full mt-6 h-12",
+                      isHighlighted 
+                        ? "bg-orange-600 hover:bg-orange-700" 
+                        : index === plans.length - 1
+                          ? "bg-purple-600 hover:bg-purple-700"
+                          : "bg-gray-600 hover:bg-gray-700"
+                    )}
+                  >
+                    {isRedirecting && selectedPlan === plan.slug ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        Redirecionando...
+                      </>
+                    ) : (
+                      <>
+                        <CreditCard className="mr-2 h-5 w-5" />
+                        Assinar {plan.name}
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
+        
+        {/* Fallback se não houver planos */}
+        {plans.length === 0 && (
+          <div className="text-center py-12">
+            <AlertTriangle className="h-12 w-12 text-orange-500 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">Nenhum plano disponível</h3>
+            <p className="text-gray-600">Entre em contato com o suporte para mais informações.</p>
+          </div>
+        )}
         
         {/* Footer */}
         <div className="text-center space-y-4">

@@ -2653,43 +2653,60 @@ Formate sua resposta de forma clara e organizada.`;
           
           const origin = ctx.req.headers.origin || "http://localhost:3000";
           
-          // Definição dos planos de assinatura
-          const PLANS: Record<string, { name: string; description: string; price: number }> = {
-            basic: {
-              name: "Plano Básico",
-              description: "Até 200 pacientes, 2 usuários, 1 dentista",
-              price: 14900, // R$ 149,00
-            },
-            professional: {
-              name: "Plano Profissional",
-              description: "Pacientes ilimitados, 5 usuários, 3 dentistas, IA, WhatsApp",
-              price: 29900, // R$ 299,00
-            },
-            premium: {
-              name: "Plano Premium",
-              description: "Tudo ilimitado, multi-clínicas, API, suporte prioritário 24/7",
-              price: 49900, // R$ 499,00
-            },
-          };
+          // Buscar planos do banco de dados
+          const dbPlans = await db.getPlans(true);
           
-          // Selecionar plano (padrão: profissional)
-          const selectedPlanId = input.planId || "professional";
-          const selectedPlan = PLANS[selectedPlanId] || PLANS.professional;
+          // Encontrar plano selecionado pelo slug
+          const selectedPlanId = input.planId || "profissional";
+          let selectedPlan = dbPlans.find(p => p.slug === selectedPlanId);
+          
+          // Se não encontrar pelo slug, tentar pelo primeiro plano ou usar fallback
+          if (!selectedPlan && dbPlans.length > 0) {
+            selectedPlan = dbPlans[Math.floor(dbPlans.length / 2)] || dbPlans[0];
+          }
+          
+          // Fallback caso não haja planos no banco
+          if (!selectedPlan) {
+            selectedPlan = {
+              id: 0,
+              name: "Plano Profissional",
+              slug: "profissional",
+              description: "Plano padrão",
+              price: "299.00",
+              billingCycle: "monthly" as const,
+              maxUsers: 5,
+              maxPatients: 1000,
+              maxAppointmentsPerMonth: 500,
+              hasAIAnalysis: true,
+              hasWhatsAppNotifications: true,
+              hasTVPanel: true,
+              hasAdvancedReports: true,
+              hasMultipleLocations: false,
+              hasAPIAccess: false,
+              hasPrioritySupport: false,
+              isActive: true,
+              sortOrder: 1,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            };
+          }
+          
+          // Converter preço para centavos (Stripe usa centavos)
+          const priceInCents = Math.round(parseFloat(selectedPlan.price) * 100);
           
           // Criar sessão de checkout para assinatura
           const session = await stripe.checkout.sessions.create({
-            payment_method_types: ["card", "boleto"],
             line_items: [
               {
                 price_data: {
                   currency: "brl",
                   product_data: {
                     name: `Dentrics - ${selectedPlan.name}`,
-                    description: selectedPlan.description,
+                    description: selectedPlan.description || "Plano de assinatura Dentrics",
                   },
-                  unit_amount: selectedPlan.price,
+                  unit_amount: priceInCents,
                   recurring: {
-                    interval: "month",
+                    interval: selectedPlan.billingCycle === "yearly" ? "year" : "month",
                   },
                 },
                 quantity: 1,
@@ -2705,14 +2722,16 @@ Formate sua resposta de forma clara e organizada.`;
               clinic_name: clinic.name,
               user_id: ctx.user.id.toString(),
               user_email: user.email,
-              plan_id: selectedPlanId,
+              plan_id: selectedPlan.slug,
               plan_name: selectedPlan.name,
+              plan_db_id: selectedPlan.id.toString(),
             },
             allow_promotion_codes: true,
             subscription_data: {
               metadata: {
                 clinic_id: clinic.id.toString(),
-                plan_id: selectedPlanId,
+                plan_id: selectedPlan.slug,
+                plan_db_id: selectedPlan.id.toString(),
               },
             },
           });

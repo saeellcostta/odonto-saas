@@ -1037,3 +1037,14 @@
 ## Melhorias Portal Stripe (04/02/2026)
 - [x] Criar modal de seleção de planos antes de ir para o checkout do Stripe
 - [ ] Configurar nome da empresa "Dentrics" no portal do Stripe
+
+
+## Integração Stripe para Assinaturas - Nova Implementação (05/02/2026)
+- [x] Configurar chaves Stripe (STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY) - JÁ CONFIGURADO AUTOMATICAMENTE
+- [x] Criar tabela de planos editáveis no banco de dados (plans) - JÁ EXISTIA
+- [x] Implementar CRUD de planos no painel super admin - JÁ EXISTIA
+- [x] Criar tela de inadimplência com seleção de planos dinâmicos - ATUALIZADO para buscar do banco
+- [x] Integrar checkout Stripe para assinaturas recorrentes - ATUALIZADO para usar planos do banco
+- [x] Implementar webhooks Stripe para atualização de status - JÁ EXISTIA
+- [x] Sincronizar planos com produtos no Stripe - Checkout cria produtos dinâmicos
+- [x] Testar fluxo completo de assinatura - 133 testes passando
