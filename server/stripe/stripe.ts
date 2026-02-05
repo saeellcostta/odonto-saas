@@ -1,8 +1,8 @@
 // Configuração do Stripe para o sistema Dentrics
 import Stripe from "stripe";
 
-// Chaves alternativas do Stripe (conta sem restrições)
-const ALTERNATIVE_STRIPE_SECRET_KEY = "sk_test_51SxJplDmY17h3OvJ1NPBM0BO56BH9Zc7Zs5Anf9bwu7yRSnGfbGXfi6cQqPkSLOKEKxHWtdV23ra5HI1OeAtJepa00GvOXEaCC";
+// Chaves do Stripe - MODO PRODUÇÃO (LIVE)
+const ALTERNATIVE_STRIPE_SECRET_KEY = "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";
 
 // Usar chave alternativa ao invés da built-in
 const stripeSecretKey = ALTERNATIVE_STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY;
