@@ -779,6 +779,8 @@ export default function Atendente() {
                         <SelectItem value="orthodontics">Ortodontia</SelectItem>
                         <SelectItem value="implant">Implante</SelectItem>
                         <SelectItem value="prosthetics">Prótese</SelectItem>
+                        <SelectItem value="maxillofacial">Buco-Maxilo-Facial</SelectItem>
+                        <SelectItem value="pediatric">Odontopediatria</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

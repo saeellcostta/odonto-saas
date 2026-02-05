@@ -1144,3 +1144,9 @@
 ## Correção Modal de Encaminhamento (05/02/2026)
 - [x] Adicionar opção "Buco-Maxilo-Facial" no dropdown de encaminhamento
 - [x] Adicionar opção "Odontopediatria" no dropdown de encaminhamento
+
+
+## Implementar Logística de Atendimento (05/02/2026)
+- [x] Área Buco-Maxilo-Facial: corrigir queueType para "maxillofacial"
+- [x] Área Odontopediatria: corrigir queueType para "pediatric"
+- [x] Adicionar opções no dropdown "Adicionar à Fila" do atendente

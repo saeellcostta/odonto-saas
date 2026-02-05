@@ -30,7 +30,7 @@ export default function AreaBucoMaxilo() {
   const { data: dentists } = trpc.dentists.list.useQuery();
   const { data: offices } = trpc.offices.list.useQuery();
   const { data: patients } = trpc.patients.listActiveToday.useQuery();
-  const { data: bucoQueue, isLoading: loadingQueue } = trpc.serviceQueue.list.useQuery({ queueType: "bucomaxilo" });
+  const { data: bucoQueue, isLoading: loadingQueue } = trpc.serviceQueue.list.useQuery({ queueType: "maxillofacial" });
 
   // Filter patients by queue status
   const waitingPatients = bucoQueue?.filter(p => p.status === "waiting") || [];
