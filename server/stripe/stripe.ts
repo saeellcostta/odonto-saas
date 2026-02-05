@@ -3,6 +3,7 @@ import Stripe from "stripe";
 
 // Chaves do Stripe - MODO PRODUÇÃO (LIVE)
 const ALTERNATIVE_STRIPE_SECRET_KEY = "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";
+const ALTERNATIVE_STRIPE_WEBHOOK_SECRET = "whsec_yeegso47xqfrPnOEZA1cl5ePIOkuZERN";
 
 // Usar chave alternativa ao invés da built-in
 const stripeSecretKey = ALTERNATIVE_STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY;

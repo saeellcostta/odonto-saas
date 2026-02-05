@@ -1059,3 +1059,15 @@
 - [x] Corrigir success_url no checkout Stripe - redirecionando para domínio incorreto (gestao.manus.space)
 - [x] Criar função getOriginFromRequest() para construir URLs corretas a partir dos headers
 - [x] Atualizar todas as 4 ocorrências de checkout para usar a nova função
+
+## Bug: Status não atualiza após pagamento (05/02/2026)
+- [x] Verificar implementação do webhook Stripe - Webhook existia mas não atualizava banco
+- [x] Implementar lógica de atualização de status no webhook
+- [x] Configurar webhook no Stripe Dashboard para produção - URL e signing secret configurados
+- [x] Webhook secret configurado: whsec_yeegso47xqfrPnOEZA1cl5ePIOkuZERN
+- [x] Testar atualização automática de status com pagamento real - FUNCIONANDO!
+
+## Bug: Redirecionamento pós-pagamento mostra 404 (05/02/2026)
+- [x] Usuário é redirecionado para gestao.manus.space após pagamento (404)
+- [x] Alterado success_url para redirecionar para /inadimplente que detecta status ativo
+- [x] Página de inadimplente agora redireciona automaticamente para /painel se status for ativo

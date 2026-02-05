@@ -41,7 +41,9 @@ async function startServer() {
     }
 
     const sig = req.headers["stripe-signature"] as string;
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    // Importar webhook secret alternativo
+    const ALTERNATIVE_WEBHOOK_SECRET = "whsec_yeegso47xqfrPnOEZA1cl5ePIOkuZERN";
+    const webhookSecret = ALTERNATIVE_WEBHOOK_SECRET || process.env.STRIPE_WEBHOOK_SECRET;
 
     if (!webhookSecret) {
       console.log("[Stripe Webhook] STRIPE_WEBHOOK_SECRET não configurado");
@@ -68,10 +70,60 @@ async function startServer() {
 
     switch (event.type) {
       case "checkout.session.completed": {
-        const session = event.data.object;
+        const session = event.data.object as any;
         console.log(`[Stripe Webhook] Checkout completado: ${session.id}`);
-        // Aqui você pode processar o pagamento completado
-        // session.metadata contém os dados do paciente/orçamento
+        
+        // Processar assinatura de clínica
+        if (session.mode === "subscription" && session.metadata?.clinic_id) {
+          try {
+            const clinicId = parseInt(session.metadata.clinic_id);
+            const planDbId = session.metadata.plan_db_id ? parseInt(session.metadata.plan_db_id) : null;
+            
+            console.log(`[Stripe Webhook] Processando clínica ${clinicId}, plano ${planDbId}`);
+            
+            // Preparar dados para atualização
+            const updateData: any = {
+              subscriptionStatus: "active",
+              stripeCustomerId: session.customer as string,
+              stripeSubscriptionId: session.subscription as string,
+              lastPaymentAt: new Date(),
+            };
+            
+            // Adicionar planId apenas se existir
+            if (planDbId) {
+              updateData.planId = planDbId;
+            }
+            
+            // Buscar subscription do Stripe para obter datas (se existir)
+            if (session.subscription) {
+              try {
+                const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+                const currentPeriodEnd = (subscription as any).current_period_end;
+                
+                if (currentPeriodEnd && typeof currentPeriodEnd === 'number') {
+                  updateData.nextPaymentAt = new Date(currentPeriodEnd * 1000);
+                  console.log(`[Stripe Webhook] Próximo pagamento: ${updateData.nextPaymentAt.toISOString()}`);
+                }
+                
+                const currentPeriodStart = (subscription as any).current_period_start;
+                if (currentPeriodStart && typeof currentPeriodStart === 'number') {
+                  updateData.subscriptionStartedAt = new Date(currentPeriodStart * 1000);
+                }
+              } catch (subError) {
+                console.error(`[Stripe Webhook] Erro ao buscar subscription:`, subError);
+              }
+            }
+            
+            // Atualizar clínica no banco
+            const db = await import("../db");
+            await db.updateClinicSubscription(clinicId, updateData);
+            
+            console.log(`[Stripe Webhook] Clínica ${clinicId} ativada com sucesso!`);
+          } catch (error) {
+            console.error(`[Stripe Webhook] Erro ao ativar clínica:`, error);
+            console.error(`[Stripe Webhook] Stack:`, (error as Error).stack);
+          }
+        }
         break;
       }
       case "payment_intent.succeeded": {

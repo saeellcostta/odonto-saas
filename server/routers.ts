@@ -2733,7 +2733,7 @@ Formate sua resposta de forma clara e organizada.`;
               },
             ],
             mode: "subscription",
-            success_url: `${origin}/painel?subscription=success&plan=${selectedPlanId}&session_id={CHECKOUT_SESSION_ID}`,
+            success_url: `${origin}/inadimplente?subscription=success&session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${origin}/inadimplente?subscription=cancelled`,
             customer_email: user.email,
             client_reference_id: clinic.id.toString(),
