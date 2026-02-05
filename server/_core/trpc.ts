@@ -43,3 +43,27 @@ export const adminProcedure = t.procedure.use(
     });
   }),
 );
+
+// Procedure que injeta clinicId do usuário para multi-tenancy
+export const clinicProcedure = t.procedure.use(
+  t.middleware(async opts => {
+    const { ctx, next } = opts;
+
+    if (!ctx.user) {
+      throw new TRPCError({ code: "UNAUTHORIZED", message: UNAUTHED_ERR_MSG });
+    }
+
+    // Usuário precisa ter uma clínica associada
+    if (!ctx.user.clinicId) {
+      throw new TRPCError({ code: "FORBIDDEN", message: "Usuário não está associado a nenhuma clínica" });
+    }
+
+    return next({
+      ctx: {
+        ...ctx,
+        user: ctx.user,
+        clinicId: ctx.user.clinicId,
+      },
+    });
+  }),
+);

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        
+            
+                
+                <script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js"  type="text/javascript" charset="UTF-8" data-domain-script="29ba6134-cadd-48d2-abda-e453bd49c231" ></script>
+                
+            
+        
+
+        
+        <script type="text/javascript" src="https://cc012c29cb9e.edge.sdk.awswaf.com/cc012c29cb9e/2ec638035c9e/challenge.js" defer></script>
+
+        <meta charset="utf-8">
+        
+
+        
+            <link rel="preload" href="https://static.sketchfab.com/static/builds/web/dist/static/assets/fonts/OpenSans/d2edc60a0af39d89f52c42a3e3cf149a-v2.woff2" as="font" type="font/woff2" crossorigin>
+            <link rel="preload" href="https://static.sketchfab.com/static/builds/web/dist/static/assets/fonts/OpenSans/aaca552c0e3c0899a32cdda65b3b4881-v2.woff2" as="font" type="font/woff2" crossorigin>
+            <link rel="preload" href="https://static.sketchfab.com/static/builds/web/dist/static/assets/fonts/OpenSans/9c86571e7b48ea4bf0ca73154816654d-v2.woff2" as="font" type="font/woff2" crossorigin>
+            <link rel="preload" href="https://static.sketchfab.com/static/builds/web/dist/static/assets/fonts/OpenSans/b7c238a29b7b8cd18c58e49f427f85a8-v2.woff2" as="font" type="font/woff2" crossorigin>
+            <link rel="preload" href="https://static.sketchfab.com/static/builds/web/dist/@sketchfab/icons/dist/15e2b3b8a5b90c9a3a988b9ed77e3489-v2.woff2" as="font" type="font/woff2" crossorigin>
+            <link rel="preload" href="https://static.sketchfab.com/static/builds/web/dist/@fortawesome/fontawesome-pro/webfonts/0ac7defc65c55e7b18bd53875e8cbdbb-v2.woff2" as="font" type="font/woff2" crossorigin>
+            <link rel="preload" href="https://static.sketchfab.com/static/builds/web/dist/@fortawesome/fontawesome-pro/webfonts/dc8a988c30eec10049e44f525475c27f-v2.woff2" as="font" type="font/woff2" crossorigin>
+            <link rel="preload" href="https://static.sketchfab.com/static/builds/web/dist/@fortawesome/fontawesome-pro/webfonts/8391e86fcac4e0c4689dac2890f1b375-v2.woff2" as="font" type="font/woff2" crossorigin>
+        
+
+        
+        
+            
+    
+        
+        
+    
+        <link rel="preload" crossorigin="anonymous"  href="https://static.sketchfab.com/static/builds/web/dist/c07479278797333628245ad8fc32c9fa-v2.css" as="style">
+        <link rel="stylesheet" crossorigin="anonymous"  href="https://static.sketchfab.com/static/builds/web/dist/c07479278797333628245ad8fc32c9fa-v2.css" />
+    
+        <link rel="preload" crossorigin="anonymous"  href="https://static.sketchfab.com/static/builds/web/dist/cc9db0065fe4a8fb38e30bdc45118453-v2.css" as="style">
+        <link rel="stylesheet" crossorigin="anonymous"  href="https://static.sketchfab.com/static/builds/web/dist/cc9db0065fe4a8fb38e30bdc45118453-v2.css" />
+    
+        <link rel="preload" crossorigin="anonymous"  href="https://static.sketchfab.com/static/builds/web/dist/4c8b74f150e2230172fc0fdaa6af2589-v2.css" as="style">
+        <link rel="stylesheet" crossorigin="anonymous"  href="https://static.sketchfab.com/static/builds/web/dist/4c8b74f150e2230172fc0fdaa6af2589-v2.css" />
+    
+        <link rel="preload" crossorigin="anonymous"  href="https://static.sketchfab.com/static/builds/web/dist/678426c7eb85ea8707a6aaca62c7c768-v2.css" as="style">
+        <link rel="stylesheet" crossorigin="anonymous"  href="https://static.sketchfab.com/static/builds/web/dist/678426c7eb85ea8707a6aaca62c7c768-v2.css" />
+    
+        <link rel="preload" crossorigin="anonymous"  href="https://static.sketchfab.com/static/builds/web/dist/cdeed22d635d5c5eddfea4bc45f24f95-v2.css" as="style">
+        <link rel="stylesheet" crossorigin="anonymous"  href="https://static.sketchfab.com/static/builds/web/dist/cdeed22d635d5c5eddfea4bc45f24f95-v2.css" />
+    
+    
+    <script>/**/</script>
+
+    
+
+        
+
+        
+
+        <title>Free Teeth Base Mesh - Download Free 3D model by ferrumiron6 [b66fde0] - Sketchfab</title>
+
+        <meta name="apple-mobile-web-app-title" content="Sketchfab">
+        <meta name="apple-itunes-app" content="app-id=1201268000">
+
+        
+    <link rel="apple-touch-icon" sizes="180x180" href="https://static.sketchfab.com/static/builds/web/dist/static/assets/images/favicon/e59d7f2ff579bbf9d20771b3d4d8c6a7-v2.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://static.sketchfab.com/static/builds/web/dist/static/assets/images/favicon/2f53b6d625305dad5f61e53c5b3d8125-v2.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://static.sketchfab.com/static/builds/web/dist/static/assets/images/favicon/78e139226ad8cbdeabd312db4c051db9-v2.png">
+    <link rel="shortcut icon" type="image/png" sizes="192x192" href="https://static.sketchfab.com/static/builds/web/dist/static/assets/images/favicon/23f3318c19afda98ef952231b4b450c7-v2.png">
+    <link rel="mask-icon" href="https://static.sketchfab.com/static/builds/web/dist/static/assets/images/favicon/c0cf7f7fd54262d82d0319488e936800-v2.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#2b5797">
+    <meta name="theme-color" content="#ffffff">
+
+
+        
+
+        
+
+    
+    
+    
+
+    <meta property="og:site_name" content="Sketchfab">
+    
+        <meta property="fb:app_id" content="1418631828415333">
+    
+
+    <meta property="twitter:site" content="@sketchfab">
+    <meta property="twitter:domain" content="https://sketchfab.com/">
+
+
+    <meta name="p:domain_verify" content="af528e3df5f766ca012f5e065c7cb812">
+
+    
+        <meta property="twitter:card" content="player">
+    
+
+    
+        
+    
+
+    
+        <meta property="twitter:title" content="Free Teeth Base Mesh - Download Free 3D model by ferrumiron6">
+        <meta property="og:title" content="Free Teeth Base Mesh - Download Free 3D model by ferrumiron6">
+    
+
+    
+        <meta property="og:type" content="video.other">
+    
+
+    
+        <meta property="twitter:description" content="Free Human Teeth Base Mesh – Blender / FBX / OBJ / GLB
+
+▶️ Watch the modeling process on YouTube: https://youtu.be/4xRFczP62AY
+
+🎨 See more of my work on ArtStation: https://www.artstation.com/timurospanov3
+
+This is a clean, low-poly human teeth base mesh modeled in Blender. You can use it as a starting point for your characters, sculpts, animations, or game assets.
+
+✅ Formats included:
+
+.fbx
+.obj
+.glb
+
+📦 Clean topology, NOT UV-unwrapped, no textures.
+
+Feel free to use this model in personal and commercial projects — no attribution required, but credit is always appreciated. - Free Teeth Base Mesh - Download Free 3D model by ferrumiron6">
+        <meta property="og:description" content="Free Human Teeth Base Mesh – Blender / FBX / OBJ / GLB
+
+▶️ Watch the modeling process on YouTube: https://youtu.be/4xRFczP62AY
+
+🎨 See more of my work on ArtStation: https://www.artstation.com/timurospanov3
+
+This is a clean, low-poly human teeth base mesh modeled in Blender. You can use it as a starting point for your characters, sculpts, animations, or game assets.
+
+✅ Formats included:
+
+.fbx
+.obj
+.glb
+
+📦 Clean topology, NOT UV-unwrapped, no textures.
+
+Feel free to use this model in personal and commercial projects — no attribution required, but credit is always appreciated. - Free Teeth Base Mesh - Download Free 3D model by ferrumiron6">
+    
+
+    
+        <meta property="twitter:image" content="https://media.sketchfab.com/models/b66fde0dc3eb44b0908096aa51b96431/thumbnails/3ee8a2f1b6ae4c869e1218237147bcce/656c5e11f16d4204bc8fca0d756533df.jpeg">
+        <meta property="og:image" content="https://media.sketchfab.com/models/b66fde0dc3eb44b0908096aa51b96431/thumbnails/3ee8a2f1b6ae4c869e1218237147bcce/656c5e11f16d4204bc8fca0d756533df.jpeg">
+        <meta property="og:image:width" content="1024">
+        <meta property="og:image:height" content="768">
+    
+
+    
+        <link rel="alternate" type="application/json+oembed" href="https://sketchfab.com/oembed?url=https%3A%2F%2Fsketchfab.com%2F3d-models%2Ffree-teeth-base-mesh-b66fde0dc3eb44b0908096aa51b96431" title="Free Teeth Base Mesh - Download Free 3D model by ferrumiron6">
+    
+
+    
+        <meta property="og:url" content="https://sketchfab.com/models/b66fde0dc3eb44b0908096aa51b96431/embed?autostart=1">
+        <meta property="og:video:type" content="text/html">
+        <meta property="og:video:url" content="https://sketchfab.com/models/b66fde0dc3eb44b0908096aa51b96431/embed?autostart=1">
+        <meta property="og:video:secure_url" content="https://sketchfab.com/models/b66fde0dc3eb44b0908096aa51b96431/embed?autostart=1">
+        <meta property="og:video:width" content="800">
+        <meta property="og:video:height" content="600">
+
+        <meta name="twitter:player" content="https://sketchfab.com/models/b66fde0dc3eb44b0908096aa51b96431/embed?autostart=1">
+        <meta name="twitter:player:stream:content_type" content="text/html">
+        <meta name="twitter:player:width" content="800">
+        <meta name="twitter:player:height" content="600">
+
+    
+
+
+
+        
+
+    
+
+    
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+
+    
+         <meta name="theme-color" content="#1CAAD9">
+    
+
+
+        
+
+    <meta name="description" content="Free Human Teeth Base Mesh – Blender / FBX / OBJ / GLB
+
+▶️ Watch the modeling process on YouTube: https://youtu.be/4xRFczP62AY
+
+🎨 See more of my work on ArtStation: https://www.artstation.com/timurospanov3
+
+This is a clean, low-poly human teeth base mesh modeled in Blender. You can use it as a starting point for your characters, sculpts, animations, or game assets.
+
+✅ Formats included:
+
+.fbx
+.obj
+.glb
+
+📦 Clean topology, NOT UV-unwrapped, no textures.
+
+Feel free to use this model in personal and commercial projects — no attribution required, but credit is always appreciated. - Free Teeth Base Mesh - Download Free 3D model by ferrumiron6">
+
+    
+        
+            
+            
+            
+            
+            
+            <link rel="canonical" href="https://sketchfab.com/3d-models/free-teeth-base-mesh-b66fde0dc3eb44b0908096aa51b96431">
+        
+    
+        
+    
+        
+    
+
+    
+
+
+        
+
+    <meta http-equiv="x-dns-prefetch-control" content="on">
+
+    
+        
+            <link rel="dns-prefetch" href="https://static.sketchfab.com">
+        
+            <link rel="dns-prefetch" href="https://media.sketchfab.com">
+        
+    
+
+
+
+        
+            
+    
+    
+    <script type="application/ld+json">
+        {
+            "@context": "http://schema.org",
+            "@type": "WebSite",
+            "url": "https://sketchfab.com",
+            "name": "Sketchfab",
+            "mainEntityOfPage": {
+                "@type": "3Dmodel"
+            },
+            "creator": {"@context": "http://schema.org", "@type": "Organization", "location": {"@type": "Place", "name": "Paris / New York"}, "name": "Sketchfab", "sameAs": ["https://www.facebook.com/Sketchfab", "https://twitter.com/Sketchfab", "https://www.linkedin.com/company/sketchfab", "https://www.youtube.com/channel/UCX0J-m95VqCQIIiQ23fP5tg", "https://vimeo.com/sketchfab", "https://www.instagram.com/sketchfab", "https://pinterest.com/sketchfab"], "url": "https://sketchfab.com"},
+            "description": "&lt;p&gt;Free Teeth Base Mesh 3D model by ferrumiron6&lt;/p&gt;",
+            "potentialAction": {
+                "@type": "SearchAction",
+                "target": "https://sketchfab.com/search?q={search_term_string}",
+                "query-input": "required name=search_term_string"
+            }
+        }
+    </script>
+    <script type="application/ld+json">
+        {"@context": "http://schema.org", "@type": "Organization", "location": {"@type": "Place", "name": "Paris / New York"}, "name": "Sketchfab", "sameAs": ["https://www.facebook.com/Sketchfab", "https://twitter.com/Sketchfab", "https://www.linkedin.com/company/sketchfab", "https://www.youtube.com/channel/UCX0J-m95VqCQIIiQ23fP5tg", "https://vimeo.com/sketchfab", "https://www.instagram.com/sketchfab", "https://pinterest.com/sketchfab"], "url": "https://sketchfab.com"}
+    </script>
+
+        
+    </head>
+
+    <body class="white-background fullscreen model-page">
+        
+        
+    
+    
+    <div class="dom-

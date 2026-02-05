@@ -7,6 +7,8 @@ import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+import { stripe } from "../stripe/stripe";
+import { ENV } from "./env";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -30,9 +32,132 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
+  
+  // Stripe webhook - MUST be before express.json() to get raw body for signature verification
+  app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async (req, res) => {
+    if (!stripe) {
+      console.log("[Stripe Webhook] Stripe não configurado");
+      return res.status(400).json({ error: "Stripe não configurado" });
+    }
+
+    const sig = req.headers["stripe-signature"] as string;
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    if (!webhookSecret) {
+      console.log("[Stripe Webhook] STRIPE_WEBHOOK_SECRET não configurado");
+      return res.status(400).json({ error: "Webhook secret não configurado" });
+    }
+
+    let event;
+
+    try {
+      event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+    } catch (err: any) {
+      console.log(`[Stripe Webhook] Erro na verificação da assinatura: ${err.message}`);
+      return res.status(400).json({ error: `Webhook Error: ${err.message}` });
+    }
+
+    // Handle test events
+    if (event.id.startsWith("evt_test_")) {
+      console.log("[Stripe Webhook] Evento de teste detectado, retornando verificação");
+      return res.json({ verified: true });
+    }
+
+    // Handle the event
+    console.log(`[Stripe Webhook] Evento recebido: ${event.type}`);
+
+    switch (event.type) {
+      case "checkout.session.completed": {
+        const session = event.data.object;
+        console.log(`[Stripe Webhook] Checkout completado: ${session.id}`);
+        // Aqui você pode processar o pagamento completado
+        // session.metadata contém os dados do paciente/orçamento
+        break;
+      }
+      case "payment_intent.succeeded": {
+        const paymentIntent = event.data.object;
+        console.log(`[Stripe Webhook] Pagamento bem-sucedido: ${paymentIntent.id}`);
+        break;
+      }
+      case "payment_intent.payment_failed": {
+        const paymentIntent = event.data.object;
+        console.log(`[Stripe Webhook] Pagamento falhou: ${paymentIntent.id}`);
+        break;
+      }
+      default:
+        console.log(`[Stripe Webhook] Evento não tratado: ${event.type}`);
+    }
+
+    res.json({ received: true });
+  });
+
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
+  
+  // Proxy endpoint para servir imagens do storage (contorna problema de CORS/acesso)
+  app.get("/api/storage/image", async (req, res) => {
+    const key = req.query.key as string;
+    if (!key) {
+      return res.status(400).json({ error: "Missing key parameter" });
+    }
+    
+    try {
+      const baseUrl = ENV.forgeApiUrl;
+      const apiKey = ENV.forgeApiKey;
+      
+      if (!baseUrl || !apiKey) {
+        return res.status(500).json({ error: "Storage not configured" });
+      }
+      
+      // Primeiro, obter a URL de download assinada
+      const downloadApiUrl = new URL("v1/storage/downloadUrl", baseUrl.endsWith("/") ? baseUrl : baseUrl + "/");
+      downloadApiUrl.searchParams.set("path", key.replace(/^\/+/, ""));
+      
+      const urlResponse = await fetch(downloadApiUrl.toString(), {
+        method: "GET",
+        headers: { Authorization: `Bearer ${apiKey}` },
+      });
+      
+      if (!urlResponse.ok) {
+        console.error('[Storage Proxy] Failed to get download URL:', urlResponse.status, urlResponse.statusText);
+        return res.status(urlResponse.status).json({ error: "Failed to get download URL" });
+      }
+      
+      const { url: signedUrl } = await urlResponse.json();
+      
+      // Agora buscar a imagem usando a URL assinada
+      const imageResponse = await fetch(signedUrl);
+      
+      if (!imageResponse.ok) {
+        console.error('[Storage Proxy] Failed to fetch image:', imageResponse.status, imageResponse.statusText);
+        return res.status(imageResponse.status).json({ error: "Failed to fetch image" });
+      }
+      
+      // Determinar o content-type baseado na extensão
+      const ext = key.split('.').pop()?.toLowerCase();
+      const contentTypes: Record<string, string> = {
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'png': 'image/png',
+        'gif': 'image/gif',
+        'webp': 'image/webp',
+        'svg': 'image/svg+xml',
+      };
+      const contentType = contentTypes[ext || ''] || imageResponse.headers.get('content-type') || 'application/octet-stream';
+      
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache por 24h
+      
+      // Stream a resposta
+      const buffer = await imageResponse.arrayBuffer();
+      res.send(Buffer.from(buffer));
+    } catch (error: any) {
+      console.error('[Storage Proxy] Error:', error.message);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
   // tRPC API
