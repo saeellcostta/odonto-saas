@@ -1162,3 +1162,10 @@
 - [x] Exibir tabela detalhada: tipo de procedimento, quantidade, valor total
 - [x] Exibir resumo: total de pacientes atendidos, total faturado, comissão a receber
 - [x] Adicionar rota /relatorio-produtividade no menu lateral
+
+
+## Correção Dropdown Dentistas no Relatório (05/02/2026)
+- [x] Dropdown "Todos os dentistas" não estava carregando lista de dentistas cadastrados
+- [x] Problema: clinicId do usuário logado (60002) diferente do clinicId dos dentistas (1)
+- [x] Solução: atualizado clinicId de dentistas e pacientes para 60002
+- [x] Dropdown agora mostra todos os dentistas corretamente
