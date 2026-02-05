@@ -1059,10 +1059,10 @@ export const medicalDocuments = mysqlTable("medical_documents", {
   patientAddress: text("patientAddress"),
   
   // Assinaturas Digitais
-  patientSignature: text("patient_signature"), // Assinatura do paciente (base64 ou texto)
-  patientSignedAt: timestamp("patient_signed_at"), // Data/hora da assinatura do paciente
-  professionalSignature: text("professional_signature"), // Assinatura do profissional (base64 ou texto)
-  professionalSignedAt: timestamp("professional_signed_at"), // Data/hora da assinatura do profissional
+  patientSignature: text("patientSignature"), // Assinatura do paciente (base64 ou texto)
+  patientSignedAt: timestamp("patientSignedAt"), // Data/hora da assinatura do paciente
+  professionalSignature: text("professionalSignature"), // Assinatura do profissional (base64 ou texto)
+  professionalSignedAt: timestamp("professionalSignedAt"), // Data/hora da assinatura do profissional
   
   // Link de Validação
   validationToken: varchar("validation_token", { length: 64 }), // Token único para validação

@@ -443,9 +443,12 @@ export default function Prontuario() {
         
         <div class="signatures">
           ${doc.type === "atestado" || doc.type === "receituario" ? `
-            <!-- Apenas assinatura do profissional -->
-            <div style="text-align: center; margin-top: 80px;">
-              <div class="signature-line">
+            <!-- Apenas assinatura do profissional centralizada -->
+            <div style="text-align: center; margin: 80px auto 0; width: 100%;">
+              ${doc.professionalSignature ? `
+                <img src="${doc.professionalSignature}" alt="Assinatura" style="max-width: 300px; height: auto; margin-bottom: 10px;" />
+              ` : ''}
+              <div class="signature-line" style="margin: 0 auto; max-width: 300px;">
                 ${doc.dentistName || "Profissional"}<br>
                 <small>CRO: ${doc.dentistCro || ""}</small>
               </div>
@@ -453,12 +456,18 @@ export default function Prontuario() {
           ` : `
             <!-- Assinaturas de paciente e profissional -->
             <div class="signature-box">
+              ${doc.professionalSignature ? `
+                <img src="${doc.professionalSignature}" alt="Assinatura Profissional" style="max-width: 200px; height: auto; margin-bottom: 10px;" />
+              ` : ''}
               <div class="signature-line">
                 ${doc.dentistName || "Profissional"}<br>
                 <small>CRO: ${doc.dentistCro || ""}</small>
               </div>
             </div>
             <div class="signature-box">
+              ${doc.patientSignature ? `
+                <img src="${doc.patientSignature}" alt="Assinatura Paciente" style="max-width: 200px; height: auto; margin-bottom: 10px;" />
+              ` : ''}
               <div class="signature-line">
                 ${patient?.name || "Paciente"}<br>
                 <small>CPF: ${patient?.cpf || ""}</small>

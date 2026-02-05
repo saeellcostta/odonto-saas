@@ -1126,3 +1126,17 @@
 - [x] Gráfico "Novos Pacientes" exibe cadastros dos últimos 6 meses
 - [x] Gráfico "Consultas por Dia da Semana" exibe distribuição semanal
 - [x] Todas as métricas funcionando: Total de Pacientes, Consultas Hoje, Receita do Mês, Itens em Baixa
+
+## Bugs Assinaturas em Documentos (05/02/2026)
+- [ ] Assinatura do profissional em atestado e receituário não está centralizada (está alinhada à esquerda)
+- [ ] Assinatura digital desenhada no canvas não aparece no PDF gerado
+- [ ] Verificar se assinatura está sendo salva no banco de dados
+- [ ] Exibir imagem da assinatura digital no PDF ao invés de apenas texto
+
+
+## Correção de Assinaturas Digitais (05/02/2026)
+- [x] Corrigir mismatch de nomenclatura no schema (snake_case → camelCase)
+- [x] Aplicar migração do banco de dados (ALTER TABLE renomeando colunas)
+- [x] Criar teste automatizado para validar assinaturas
+- [x] Assinatura profissional centralizada em Atestado e Receituário
+- [x] Assinaturas digitais aparecem como imagem nos PDFs gerados
