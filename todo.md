@@ -1054,3 +1054,8 @@
 - [x] Atualizar STRIPE_SECRET_KEY para sk_live_51SxJplDmY17h3OvJ...
 - [x] Atualizar STRIPE_PUBLISHABLE_KEY para pk_live_51SxJplDmY17h3OvJ...
 - [x] Sistema em MODO LIVE - Processando pagamentos reais
+
+## Bug: URL de Redirecionamento Pós-Pagamento (05/02/2026)
+- [x] Corrigir success_url no checkout Stripe - redirecionando para domínio incorreto (gestao.manus.space)
+- [x] Criar função getOriginFromRequest() para construir URLs corretas a partir dos headers
+- [x] Atualizar todas as 4 ocorrências de checkout para usar a nova função

@@ -1,7 +1,27 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, protectedProcedure, clinicProcedure, router } from "./_core/trpc";
+import { publicProcedure, router } from "./_core/trpc";
+
+// Helper para construir origin correto a partir do request
+function getOriginFromRequest(req: any): string {
+  // Tentar obter do header origin primeiro
+  if (req.headers.origin) {
+    return req.headers.origin;
+  }
+  
+  // Construir a partir do host
+  const host = req.headers.host || req.headers["x-forwarded-host"];
+  if (host) {
+    const protocol = req.headers["x-forwarded-proto"] || (req.connection?.encrypted ? "https" : "http");
+    return `${protocol}://${host}`;
+  }
+  
+  // Fallback para URL do preview do Manus
+  return "https://3000-ihhklxrqs8f7ubsym9j7i-ec292523.us2.manus.computer";
+}
+
+import { protectedProcedure, clinicProcedure } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
 import { stripe, isStripeConfigured } from "./stripe/stripe";
@@ -1800,7 +1820,7 @@ Formate sua resposta de forma clara e organizada.`;
           throw new Error("Stripe não configurado");
         }
 
-        const origin = ctx.req.headers.origin || "http://localhost:3000";
+        const origin = getOriginFromRequest(ctx.req);
 
         const session = await stripe.checkout.sessions.create({
           payment_method_types: ["card"],
@@ -1865,7 +1885,7 @@ Formate sua resposta de forma clara e organizada.`;
           throw new Error("Stripe não configurado");
         }
 
-        const origin = ctx.req.headers.origin || "http://localhost:3000";
+        const origin = getOriginFromRequest(ctx.req);
 
         // Criar sessão de checkout com link compartilhável
         const session = await stripe.checkout.sessions.create({
@@ -2651,7 +2671,7 @@ Formate sua resposta de forma clara e organizada.`;
             throw new Error("Usuário não encontrado");
           }
           
-          const origin = ctx.req.headers.origin || "http://localhost:3000";
+          const origin = getOriginFromRequest(ctx.req);
           
           // Buscar planos do banco de dados
           const dbPlans = await db.getPlans(true);
