@@ -221,6 +221,7 @@ export type InsertAnamnesis = typeof anamnesis.$inferInsert;
 // Dentistas
 export const dentists = mysqlTable("dentists", {
   id: int("id").autoincrement().primaryKey(),
+  userId: int("userId"), // Vínculo com usuário do sistema
   clinicId: int("clinicId"), // Multi-tenancy: ID da clínica
   name: varchar("name", { length: 255 }).notNull(),
   cro: varchar("cro", { length: 50 }).notNull(),

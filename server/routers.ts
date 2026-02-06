@@ -5560,6 +5560,21 @@ Responda de forma natural, direta e útil. Você é o assistente mais inteligent
         })),
       }))
       .mutation(async ({ input, ctx }) => {
+        // Buscar dentista vinculado ao usuário logado
+        let dentistId: number | undefined;
+        if (ctx.user) {
+          const dentist = await db.getDentistByUserId(ctx.user.id, ctx.clinicId);
+          if (dentist) {
+            dentistId = dentist.id;
+          } else {
+            // Fallback: usar primeiro dentista da clínica se não houver vínculo
+            const dentists = await db.getDentists(false, ctx.clinicId);
+            if (dentists.length > 0) {
+              dentistId = dentists[0].id;
+            }
+          }
+        }
+
         const proceduresToCreate = input.procedures.map(p => ({
           clinicId: ctx.clinicId,
           patientId: input.patientId,
@@ -5572,6 +5587,7 @@ Responda de forma natural, direta e útil. Você é o assistente mais inteligent
           condition: p.condition,
           price: p.price?.toString(),
           status: "pending" as const,
+          dentistId, // Vincular automaticamente ao dentista logado
         }));
         return db.createTreatmentProcedures(proceduresToCreate);
       }),
@@ -5950,6 +5966,16 @@ Responda de forma natural, direta e útil. Você é o assistente mais inteligent
       }))
       .query(async ({ input }) => {
         return db.getDentistProductivity(input);
+      }),
+
+    // Vincular dentista a usuário
+    linkToUser: clinicProcedure
+      .input(z.object({
+        dentistId: z.number(),
+        userId: z.number(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        return db.updateDentist(input.dentistId, { userId: input.userId }, ctx.clinicId);
       }),
   }),
 });

@@ -3775,3 +3775,13 @@ export async function getDentistProductivity(params: {
 
   return result;
 }
+
+
+export async function getDentistByUserId(userId: number, clinicId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(dentists)
+    .where(and(eq(dentists.userId, userId), eq(dentists.clinicId, clinicId)))
+    .limit(1);
+  return result[0] || null;
+}

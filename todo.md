@@ -1185,3 +1185,14 @@
 - [x] Corrigida query getDentistProductivity para usar dentistId
 - [x] Atualizados procedimentos existentes com dentistId correto (ID 60003)
 - [x] Corrigido problema de clinicId incompatível entre procedimentos e dentistas
+
+
+## Bug Relatório Não Atualiza (05/02/2026)
+- [x] Dentistas atendem pacientes mas relatório de produtividade não atualiza
+- [x] Procedimentos criados durante atendimento não têm dentistId vinculado automaticamente
+- [x] Investigado onde procedimentos são criados no fluxo de atendimento (treatmentProcedures.create)
+- [x] Adicionado campo userId na tabela dentists para vincular dentista a usuário
+- [x] Adicionada função getDentistByUserId no db.ts
+- [x] Implementada lógica para vincular ctx.user ao dentistId automaticamente
+- [x] Fallback: usa primeiro dentista da clínica se não houver vínculo
+- [ ] Testar fluxo completo: dentista atende → procedimento registrado → relatório atualiza
