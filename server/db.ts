@@ -1715,31 +1715,32 @@ export async function deleteOffice(id: number) {
 }
 
 // ==================== FILA DE ATENDIMENTO ====================
-export async function getServiceQueue(queueType?: string) {
+export async function getServiceQueue(queueType?: string, clinicId?: number) {
   const db = await getDb();
   if (!db) return [];
   
+  const conditions = [];
+  
+  if (clinicId) {
+    conditions.push(eq(serviceQueue.clinicId, clinicId));
+  }
+  
+  conditions.push(or(
+    eq(serviceQueue.status, "waiting"),
+    eq(serviceQueue.status, "called"),
+    eq(serviceQueue.status, "in_service"),
+    eq(serviceQueue.status, "pending_payment")
+  ));
+  
   if (queueType) {
+    conditions.push(eq(serviceQueue.queueType, queueType as any));
     return db.select().from(serviceQueue)
-      .where(and(
-        eq(serviceQueue.queueType, queueType as any),
-        or(
-          eq(serviceQueue.status, "waiting"),
-          eq(serviceQueue.status, "called"),
-          eq(serviceQueue.status, "in_service"),
-          eq(serviceQueue.status, "pending_payment")
-        )
-      ))
+      .where(and(...conditions))
       .orderBy(serviceQueue.arrivalTime);
   }
   
   return db.select().from(serviceQueue)
-    .where(or(
-      eq(serviceQueue.status, "waiting"),
-      eq(serviceQueue.status, "called"),
-      eq(serviceQueue.status, "in_service"),
-      eq(serviceQueue.status, "pending_payment")
-    ))
+    .where(and(...conditions))
     .orderBy(serviceQueue.arrivalTime);
 }
 

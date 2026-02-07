@@ -1701,20 +1701,21 @@ Formate sua resposta de forma clara e organizada.`;
 
   // Fila de Atendimento
   serviceQueue: router({
-    list: publicProcedure
+    list: clinicProcedure
       .input(z.object({ queueType: z.string().optional() }).optional())
-      .query(async ({ input }) => {
-        return db.getServiceQueue(input?.queueType);
+      .query(async ({ input, ctx }) => {
+        const clinicId = ctx.user.clinicId ?? 1;
+        return db.getServiceQueue(input?.queueType, clinicId);
       }),
-    getById: publicProcedure
+    getById: clinicProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ input }) => {
         return db.getServiceQueueEntry(input.id);
       }),
-    stats: publicProcedure.query(async () => {
+    stats: clinicProcedure.query(async () => {
       return db.getServiceQueueStats();
     }),
-    add: publicProcedure
+    add: clinicProcedure
       .input(z.object({
         patientId: z.number(),
         patientName: z.string(),
@@ -1723,9 +1724,10 @@ Formate sua resposta de forma clara e organizada.`;
         notes: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
-        return db.addToServiceQueue(input);
+        const clinicId = ctx.user.clinicId ?? 1;
+        return db.addToServiceQueue({ ...input, clinicId });
       }),
-    update: publicProcedure
+    update: clinicProcedure
       .input(z.object({
         id: z.number(),
         data: z.object({
@@ -1738,7 +1740,7 @@ Formate sua resposta de forma clara e organizada.`;
       .mutation(async ({ input }) => {
         return db.updateServiceQueueEntry(input.id, input.data);
       }),
-    callPatient: publicProcedure
+    callPatient: clinicProcedure
       .input(z.object({
         id: z.number(),
         officeId: z.number(),
@@ -1749,12 +1751,12 @@ Formate sua resposta de forma clara e organizada.`;
       .mutation(async ({ input }) => {
         return db.callPatientFromQueue(input.id, input.officeId, input.officeName, input.professionalId, input.professionalName);
       }),
-    startService: publicProcedure
+    startService: clinicProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
         return db.startService(input.id);
       }),
-    forward: publicProcedure
+    forward: clinicProcedure
       .input(z.object({
         id: z.number(),
         nextQueue: z.string(),
@@ -1765,7 +1767,7 @@ Formate sua resposta de forma clara e organizada.`;
       .mutation(async ({ input }) => {
         return db.finishServiceAndForward(input.id, input.nextQueue, input.notes, input.evaluationNotes, input.amountToPay);
       }),
-    requestPayment: publicProcedure
+    requestPayment: clinicProcedure
       .input(z.object({
         id: z.number(),
         amountToPay: z.number(),
@@ -1774,7 +1776,7 @@ Formate sua resposta de forma clara e organizada.`;
       .mutation(async ({ input }) => {
         return db.requestPayment(input.id, input.amountToPay, input.evaluationNotes);
       }),
-    receivePayment: publicProcedure
+    receivePayment: clinicProcedure
       .input(z.object({
         id: z.number(),
         amountPaid: z.number(),
@@ -1783,7 +1785,7 @@ Formate sua resposta de forma clara e organizada.`;
       .mutation(async ({ input }) => {
         return db.receivePayment(input.id, input.amountPaid, input.paymentMethod);
       }),
-    complete: publicProcedure
+    complete: clinicProcedure
       .input(z.object({
         id: z.number(),
         notes: z.string().optional(),
@@ -1791,7 +1793,7 @@ Formate sua resposta de forma clara e organizada.`;
       .mutation(async ({ input }) => {
         return db.completeService(input.id, input.notes);
       }),
-    cancel: publicProcedure
+    cancel: clinicProcedure
       .input(z.object({
         id: z.number(),
         reason: z.string().optional(),
@@ -1799,7 +1801,7 @@ Formate sua resposta de forma clara e organizada.`;
       .mutation(async ({ input }) => {
         return db.cancelServiceQueueEntry(input.id, input.reason);
       }),
-    history: publicProcedure
+    history: clinicProcedure
       .input(z.object({ patientId: z.number() }))
       .query(async ({ input }) => {
         return db.getQueueHistoryByPatient(input.patientId);
