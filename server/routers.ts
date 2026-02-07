@@ -583,8 +583,8 @@ export const appRouter = router({
     
     getItems: clinicProcedure
       .input(z.object({ budgetId: z.number() }))
-      .query(async ({ input }) => {
-        return db.getBudgetItems(input.budgetId);
+      .query(async ({ input, ctx }) => {
+        return db.getBudgetItems(input.budgetId, ctx.clinicId);
       }),
     
     createItem: clinicProcedure
@@ -599,18 +599,18 @@ export const appRouter = router({
         phase: z.enum(["urgent", "important", "aesthetic", "preventive"]).optional(),
         priority: z.number().optional(),
       }))
-      .mutation(async ({ input }) => {
-        return db.createBudgetItem(input);
+      .mutation(async ({ input, ctx }) => {
+        return db.createBudgetItem({ ...input, clinicId: ctx.clinicId });
       }),
     
     // Aprovar item individual do orçamento
     approveItem: clinicProcedure
       .input(z.object({ itemId: z.number() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         return db.updateBudgetItem(input.itemId, { 
           status: "approved", 
           approvedAt: new Date() 
-        });
+        }, ctx.clinicId);
       }),
     
     // Rejeitar item individual do orçamento
@@ -619,12 +619,12 @@ export const appRouter = router({
         itemId: z.number(),
         reason: z.string().optional()
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         return db.updateBudgetItem(input.itemId, { 
           status: "rejected", 
           rejectedAt: new Date(),
           rejectionReason: input.reason
-        });
+        }, ctx.clinicId);
       }),
     
     // Atualizar fase/prioridade do item
@@ -634,9 +634,9 @@ export const appRouter = router({
         phase: z.enum(["urgent", "important", "aesthetic", "preventive"]).optional(),
         priority: z.number().optional(),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const { itemId, ...data } = input;
-        return db.updateBudgetItem(itemId, data);
+        return db.updateBudgetItem(itemId, data, ctx.clinicId);
       }),
   }),
 
@@ -876,13 +876,13 @@ export const appRouter = router({
 
   // Anamnesis
   anamnesis: router({
-    get: publicProcedure
+    get: clinicProcedure
       .input(z.object({ patientId: z.number() }))
-      .query(async ({ input }) => {
-        return db.getAnamnesis(input.patientId);
+      .query(async ({ input, ctx }) => {
+        return db.getAnamnesis(input.patientId, ctx.clinicId);
       }),
     
-    save: publicProcedure
+    save: clinicProcedure
       .input(z.object({
         patientId: z.number(),
         heartDisease: z.boolean().optional(),
@@ -899,20 +899,20 @@ export const appRouter = router({
         alcohol: z.boolean().optional(),
         notes: z.string().optional(),
       }))
-      .mutation(async ({ input }) => {
-        return db.upsertAnamnesis(input);
+      .mutation(async ({ input, ctx }) => {
+        return db.upsertAnamnesis({ ...input, clinicId: ctx.clinicId });
       }),
   }),
 
   // Treatments (Odontogram)
   treatments: router({
-    list: publicProcedure
+    list: clinicProcedure
       .input(z.object({ patientId: z.number() }))
-      .query(async ({ input }) => {
-        return db.getTreatments(input.patientId);
+      .query(async ({ input, ctx }) => {
+        return db.getTreatments(input.patientId, ctx.clinicId);
       }),
     
-    create: publicProcedure
+    create: clinicProcedure
       .input(z.object({
         patientId: z.number(),
         toothNumber: z.string(),

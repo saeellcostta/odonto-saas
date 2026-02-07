@@ -489,10 +489,12 @@ export async function getPendingBudgetsCount(clinicId?: number) {
 }
 
 // ==================== BUDGET ITEMS ====================
-export async function getBudgetItems(budgetId: number) {
+export async function getBudgetItems(budgetId: number, clinicId?: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(budgetItems).where(eq(budgetItems.budgetId, budgetId));
+  const conditions = [eq(budgetItems.budgetId, budgetId)];
+  if (clinicId) conditions.push(eq(budgetItems.clinicId, clinicId));
+  return db.select().from(budgetItems).where(and(...conditions));
 }
 
 export async function createBudgetItem(data: InsertBudgetItem) {
@@ -502,10 +504,12 @@ export async function createBudgetItem(data: InsertBudgetItem) {
   return { id: result[0].insertId };
 }
 
-export async function updateBudgetItem(id: number, data: Partial<InsertBudgetItem>) {
+export async function updateBudgetItem(id: number, data: Partial<InsertBudgetItem>, clinicId?: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(budgetItems).set(data).where(eq(budgetItems.id, id));
+  const conditions = [eq(budgetItems.id, id)];
+  if (clinicId) conditions.push(eq(budgetItems.clinicId, clinicId));
+  await db.update(budgetItems).set(data).where(and(...conditions));
   return { success: true };
 }
 
@@ -751,10 +755,12 @@ export async function updateQueueStatus(id: number, status: "waiting" | "in_serv
 }
 
 // ==================== ANAMNESIS ====================
-export async function getAnamnesis(patientId: number) {
+export async function getAnamnesis(patientId: number, clinicId?: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(anamnesis).where(eq(anamnesis.patientId, patientId)).limit(1);
+  const conditions = [eq(anamnesis.patientId, patientId)];
+  if (clinicId) conditions.push(eq(anamnesis.clinicId, clinicId));
+  const result = await db.select().from(anamnesis).where(and(...conditions)).limit(1);
   return result[0];
 }
 
@@ -762,9 +768,12 @@ export async function upsertAnamnesis(data: InsertAnamnesis) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const existing = await getAnamnesis(data.patientId);
+  const existing = await getAnamnesis(data.patientId, data.clinicId);
   if (existing) {
-    await db.update(anamnesis).set(data).where(eq(anamnesis.patientId, data.patientId));
+    await db.update(anamnesis).set(data).where(and(
+      eq(anamnesis.patientId, data.patientId),
+      eq(anamnesis.clinicId, data.clinicId)
+    ));
     return { id: existing.id };
   } else {
     const result = await db.insert(anamnesis).values(data);
@@ -811,10 +820,12 @@ export async function upsertClinicSettings(clinicId: number, data: Omit<InsertCl
 }
 
 // ==================== TREATMENTS ====================
-export async function getTreatments(patientId: number) {
+export async function getTreatments(patientId: number, clinicId?: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(treatments).where(eq(treatments.patientId, patientId));
+  const conditions = [eq(treatments.patientId, patientId)];
+  if (clinicId) conditions.push(eq(treatments.clinicId, clinicId));
+  return db.select().from(treatments).where(and(...conditions));
 }
 
 export async function createTreatment(data: InsertTreatment) {
@@ -824,16 +835,20 @@ export async function createTreatment(data: InsertTreatment) {
   return { id: result[0].insertId };
 }
 
-export async function updateTreatment(id: number, data: Partial<InsertTreatment>) {
+export async function updateTreatment(id: number, data: Partial<InsertTreatment>, clinicId?: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(treatments).set(data).where(eq(treatments.id, id));
+  const conditions = [eq(treatments.id, id)];
+  if (clinicId) conditions.push(eq(treatments.clinicId, clinicId));
+  await db.update(treatments).set(data).where(and(...conditions));
 }
 
-export async function deleteTreatment(id: number) {
+export async function deleteTreatment(id: number, clinicId?: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.delete(treatments).where(eq(treatments.id, id));
+  const conditions = [eq(treatments.id, id)];
+  if (clinicId) conditions.push(eq(treatments.clinicId, clinicId));
+  await db.delete(treatments).where(and(...conditions));
 }
 
 // ==================== PATIENT DOCUMENTS ====================

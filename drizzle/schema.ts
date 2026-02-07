@@ -197,6 +197,7 @@ export type InsertPatient = typeof patients.$inferInsert;
 // Anamnese do paciente
 export const anamnesis = mysqlTable("anamnesis", {
   id: int("id").autoincrement().primaryKey(),
+  clinicId: int("clinicId").notNull().default(1),
   patientId: int("patientId").notNull(),
   heartDisease: boolean("heartDisease").default(false),
   hypertension: boolean("hypertension").default(false),
@@ -222,7 +223,7 @@ export type InsertAnamnesis = typeof anamnesis.$inferInsert;
 export const dentists = mysqlTable("dentists", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId"), // Vínculo com usuário do sistema
-  clinicId: int("clinicId"), // Multi-tenancy: ID da clínica
+  clinicId: int("clinicId").notNull().default(1), // Multi-tenancy: ID da clínica
   name: varchar("name", { length: 255 }).notNull(),
   cro: varchar("cro", { length: 50 }).notNull(),
   specialty: varchar("specialty", { length: 100 }),
@@ -346,6 +347,7 @@ export type InsertBudget = typeof budgets.$inferInsert;
 // Itens do orçamento
 export const budgetItems = mysqlTable("budget_items", {
   id: int("id").autoincrement().primaryKey(),
+  clinicId: int("clinicId").notNull().default(1),
   budgetId: int("budgetId").notNull(),
   procedureId: int("procedureId").notNull(),
   toothNumber: varchar("toothNumber", { length: 10 }),
@@ -369,6 +371,7 @@ export type InsertBudgetItem = typeof budgetItems.$inferInsert;
 // Tratamentos (odontograma)
 export const treatments = mysqlTable("treatments", {
   id: int("id").autoincrement().primaryKey(),
+  clinicId: int("clinicId").notNull().default(1),
   patientId: int("patientId").notNull(),
   toothNumber: varchar("toothNumber", { length: 10 }).notNull(),
   face: varchar("face", { length: 5 }),
