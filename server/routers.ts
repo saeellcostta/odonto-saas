@@ -1723,7 +1723,7 @@ Formate sua resposta de forma clara e organizada.`;
         priority: z.enum(["normal", "high", "urgent"]).optional(),
         notes: z.string().optional(),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const clinicId = ctx.user.clinicId ?? 1;
         return db.addToServiceQueue({ ...input, clinicId });
       }),
