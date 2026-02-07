@@ -489,12 +489,10 @@ export async function getPendingBudgetsCount(clinicId?: number) {
 }
 
 // ==================== BUDGET ITEMS ====================
-export async function getBudgetItems(budgetId: number, clinicId?: number) {
+export async function getBudgetItems(budgetId: number) {
   const db = await getDb();
   if (!db) return [];
-  const conditions = [eq(budgetItems.budgetId, budgetId)];
-  if (clinicId) conditions.push(eq(budgetItems.clinicId, clinicId));
-  return db.select().from(budgetItems).where(and(...conditions));
+  return db.select().from(budgetItems).where(eq(budgetItems.budgetId, budgetId));
 }
 
 export async function createBudgetItem(data: InsertBudgetItem) {
@@ -504,12 +502,10 @@ export async function createBudgetItem(data: InsertBudgetItem) {
   return { id: result[0].insertId };
 }
 
-export async function updateBudgetItem(id: number, data: Partial<InsertBudgetItem>, clinicId?: number) {
+export async function updateBudgetItem(id: number, data: Partial<InsertBudgetItem>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const conditions = [eq(budgetItems.id, id)];
-  if (clinicId) conditions.push(eq(budgetItems.clinicId, clinicId));
-  await db.update(budgetItems).set(data).where(and(...conditions));
+  await db.update(budgetItems).set(data).where(eq(budgetItems.id, id));
   return { success: true };
 }
 
@@ -755,12 +751,10 @@ export async function updateQueueStatus(id: number, status: "waiting" | "in_serv
 }
 
 // ==================== ANAMNESIS ====================
-export async function getAnamnesis(patientId: number, clinicId?: number) {
+export async function getAnamnesis(patientId: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const conditions = [eq(anamnesis.patientId, patientId)];
-  if (clinicId) conditions.push(eq(anamnesis.clinicId, clinicId));
-  const result = await db.select().from(anamnesis).where(and(...conditions)).limit(1);
+  const result = await db.select().from(anamnesis).where(eq(anamnesis.patientId, patientId)).limit(1);
   return result[0];
 }
 
@@ -768,12 +762,9 @@ export async function upsertAnamnesis(data: InsertAnamnesis) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const existing = await getAnamnesis(data.patientId, data.clinicId);
+  const existing = await getAnamnesis(data.patientId);
   if (existing) {
-    await db.update(anamnesis).set(data).where(and(
-      eq(anamnesis.patientId, data.patientId),
-      eq(anamnesis.clinicId, data.clinicId)
-    ));
+    await db.update(anamnesis).set(data).where(eq(anamnesis.patientId, data.patientId));
     return { id: existing.id };
   } else {
     const result = await db.insert(anamnesis).values(data);
@@ -820,12 +811,10 @@ export async function upsertClinicSettings(clinicId: number, data: Omit<InsertCl
 }
 
 // ==================== TREATMENTS ====================
-export async function getTreatments(patientId: number, clinicId?: number) {
+export async function getTreatments(patientId: number) {
   const db = await getDb();
   if (!db) return [];
-  const conditions = [eq(treatments.patientId, patientId)];
-  if (clinicId) conditions.push(eq(treatments.clinicId, clinicId));
-  return db.select().from(treatments).where(and(...conditions));
+  return db.select().from(treatments).where(eq(treatments.patientId, patientId));
 }
 
 export async function createTreatment(data: InsertTreatment) {
@@ -835,20 +824,16 @@ export async function createTreatment(data: InsertTreatment) {
   return { id: result[0].insertId };
 }
 
-export async function updateTreatment(id: number, data: Partial<InsertTreatment>, clinicId?: number) {
+export async function updateTreatment(id: number, data: Partial<InsertTreatment>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const conditions = [eq(treatments.id, id)];
-  if (clinicId) conditions.push(eq(treatments.clinicId, clinicId));
-  await db.update(treatments).set(data).where(and(...conditions));
+  await db.update(treatments).set(data).where(eq(treatments.id, id));
 }
 
-export async function deleteTreatment(id: number, clinicId?: number) {
+export async function deleteTreatment(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const conditions = [eq(treatments.id, id)];
-  if (clinicId) conditions.push(eq(treatments.clinicId, clinicId));
-  await db.delete(treatments).where(and(...conditions));
+  await db.delete(treatments).where(eq(treatments.id, id));
 }
 
 // ==================== PATIENT DOCUMENTS ====================
@@ -3672,131 +3657,4 @@ export async function getMedicalDocumentsByClinic(clinicId: number, type?: strin
     .from(medicalDocuments)
     .where(and(...conditions))
     .orderBy(desc(medicalDocuments.createdAt));
-}
-
-
-// ============================================
-// RELATÓRIO DE PRODUTIVIDADE POR DENTISTA
-// ============================================
-
-export async function getDentistProductivity(params: {
-  dentistId?: number;
-  startDate?: string;
-  endDate?: string;
-}) {
-  const db = await getDb();
-  if (!db) return [];
-  
-  const { dentistId, startDate, endDate } = params;
-  
-  // Filtros opcionais
-  const conditions = [
-    eq(treatmentProcedures.status, "completed"),
-    sql`${treatmentProcedures.dentistId} IS NOT NULL`,
-  ];
-
-  if (dentistId) {
-    conditions.push(eq(treatmentProcedures.dentistId, dentistId));
-  }
-
-  if (startDate) {
-    conditions.push(gte(treatmentProcedures.completedAt, new Date(startDate)));
-  }
-
-  if (endDate) {
-    conditions.push(lte(treatmentProcedures.completedAt, new Date(endDate)));
-  }
-
-  const procedures = await db
-    .select({
-      dentistId: treatmentProcedures.dentistId,
-      dentistName: sql<string>`(SELECT name FROM dentists WHERE id = ${treatmentProcedures.dentistId})`,
-      dentistCommission: sql<string>`(SELECT commission FROM dentists WHERE id = ${treatmentProcedures.dentistId})`,
-      procedureName: treatmentProcedures.procedureName,
-      price: treatmentProcedures.price,
-      completedAt: treatmentProcedures.completedAt,
-      patientId: treatmentProcedures.patientId,
-    })
-    .from(treatmentProcedures)
-    .where(and(...conditions));
-
-  // Agrupar por dentista
-  const dentistMap = new Map<number, {
-    dentistId: number;
-    dentistName: string;
-    dentistCommission: number;
-    totalPatients: number;
-    totalRevenue: number;
-    totalCommission: number;
-    procedures: Map<string, {
-      procedureName: string;
-      count: number;
-      totalValue: number;
-    }>;
-    uniquePatients: Set<number>;
-  }>();
-
-  for (const proc of procedures) {
-    if (!proc.dentistId) continue;
-
-    if (!dentistMap.has(proc.dentistId)) {
-      dentistMap.set(proc.dentistId, {
-        dentistId: proc.dentistId,
-        dentistName: proc.dentistName || "Desconhecido",
-        dentistCommission: parseFloat(proc.dentistCommission || "0"),
-        totalPatients: 0,
-        totalRevenue: 0,
-        totalCommission: 0,
-        procedures: new Map(),
-        uniquePatients: new Set(),
-      });
-    }
-
-    const dentist = dentistMap.get(proc.dentistId)!;
-    
-    // Adicionar paciente único
-    if (proc.patientId) {
-      dentist.uniquePatients.add(proc.patientId);
-    }
-
-    // Agrupar procedimentos
-    const procName = proc.procedureName;
-    if (!dentist.procedures.has(procName)) {
-      dentist.procedures.set(procName, {
-        procedureName: procName,
-        count: 0,
-        totalValue: 0,
-      });
-    }
-
-    const procData = dentist.procedures.get(procName)!;
-    procData.count += 1;
-    procData.totalValue += parseFloat(proc.price?.toString() || "0");
-
-    // Somar receita total
-    dentist.totalRevenue += parseFloat(proc.price?.toString() || "0");
-  }
-
-  // Calcular comissões e formatar resultado
-  const result = Array.from(dentistMap.values()).map(dentist => ({
-    dentistId: dentist.dentistId,
-    dentistName: dentist.dentistName,
-    dentistCommission: dentist.dentistCommission,
-    totalPatients: dentist.uniquePatients.size,
-    totalRevenue: dentist.totalRevenue,
-    totalCommission: (dentist.totalRevenue * dentist.dentistCommission) / 100,
-    procedures: Array.from(dentist.procedures.values()),
-  }));
-
-  return result;
-}
-
-
-export async function getDentistByUserId(userId: number, clinicId: number) {
-  const db = await getDb();
-  if (!db) return null;
-  const result = await db.select().from(dentists)
-    .where(and(eq(dentists.userId, userId), eq(dentists.clinicId, clinicId)))
-    .limit(1);
-  return result[0] || null;
 }

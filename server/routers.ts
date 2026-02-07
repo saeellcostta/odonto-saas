@@ -583,8 +583,8 @@ export const appRouter = router({
     
     getItems: clinicProcedure
       .input(z.object({ budgetId: z.number() }))
-      .query(async ({ input, ctx }) => {
-        return db.getBudgetItems(input.budgetId, ctx.clinicId);
+      .query(async ({ input }) => {
+        return db.getBudgetItems(input.budgetId);
       }),
     
     createItem: clinicProcedure
@@ -599,18 +599,18 @@ export const appRouter = router({
         phase: z.enum(["urgent", "important", "aesthetic", "preventive"]).optional(),
         priority: z.number().optional(),
       }))
-      .mutation(async ({ input, ctx }) => {
-        return db.createBudgetItem({ ...input, clinicId: ctx.clinicId });
+      .mutation(async ({ input }) => {
+        return db.createBudgetItem(input);
       }),
     
     // Aprovar item individual do orçamento
     approveItem: clinicProcedure
       .input(z.object({ itemId: z.number() }))
-      .mutation(async ({ input, ctx }) => {
+      .mutation(async ({ input }) => {
         return db.updateBudgetItem(input.itemId, { 
           status: "approved", 
           approvedAt: new Date() 
-        }, ctx.clinicId);
+        });
       }),
     
     // Rejeitar item individual do orçamento
@@ -619,12 +619,12 @@ export const appRouter = router({
         itemId: z.number(),
         reason: z.string().optional()
       }))
-      .mutation(async ({ input, ctx }) => {
+      .mutation(async ({ input }) => {
         return db.updateBudgetItem(input.itemId, { 
           status: "rejected", 
           rejectedAt: new Date(),
           rejectionReason: input.reason
-        }, ctx.clinicId);
+        });
       }),
     
     // Atualizar fase/prioridade do item
@@ -634,9 +634,9 @@ export const appRouter = router({
         phase: z.enum(["urgent", "important", "aesthetic", "preventive"]).optional(),
         priority: z.number().optional(),
       }))
-      .mutation(async ({ input, ctx }) => {
+      .mutation(async ({ input }) => {
         const { itemId, ...data } = input;
-        return db.updateBudgetItem(itemId, data, ctx.clinicId);
+        return db.updateBudgetItem(itemId, data);
       }),
   }),
 
@@ -876,13 +876,13 @@ export const appRouter = router({
 
   // Anamnesis
   anamnesis: router({
-    get: clinicProcedure
+    get: publicProcedure
       .input(z.object({ patientId: z.number() }))
-      .query(async ({ input, ctx }) => {
-        return db.getAnamnesis(input.patientId, ctx.clinicId);
+      .query(async ({ input }) => {
+        return db.getAnamnesis(input.patientId);
       }),
     
-    save: clinicProcedure
+    save: publicProcedure
       .input(z.object({
         patientId: z.number(),
         heartDisease: z.boolean().optional(),
@@ -899,20 +899,20 @@ export const appRouter = router({
         alcohol: z.boolean().optional(),
         notes: z.string().optional(),
       }))
-      .mutation(async ({ input, ctx }) => {
-        return db.upsertAnamnesis({ ...input, clinicId: ctx.clinicId });
+      .mutation(async ({ input }) => {
+        return db.upsertAnamnesis(input);
       }),
   }),
 
   // Treatments (Odontogram)
   treatments: router({
-    list: clinicProcedure
+    list: publicProcedure
       .input(z.object({ patientId: z.number() }))
-      .query(async ({ input, ctx }) => {
-        return db.getTreatments(input.patientId, ctx.clinicId);
+      .query(async ({ input }) => {
+        return db.getTreatments(input.patientId);
       }),
     
-    create: clinicProcedure
+    create: publicProcedure
       .input(z.object({
         patientId: z.number(),
         toothNumber: z.string(),
@@ -5560,21 +5560,6 @@ Responda de forma natural, direta e útil. Você é o assistente mais inteligent
         })),
       }))
       .mutation(async ({ input, ctx }) => {
-        // Buscar dentista vinculado ao usuário logado
-        let dentistId: number | undefined;
-        if (ctx.user) {
-          const dentist = await db.getDentistByUserId(ctx.user.id, ctx.clinicId);
-          if (dentist) {
-            dentistId = dentist.id;
-          } else {
-            // Fallback: usar primeiro dentista da clínica se não houver vínculo
-            const dentists = await db.getDentists(false, ctx.clinicId);
-            if (dentists.length > 0) {
-              dentistId = dentists[0].id;
-            }
-          }
-        }
-
         const proceduresToCreate = input.procedures.map(p => ({
           clinicId: ctx.clinicId,
           patientId: input.patientId,
@@ -5587,7 +5572,6 @@ Responda de forma natural, direta e útil. Você é o assistente mais inteligent
           condition: p.condition,
           price: p.price?.toString(),
           status: "pending" as const,
-          dentistId, // Vincular automaticamente ao dentista logado
         }));
         return db.createTreatmentProcedures(proceduresToCreate);
       }),
@@ -5953,29 +5937,6 @@ Responda de forma natural, direta e útil. Você é o assistente mais inteligent
             paymentMethod: document.paymentMethod,
           },
         };
-      }),
-  }),
-
-  // ==================== REPORTS ====================
-  reports: router({
-    dentistProductivity: publicProcedure
-      .input(z.object({
-        dentistId: z.number().optional(),
-        startDate: z.string().optional(),
-        endDate: z.string().optional(),
-      }))
-      .query(async ({ input }) => {
-        return db.getDentistProductivity(input);
-      }),
-
-    // Vincular dentista a usuário
-    linkToUser: clinicProcedure
-      .input(z.object({
-        dentistId: z.number(),
-        userId: z.number(),
-      }))
-      .mutation(async ({ input, ctx }) => {
-        return db.updateDentist(input.dentistId, { userId: input.userId }, ctx.clinicId);
       }),
   }),
 });

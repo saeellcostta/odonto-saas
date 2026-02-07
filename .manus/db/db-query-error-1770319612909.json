@@ -1,8 +1,0 @@
-{
-  "query": "SELECT tp.id, tp.dentistId, d.name as dentist_name, tp.procedureId, p.name as procedure_name, tp.price, tp.createdAt FROM treatment_procedures tp LEFT JOIN dentists d ON tp.dentistId = d.id LEFT JOIN procedures p ON tp.procedureId = p.id ORDER BY tp.createdAt DESC LIMIT 20;",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3oCPfWeBHeZbvmV.root --database ZxQkmxiVcK2LVVsppAdeCn --execute SELECT tp.id, tp.dentistId, d.name as dentist_name, tp.procedureId, p.name as procedure_name, tp.price, tp.createdAt FROM treatment_procedures tp LEFT JOIN dentists d ON tp.dentistId = d.id LEFT JOIN procedures p ON tp.procedureId = p.id ORDER BY tp.createdAt DESC LIMIT 20;",
-  "returncode": 1,
-  "logs": [
-    "ERROR 1054 (42S22) at line 1: Unknown column 'tp.dentistid' in 'on clause'"
-  ]
-}

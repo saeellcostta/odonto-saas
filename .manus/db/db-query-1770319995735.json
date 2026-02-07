@@ -1,9 +1,0 @@
-{
-  "query": "UPDATE treatment_procedures tp SET tp.dentistId = (SELECT d.id FROM dentists d WHERE d.clinicId = 60002 LIMIT 1) WHERE tp.clinicId = 60002;",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3oCPfWeBHeZbvmV.root --database ZxQkmxiVcK2LVVsppAdeCn --execute UPDATE treatment_procedures tp SET tp.dentistId = (SELECT d.id FROM dentists d WHERE d.clinicId = 60002 LIMIT 1) WHERE tp.clinicId = 60002;",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 362
-}
