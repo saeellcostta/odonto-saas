@@ -394,19 +394,19 @@ export default function Prontuario() {
         <title>${typeLabels[doc.type] || doc.type}</title>
         <style>
           * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: Arial, sans-serif; padding: 40px; line-height: 1.6; }
-          .header { text-align: center; margin-bottom: 40px; border-bottom: 2px solid #333; padding-bottom: 20px; }
-          .clinic-name { font-size: 24px; font-weight: bold; color: #333; }
-          .document-type { font-size: 18px; margin-top: 10px; color: #666; }
-          .content { margin: 30px 0; min-height: 300px; }
-          .content p { margin-bottom: 15px; text-align: justify; }
-          .patient-info { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+          body { font-family: Arial, sans-serif; padding: 20px; line-height: 1.4; }
+          .header { text-align: center; margin-bottom: 15px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+          .clinic-name { font-size: 20px; font-weight: bold; color: #333; }
+          .document-type { font-size: 16px; margin-top: 5px; color: #666; }
+          .content { margin: 15px 0; min-height: 80px; }
+          .content p { margin-bottom: 10px; text-align: justify; font-size: 13px; }
+          .patient-info { background: #f5f5f5; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; }
           .patient-info strong { color: #333; }
-          .signatures { display: flex; justify-content: space-between; margin-top: 80px; }
+          .signatures { display: flex; justify-content: space-between; margin-top: 30px; }
           .signature-box { text-align: center; width: 45%; }
-          .signature-line { border-top: 1px solid #333; padding-top: 10px; margin-top: 60px; }
-          .footer { text-align: center; margin-top: 40px; font-size: 12px; color: #666; }
-          @media print { body { padding: 20px; } }
+          .signature-line { border-top: 1px solid #333; padding-top: 8px; margin-top: 40px; font-size: 12px; }
+          .footer { text-align: center; margin-top: 20px; font-size: 11px; color: #666; }
+          @media print { body { padding: 15px; } }
         </style>
       </head>
       <body>
