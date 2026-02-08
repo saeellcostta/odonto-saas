@@ -227,9 +227,6 @@ export const appRouter = router({
       .query(async ({ input, ctx }) => {
         return db.getAdvancedDashboardStats(input?.days ?? 30, ctx.clinicId);
       }),
-    queueStats: clinicProcedure.query(async ({ ctx }) => {
-      return db.getQueueStats(ctx.clinicId);
-    }),
   }),
 
   // Patients - Multi-tenancy: filtra por clinicId
@@ -1707,14 +1704,15 @@ Formate sua resposta de forma clara e organizada.`;
         const clinicId = ctx.user.clinicId ?? 1;
         return db.getServiceQueue(input?.queueType, clinicId);
       }),
+    stats: clinicProcedure.query(async ({ ctx }) => {
+      const clinicId = ctx.user.clinicId ?? 1;
+      return db.getServiceQueueStats(clinicId);
+    }),
     getById: clinicProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ input }) => {
         return db.getServiceQueueEntry(input.id);
       }),
-    stats: clinicProcedure.query(async () => {
-      return db.getServiceQueueStats();
-    }),
     add: clinicProcedure
       .input(z.object({
         patientId: z.number(),

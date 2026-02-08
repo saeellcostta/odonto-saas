@@ -2058,7 +2058,7 @@ export async function cancelServiceQueueEntry(id: number, reason?: string) {
   return { success: true };
 }
 
-export async function getServiceQueueStats() {
+export async function getServiceQueueStats(clinicId?: number) {
   const db = await getDb();
   if (!db) return {
     reception: 0,
@@ -2072,16 +2072,24 @@ export async function getServiceQueueStats() {
     total: 0,
   };
   
+  const conditions = [];
+  
+  if (clinicId) {
+    conditions.push(eq(serviceQueue.clinicId, clinicId));
+  }
+  
+  conditions.push(or(
+    eq(serviceQueue.status, "waiting"),
+    eq(serviceQueue.status, "called"),
+    eq(serviceQueue.status, "in_service"),
+    eq(serviceQueue.status, "pending_payment")
+  ));
+  
   const result = await db.select({
     queueType: serviceQueue.queueType,
     count: sql<number>`count(*)`,
   }).from(serviceQueue)
-    .where(or(
-      eq(serviceQueue.status, "waiting"),
-      eq(serviceQueue.status, "called"),
-      eq(serviceQueue.status, "in_service"),
-      eq(serviceQueue.status, "pending_payment")
-    ))
+    .where(and(...conditions))
     .groupBy(serviceQueue.queueType);
   
   const stats = {
