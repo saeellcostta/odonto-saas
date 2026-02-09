@@ -1944,6 +1944,7 @@ export async function requestPayment(id: number, amountToPay: number, evaluation
   
   // Criar entrada na recepção para pagamento
   const newEntry = await db.insert(serviceQueue).values({
+    clinicId: entry.clinicId,
     patientId: entry.patientId,
     patientName: entry.patientName,
     queueType: "reception",
