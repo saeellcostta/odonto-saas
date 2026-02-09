@@ -1509,7 +1509,7 @@ export default function PainelTV() {
 
   const getQueueTypeLabel = (type: string | null) => {
     const labels: Record<string, string> = {
-      budget: "Orçamento",
+      budget: "Avaliação",
       dentist: "Dentista",
       orthodontics: "Ortodontia",
       implant: "Implante",
@@ -1521,7 +1521,7 @@ export default function PainelTV() {
 
   const getQueueTypeColor = (type: string | null) => {
     const colors: Record<string, string> = {
-      budget: "bg-purple-500",
+      budget: "bg-blue-600",
       dentist: "bg-blue-500",
       orthodontics: "bg-pink-500",
       implant: "bg-orange-500",
