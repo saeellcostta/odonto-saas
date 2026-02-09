@@ -122,8 +122,13 @@ export default function Orcamentista() {
   });
 
   const startService = trpc.serviceQueue.startService.useMutation({
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       utils.serviceQueue.list.invalidate();
+      // Encontrar o paciente nos dados atualizados
+      const updatedPatient = budgetQueue?.find(p => p.id === variables.id);
+      if (updatedPatient) {
+        setCurrentPatient(updatedPatient);
+      }
       toast.success("Atendimento iniciado!");
     },
     onError: () => toast.error("Erro ao iniciar atendimento"),
@@ -230,8 +235,12 @@ export default function Orcamentista() {
   };
 
   const handleStartService = (entry: any) => {
-    startService.mutate({ id: entry.id });
+    if (!entry || !entry.id) {
+      toast.error("Erro: Paciente inválido");
+      return;
+    }
     setCurrentPatient(entry);
+    startService.mutate({ id: entry.id });
   };
 
   // Enviar para o Atendente
