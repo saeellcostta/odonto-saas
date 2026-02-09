@@ -75,8 +75,8 @@ function PaidPatientCard({
 }) {
   // Query para procedimentos do paciente
   const { data: procedures } = trpc.treatmentProcedures.getForSpecialist.useQuery(
-    { queueEntryId: 0, patientId: entry.patientId },
-    { enabled: !!entry.patientId, refetchInterval: 5000 }
+    { queueEntryId: entry.id, patientId: entry.patientId },
+    { enabled: !!entry.patientId && !!entry.id, refetchInterval: 5000 }
   );
   
   // Query para histórico de filas do paciente
