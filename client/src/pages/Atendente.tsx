@@ -823,7 +823,7 @@ export default function Atendente() {
 
         {/* Stats Cards */}
         <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
-          {(["budget", "dentist", "orthodontics", "implant", "prosthetics", "reception"] as QueueType[]).map((queue) => (
+          {(["budget", "dentist", "orthodontics", "implant", "prosthetics", "maxillofacial", "pediatric", "reception"] as QueueType[]).map((queue) => (
             <Card key={queue} className={queue === "reception" && (queueStats?.reception || 0) > 0 ? "ring-2 ring-blue-500 animate-pulse" : ""}>
               <CardContent className="pt-4">
                 <div className="flex items-center gap-2">
