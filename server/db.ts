@@ -1885,6 +1885,7 @@ export async function finishServiceAndForward(id: number, nextQueue: string, not
   
   // Criar nova entrada na próxima fila
   const newEntry = await db.insert(serviceQueue).values({
+    clinicId: entry.clinicId,
     patientId: entry.patientId,
     patientName: entry.patientName,
     queueType: nextQueue as any,
