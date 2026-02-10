@@ -303,13 +303,13 @@ function DashboardLayoutContent({
                     isActive={isActive}
                     onClick={() => setLocation(item.path)}
                     tooltip={item.label}
-                    className={`h-10 transition-all font-normal relative ${isActive ? 'bg-primary/10 text-primary font-medium' : ''}`}
+                    className={`h-10 transition-all font-normal relative ${isActive ? 'bg-primary/10 text-primary font-medium' : ''} ${notificationCount > 0 ? 'menu-item-with-notification' : ''}`}
                   >
                     <item.icon className={`h-4 w-4 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
                     <span>{item.label}</span>
                     {notificationCount > 0 && (
                       <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center">
-                        <div className="h-5 w-5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center animate-pulse">
+                        <div className="notification-badge h-5 w-5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center">
                           {notificationCount > 99 ? '99+' : notificationCount}
                         </div>
                       </div>

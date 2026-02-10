@@ -228,3 +228,42 @@
   -webkit-mask-composite: xor;
   mask-composite: exclude;
 }
+
+
+/* Notification Badge Animations */
+@keyframes pulse-scale {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes badge-glow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.6), 0 0 12px rgba(239, 68, 68, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.8), 0 0 16px rgba(239, 68, 68, 0.5);
+  }
+}
+
+@keyframes menu-item-highlight {
+  0%, 100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: rgba(239, 68, 68, 0.05);
+  }
+}
+
+.notification-badge {
+  animation: pulse-scale 2s ease-in-out infinite, badge-glow 2s ease-in-out infinite;
+}
+
+.menu-item-with-notification {
+  animation: menu-item-highlight 3s ease-in-out infinite;
+}

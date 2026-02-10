@@ -1160,3 +1160,6 @@
 - [x] Testes criados e passando: dashboard.paymentStats, getPendingPayments, getReturnAlerts
 - [x] Badges mostram contagem de pacientes em fila e pagamentos pendentes
 - [x] Sistema de notificações funcional com isolamento por clinicId
+- [x] Animações visuais para badges: pulse-scale + glow effect
+- [x] Destaque no menu item quando há notificações não visualizadas
+- [x] Animações CSS customizadas em index.css (pulse-scale, badge-glow, menu-item-highlight)
