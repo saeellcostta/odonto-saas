@@ -1150,3 +1150,13 @@
 - [x] Área Buco-Maxilo-Facial: corrigir queueType para "maxillofacial"
 - [x] Área Odontopediatria: corrigir queueType para "pediatric"
 - [x] Adicionar opções no dropdown "Adicionar à Fila" do atendente
+
+
+## Notificações Visuais no Menu Lateral (09/02/2026)
+- [x] Criar procedure `dashboard.paymentStats` para buscar pagamentos pendentes e alertas de retorno
+- [x] Criar função `getPendingPayments` no db.ts para filtrar pagamentos por clinicId
+- [x] Implementar badges de notificação no menu lateral (Atendente, Orçamentista, Pagamentos, Alertas)
+- [x] Corrigir Layout para usar `serviceQueue.stats` em vez de `dashboard.stats`
+- [x] Testes criados e passando: dashboard.paymentStats, getPendingPayments, getReturnAlerts
+- [x] Badges mostram contagem de pacientes em fila e pagamentos pendentes
+- [x] Sistema de notificações funcional com isolamento por clinicId

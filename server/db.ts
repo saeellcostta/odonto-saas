@@ -3220,6 +3220,16 @@ export async function createReturnAlert(data: InsertReturnAlert) {
   return { id: Number(result[0].insertId) };
 }
 
+export async function getPendingPayments(clinicId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(serviceQueue).where(and(
+    eq(serviceQueue.clinicId, clinicId),
+    eq(serviceQueue.status, "pending_payment"),
+    ne(serviceQueue.paymentStatus, "paid")
+  )).orderBy(serviceQueue.arrivalTime);
+}
+
 export async function getReturnAlerts(clinicId: number) {
   const db = await getDb();
   if (!db) return [];

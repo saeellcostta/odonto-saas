@@ -222,6 +222,14 @@ export const appRouter = router({
     stats: clinicProcedure.query(async ({ ctx }) => {
       return db.getDashboardStats(ctx.clinicId);
     }),
+    paymentStats: clinicProcedure.query(async ({ ctx }) => {
+      const pendingPayments = await db.getPendingPayments(ctx.clinicId);
+      const returnAlerts = await db.getReturnAlerts(ctx.clinicId);
+      return {
+        pendingPayments: pendingPayments.length,
+        returnAlerts: returnAlerts.length,
+      };
+    }),
     advanced: clinicProcedure
       .input(z.object({ days: z.number().optional() }).optional())
       .query(async ({ input, ctx }) => {

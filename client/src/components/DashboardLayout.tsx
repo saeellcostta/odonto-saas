@@ -158,6 +158,13 @@ type DashboardLayoutContentProps = {
   setSidebarWidth: (width: number) => void;
 };
 
+type NotificationCounts = {
+  atendente: number;
+  orcamentista: number;
+  pagamentos: number;
+  alertas: number;
+};
+
 function DashboardLayoutContent({
   children,
   setSidebarWidth,
@@ -177,6 +184,36 @@ function DashboardLayoutContent({
     analytics: true,
     system: true,
   });
+  const [notificationCounts, setNotificationCounts] = useState<NotificationCounts>({
+    atendente: 0,
+    orcamentista: 0,
+    pagamentos: 0,
+    alertas: 0,
+  });
+
+  // Buscar dados de notificações
+  const { data: queueStats } = trpc.serviceQueue.stats.useQuery();
+  const { data: paymentStats } = trpc.dashboard.paymentStats.useQuery();
+
+  useEffect(() => {
+    if (queueStats) {
+      setNotificationCounts(prev => ({
+        ...prev,
+        atendente: queueStats.reception || 0,
+        orcamentista: queueStats.budget || 0,
+      }));
+    }
+  }, [queueStats]);
+
+  useEffect(() => {
+    if (paymentStats) {
+      setNotificationCounts(prev => ({
+        ...prev,
+        pagamentos: paymentStats.pendingPayments || 0,
+        alertas: paymentStats.returnAlerts || 0,
+      }));
+    }
+  }, [paymentStats]);
 
   const allMenuItems = [...menuItems, ...specializedAreas, ...managementItems, ...analyticsItems, ...systemItems];
   const activeMenuItem = allMenuItems.find(item => 
@@ -218,6 +255,14 @@ function DashboardLayoutContent({
     };
   }, [isResizing, setSidebarWidth]);
 
+  const getNotificationCount = (path: string): number => {
+    if (path === "/atendente") return notificationCounts.atendente;
+    if (path === "/orcamentista") return notificationCounts.orcamentista;
+    if (path === "/financeiro") return notificationCounts.pagamentos;
+    if (path === "/alertas-retorno") return notificationCounts.alertas;
+    return 0;
+  };
+
   const renderMenuSection = (
     items: typeof menuItems, 
     title: string, 
@@ -251,16 +296,24 @@ function DashboardLayoutContent({
           <SidebarMenu className="px-2">
             {filteredItems.map(item => {
               const isActive = location === item.path || (item.path !== "/" && location.startsWith(item.path));
+              const notificationCount = getNotificationCount(item.path);
               return (
                 <SidebarMenuItem key={item.path}>
                   <SidebarMenuButton
                     isActive={isActive}
                     onClick={() => setLocation(item.path)}
                     tooltip={item.label}
-                    className={`h-10 transition-all font-normal ${isActive ? 'bg-primary/10 text-primary font-medium' : ''}`}
+                    className={`h-10 transition-all font-normal relative ${isActive ? 'bg-primary/10 text-primary font-medium' : ''}`}
                   >
                     <item.icon className={`h-4 w-4 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
                     <span>{item.label}</span>
+                    {notificationCount > 0 && (
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center">
+                        <div className="h-5 w-5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center animate-pulse">
+                          {notificationCount > 99 ? '99+' : notificationCount}
+                        </div>
+                      </div>
+                    )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               );
