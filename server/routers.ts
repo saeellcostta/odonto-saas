@@ -6028,6 +6028,10 @@ Responda de forma natural, direta e útil. Você é o assistente mais inteligent
       .mutation(async ({ input, ctx }) => {
         return db.toggleSpecializedArea(input.id, ctx.clinicId, input.isActive);
       }),
+    
+    initializeDefaults: clinicProcedure.mutation(async ({ ctx }) => {
+      return db.initializeDefaultSpecializedAreas(ctx.clinicId);
+    }),
   }),
 });
 

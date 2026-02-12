@@ -3750,3 +3750,100 @@ export async function toggleSpecializedArea(id: number, clinicId: number, isActi
   
   return { success: true };
 }
+
+
+export async function initializeDefaultSpecializedAreas(clinicId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Verificar se já existem áreas para esta clínica
+  const existing = await db.select()
+    .from(specializedAreaConfig)
+    .where(eq(specializedAreaConfig.clinicId, clinicId))
+    .limit(1);
+  
+  if (existing.length > 0) {
+    return { success: true, message: "Áreas já foram inicializadas" };
+  }
+  
+  // Áreas padrão
+  const defaultAreas = [
+    {
+      clinicId,
+      areaKey: "dentist",
+      displayName: "Dentista",
+      description: "Atendimento geral de odontologia",
+      isActive: true,
+      sortOrder: 1,
+      icon: "tooth",
+      color: "#10b981",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      clinicId,
+      areaKey: "orthodontist",
+      displayName: "Ortodontista",
+      description: "Tratamentos ortodônticos",
+      isActive: true,
+      sortOrder: 2,
+      icon: "smile",
+      color: "#8b5cf6",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      clinicId,
+      areaKey: "implantodontist",
+      displayName: "Implantodontista",
+      description: "Implantes dentários",
+      isActive: true,
+      sortOrder: 3,
+      icon: "bone",
+      color: "#f59e0b",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      clinicId,
+      areaKey: "prosthodontist",
+      displayName: "Protesista",
+      description: "Próteses dentárias",
+      isActive: true,
+      sortOrder: 4,
+      icon: "crown",
+      color: "#06b6d4",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      clinicId,
+      areaKey: "maxillofacial",
+      displayName: "Buco-Maxilo-Facial",
+      description: "Cirurgias buco-maxilofaciais",
+      isActive: true,
+      sortOrder: 5,
+      icon: "skull",
+      color: "#ef4444",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      clinicId,
+      areaKey: "pediatric",
+      displayName: "Odontopediatria",
+      description: "Odontologia infantil",
+      isActive: true,
+      sortOrder: 6,
+      icon: "baby",
+      color: "#ec4899",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ];
+  
+  // Inserir áreas padrão
+  await db.insert(specializedAreaConfig).values(defaultAreas);
+  
+  return { success: true, message: "Áreas padrão inicializadas com sucesso" };
+}

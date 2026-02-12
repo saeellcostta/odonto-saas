@@ -1191,3 +1191,11 @@
 - [x] Substituir todos os SelectItems de áreas no Atendente
 - [x] Sincronização automática: áreas desativadas não aparecem no Atendente
 - [x] Testar fluxo completo
+
+
+## Bug: Página de Configuração de Áreas não mostra dados (12/02/2026)
+- [x] Criar função para inicializar áreas padrão
+- [x] Adicionar lógica de inicialização automática na página ConfiguracaoAreas
+- [x] Testar se as áreas aparecem corretamente
+- [x] Procedure initializeDefaults adicionada ao router
+- [x] useEffect adicionado para chamar inicialização quando página carrega

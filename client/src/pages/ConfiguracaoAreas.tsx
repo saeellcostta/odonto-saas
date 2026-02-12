@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -6,15 +6,29 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { GripVertical, Edit2, Trash2, Plus } from "lucide-react";
+import { GripVertical, Edit2, Trash2, Plus, Loader2 } from "lucide-react";
 
 export default function ConfiguracaoAreas() {
   const { user } = useAuth();
   const utils = trpc.useUtils();
-  const { data: areas, isLoading } = trpc.specializedAreas.list.useQuery();
+  const { data: areas, isLoading, refetch } = trpc.specializedAreas.list.useQuery();
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editValues, setEditValues] = useState<Record<number, any>>({});
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
+  
+  const initializeMutation = trpc.specializedAreas.initializeDefaults.useMutation({
+    onSuccess: () => {
+      toast.success("Areas padrao inicializadas!");
+      refetch();
+    },
+    onError: () => toast.error("Erro ao inicializar areas"),
+  });
+  
+  useEffect(() => {
+    if (!isLoading && (!areas || areas.length === 0)) {
+      initializeMutation.mutate();
+    }
+  }, [isLoading, areas]);
 
   const updateMutation = trpc.specializedAreas.update.useMutation({
     onSuccess: () => {
@@ -40,6 +54,7 @@ export default function ConfiguracaoAreas() {
     },
     onError: () => toast.error("Erro ao reordenar"),
   });
+
 
   const handleSaveEdit = (id: number) => {
     const values = editValues[id];
