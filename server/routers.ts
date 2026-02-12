@@ -280,6 +280,40 @@ export const appRouter = router({
         });
       }),
     
+    createManualWithQueue: clinicProcedure
+      .input(z.object({
+        name: z.string().min(1),
+        phone: z.string().optional(),
+        officeId: z.number(),
+        officeName: z.string(),
+        professionalName: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const patient = await db.createPatient({
+          name: input.name,
+          phone: input.phone,
+          clinicId: ctx.clinicId,
+        });
+        
+        const queueEntry = await db.addToServiceQueue({
+          clinicId: ctx.clinicId,
+          patientId: patient.id,
+          patientName: input.name,
+          queueType: "budget",
+          status: "in_service",
+          priority: "normal",
+          officeId: input.officeId,
+          officeName: input.officeName,
+          professionalName: input.professionalName,
+          notes: "Atendimento manual cadastrado no Orcamentista",
+        });
+        
+        return {
+          patientId: patient.id,
+          queueEntryId: (queueEntry as any)[0].insertId,
+        };
+      }),
+    
     update: clinicProcedure
       .input(z.object({
         id: z.number(),

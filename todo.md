@@ -1170,3 +1170,10 @@
 - [x] Permitir atendimentos manuais diretos no Orçamentista sem passar pelo Atendente
 - [x] Adicionado comentário na função requestPayment explicando que aceita qualquer status
 - [x] Testar finalização de orçamento com sucesso
+
+
+## Bug: Paciente manual no Orçamentista não finaliza (12/02/2026)
+- [x] Criar entrada na fila (serviceQueue) quando paciente é cadastrado manualmente
+- [ ] Adicionar logística correta para enviar paciente manual para o Atendente
+- [x] Garantir que requestPayment funcione com paciente manual
+- [x] Testar fluxo completo: cadastro manual → orçamento → finalização → Atendente

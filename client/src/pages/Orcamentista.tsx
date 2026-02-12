@@ -172,13 +172,14 @@ export default function Orcamentista() {
   });
 
   // Mutation para criar paciente manual
-  const createPatient = trpc.patients.create.useMutation({
+  const createPatient = trpc.patients.createManualWithQueue.useMutation({
     onSuccess: (result) => {
       utils.patients.list.invalidate();
-      // Após criar o paciente, define como paciente atual usando os dados do formulário
+      utils.serviceQueue.list.invalidate();
+      // Apos criar o paciente e a entrada na fila, define como paciente atual
       setCurrentPatient({
-        id: 0,
-        patientId: result.id,
+        id: result.queueEntryId,
+        patientId: result.patientId,
         patientName: manualPatientName.trim(),
         patientPhone: manualPatientPhone.trim() || "",
         status: "in_service",
@@ -206,9 +207,20 @@ export default function Orcamentista() {
       toast.error("Selecione um dentista primeiro");
       return;
     }
+    const office = offices?.find(o => o.id === Number(selectedOffice));
+    const dentist = dentists?.find(d => d.id === Number(selectedDentist));
+    
+    if (!office || !dentist) {
+      toast.error("Consultorio ou dentista nao encontrado");
+      return;
+    }
+    
     createPatient.mutate({
       name: manualPatientName.trim(),
       phone: manualPatientPhone.trim() || undefined,
+      officeId: Number(selectedOffice),
+      officeName: office.name,
+      professionalName: dentist.name,
     });
   };
 
