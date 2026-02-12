@@ -310,7 +310,7 @@ export const appRouter = router({
         
         return {
           patientId: patient.id,
-          queueEntryId: (queueEntry as any)[0].insertId,
+          queueEntryId: queueEntry.id,
         };
       }),
     
