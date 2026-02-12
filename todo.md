@@ -1184,8 +1184,10 @@
 - [x] Adicionar procedures tRPC para CRUD de áreas
 - [x] Criar página de configuração de áreas
 - [x] Implementar drag-and-drop para reordenar áreas
-- [ ] Adicionar rota no App.tsx
-- [ ] Integrar filtros de áreas ativas no menu lateral
-- [ ] Integrar filtros de áreas ativas no Atendente
-- [ ] Sincronizar desativação de áreas automaticamente
-- [ ] Testar fluxo completo
+- [x] Adicionar rota no App.tsx
+- [x] Adicionar link "Configurar Áreas" no menu lateral
+- [x] Integrar filtros de áreas ativas no Atendente
+- [x] Criar componente ActiveAreasSelectContent para reutilização
+- [x] Substituir todos os SelectItems de áreas no Atendente
+- [x] Sincronização automática: áreas desativadas não aparecem no Atendente
+- [x] Testar fluxo completo

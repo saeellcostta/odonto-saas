@@ -105,8 +105,9 @@ const systemItems = [
   { icon: Bell, label: "Alertas de Retorno", path: "/alertas-retorno", permission: "canViewNotificacoes" as PermissionKey },
   { icon: MessageSquare, label: "Notificações", path: "/notificacoes", permission: "canViewNotificacoes" as PermissionKey },
   { icon: UsersRound, label: "Gestão de Usuários", path: "/gestao-usuarios", permission: "canViewGestaoUsuarios" as PermissionKey },
-  { icon: Settings, label: "Configurações", path: "/configuracoes", permission: "canViewConfiguracoes" as PermissionKey },
-  { icon: Building2, label: "Admin Clínicas", path: "/admin", permission: "canViewAdmin" as PermissionKey },
+  { icon: Settings, label: "Configuracoes", path: "/configuracoes", permission: "canViewConfiguracoes" as PermissionKey },
+  { icon: Cog, label: "Configurar Areas", path: "/configuracao-areas", permission: "canViewConfiguracoes" as PermissionKey },
+  { icon: Building2, label: "Admin Clinicas", path: "/admin", permission: "canViewAdmin" as PermissionKey },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";

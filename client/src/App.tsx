@@ -48,6 +48,7 @@ import Visualizador3D from "./pages/Visualizador3D";
 import Orcamentos from "./pages/Orcamentos";
 import ValidarDocumento from "./pages/ValidarDocumento";
 import Inadimplente from "./pages/Inadimplente";
+import ConfiguracaoAreas from "./pages/ConfiguracaoAreas";
 
 // Componente wrapper para rotas protegidas
 function Protected({ children }: { children: React.ReactNode }) {
@@ -154,6 +155,9 @@ function Router() {
       </Route>
       <Route path="/configuracoes">
         <Protected><Configuracoes /></Protected>
+      </Route>
+      <Route path="/configuracao-areas">
+        <Protected><ConfiguracaoAreas /></Protected>
       </Route>
       
       {/* Queue & Check-in - Protegidas */}
