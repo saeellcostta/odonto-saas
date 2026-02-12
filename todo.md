@@ -1163,3 +1163,10 @@
 - [x] Animações visuais para badges: pulse-scale + glow effect
 - [x] Destaque no menu item quando há notificações não visualizadas
 - [x] Animações CSS customizadas em index.css (pulse-scale, badge-glow, menu-item-highlight)
+
+
+## Bug: Orçamentista não consegue finalizar sem iniciar atendimento (11/02/2026)
+- [x] Remover validação que exige atendimento iniciado para finalizar no Orçamentista
+- [x] Permitir atendimentos manuais diretos no Orçamentista sem passar pelo Atendente
+- [x] Adicionado comentário na função requestPayment explicando que aceita qualquer status
+- [x] Testar finalização de orçamento com sucesso

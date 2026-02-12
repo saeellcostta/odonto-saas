@@ -1922,6 +1922,9 @@ export async function requestPayment(id: number, amountToPay: number, evaluation
   const entry = await getServiceQueueEntry(id);
   if (!entry) throw new Error("Queue entry not found");
   
+  // Permitir requisição de pagamento independentemente do status do atendimento
+  // Isso permite atendimentos manuais diretos no Orçamentista sem passar pelo Atendente
+  
   await db.update(serviceQueue).set({
     status: "pending_payment",
     amountToPay: amountToPay.toString(),
