@@ -5981,6 +5981,54 @@ Responda de forma natural, direta e útil. Você é o assistente mais inteligent
         };
       }),
   }),
+  
+  specializedAreas: router({
+    list: clinicProcedure.query(async ({ ctx }) => {
+      return db.getSpecializedAreas(ctx.clinicId);
+    }),
+    
+    listActive: clinicProcedure.query(async ({ ctx }) => {
+      return db.getActiveSpecializedAreas(ctx.clinicId);
+    }),
+    
+    update: clinicProcedure
+      .input(z.object({
+        id: z.number(),
+        displayName: z.string().optional(),
+        description: z.string().optional(),
+        icon: z.string().optional(),
+        color: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        await db.updateSpecializedArea(input.id, {
+          displayName: input.displayName,
+          description: input.description,
+          icon: input.icon,
+          color: input.color,
+        });
+        return { success: true };
+      }),
+    
+    reorder: clinicProcedure
+      .input(z.object({
+        areas: z.array(z.object({
+          id: z.number(),
+          sortOrder: z.number(),
+        })),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        return db.reorderSpecializedAreas(ctx.clinicId, input.areas);
+      }),
+    
+    toggle: clinicProcedure
+      .input(z.object({
+        id: z.number(),
+        isActive: z.boolean(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        return db.toggleSpecializedArea(input.id, ctx.clinicId, input.isActive);
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

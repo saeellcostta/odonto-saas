@@ -45,6 +45,7 @@ import {
   models3DLibrary, InsertModel3DLibrary, Model3DLibrary,
   treatmentProcedures, InsertTreatmentProcedure, TreatmentProcedure,
   medicalDocuments, InsertMedicalDocument, MedicalDocument,
+  specializedAreaConfig, InsertSpecializedAreaConfig, SpecializedAreaConfig,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -3681,4 +3682,71 @@ export async function getMedicalDocumentsByClinic(clinicId: number, type?: strin
     .from(medicalDocuments)
     .where(and(...conditions))
     .orderBy(desc(medicalDocuments.createdAt));
+}
+
+
+// ============ Specialized Area Config ============
+
+export async function getSpecializedAreas(clinicId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.select()
+    .from(specializedAreaConfig)
+    .where(eq(specializedAreaConfig.clinicId, clinicId))
+    .orderBy(asc(specializedAreaConfig.sortOrder));
+}
+
+export async function getActiveSpecializedAreas(clinicId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.select()
+    .from(specializedAreaConfig)
+    .where(and(
+      eq(specializedAreaConfig.clinicId, clinicId),
+      eq(specializedAreaConfig.isActive, true)
+    ))
+    .orderBy(asc(specializedAreaConfig.sortOrder));
+}
+
+export async function updateSpecializedArea(id: number, data: Partial<InsertSpecializedAreaConfig>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(specializedAreaConfig)
+    .set({ ...data, updatedAt: new Date() })
+    .where(eq(specializedAreaConfig.id, id));
+  
+  return { success: true };
+}
+
+export async function reorderSpecializedAreas(clinicId: number, areas: Array<{ id: number; sortOrder: number }>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  for (const area of areas) {
+    await db.update(specializedAreaConfig)
+      .set({ sortOrder: area.sortOrder, updatedAt: new Date() })
+      .where(and(
+        eq(specializedAreaConfig.id, area.id),
+        eq(specializedAreaConfig.clinicId, clinicId)
+      ));
+  }
+  
+  return { success: true };
+}
+
+export async function toggleSpecializedArea(id: number, clinicId: number, isActive: boolean) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(specializedAreaConfig)
+    .set({ isActive, updatedAt: new Date() })
+    .where(and(
+      eq(specializedAreaConfig.id, id),
+      eq(specializedAreaConfig.clinicId, clinicId)
+    ));
+  
+  return { success: true };
 }

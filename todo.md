@@ -1177,3 +1177,15 @@
 - [ ] Adicionar logística correta para enviar paciente manual para o Atendente
 - [x] Garantir que requestPayment funcione com paciente manual
 - [x] Testar fluxo completo: cadastro manual → orçamento → finalização → Atendente
+
+
+## Feature: Configuração Dinâmica de Áreas Especializadas (12/02/2026)
+- [x] Criar tabela specializedAreaConfig no schema
+- [x] Adicionar procedures tRPC para CRUD de áreas
+- [x] Criar página de configuração de áreas
+- [x] Implementar drag-and-drop para reordenar áreas
+- [ ] Adicionar rota no App.tsx
+- [ ] Integrar filtros de áreas ativas no menu lateral
+- [ ] Integrar filtros de áreas ativas no Atendente
+- [ ] Sincronizar desativação de áreas automaticamente
+- [ ] Testar fluxo completo
