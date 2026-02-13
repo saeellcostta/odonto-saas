@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { GripVertical, Edit2 } from "lucide-react";
+import { GripVertical, Edit2, Plus, Trash2 } from "lucide-react";
 
 export default function ConfiguracaoAreas() {
   const utils = trpc.useUtils();
@@ -16,12 +16,11 @@ export default function ConfiguracaoAreas() {
   
   const initializeMutation = trpc.specializedAreas.initializeDefaults.useMutation({
     onSuccess: () => {
-      console.log("✅ Áreas inicializadas com sucesso!");
       toast.success("Áreas padrão inicializadas!");
       refetch();
     },
     onError: (error) => {
-      console.error("❌ Erro ao inicializar áreas:", error);
+      console.error("Erro ao inicializar áreas:", error);
       toast.error("Erro ao inicializar áreas");
     },
   });
@@ -111,11 +110,11 @@ export default function ConfiguracaoAreas() {
   }
 
   return (
-    <div className="container max-w-4xl py-8">
+    <div className="container max-w-2xl py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Configuração de Áreas Especializadas</h1>
+        <h1 className="text-3xl font-bold mb-2">Personalizar Menu</h1>
         <p className="text-gray-600">
-          Gerencie os nomes, ordem e visibilidade das áreas especializadas
+          Organize e ative/desative as áreas especializadas do seu consultório
         </p>
       </div>
 
@@ -132,179 +131,112 @@ export default function ConfiguracaoAreas() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-4">
-          {areas.map((area) => (
-            <Card
-              key={area.id}
-              draggable
-              onDragStart={() => handleDragStart(area.id)}
-              onDragOver={handleDragOver}
-              onDrop={() => handleDrop(area.id)}
-              className={`cursor-move transition-opacity ${draggedItem === area.id ? "opacity-50" : ""}`}
-            >
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-4">
-                  <GripVertical className="mt-2 text-gray-400 flex-shrink-0" size={20} />
-
-                  <div className="flex-1">
-                    {editingId === area.id ? (
-                      <div className="space-y-3">
-                        <div>
-                          <label className="text-sm font-medium">Nome</label>
-                          <Input
-                            value={editValues[area.id]?.displayName || area.displayName}
-                            onChange={(e) =>
-                              setEditValues({
-                                ...editValues,
-                                [area.id]: {
-                                  ...editValues[area.id],
-                                  displayName: e.target.value,
-                                },
-                              })
-                            }
-                            className="mt-1"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="text-sm font-medium">Descrição</label>
-                          <Input
-                            value={editValues[area.id]?.description || area.description || ""}
-                            onChange={(e) =>
-                              setEditValues({
-                                ...editValues,
-                                [area.id]: {
-                                  ...editValues[area.id],
-                                  description: e.target.value,
-                                },
-                              })
-                            }
-                            className="mt-1"
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className="text-sm font-medium">Ícone</label>
-                            <Input
-                              value={editValues[area.id]?.icon || area.icon || ""}
-                              onChange={(e) =>
-                                setEditValues({
-                                  ...editValues,
-                                  [area.id]: {
-                                    ...editValues[area.id],
-                                    icon: e.target.value,
-                                  },
-                                })
-                              }
-                              className="mt-1"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="text-sm font-medium">Cor</label>
-                            <Input
-                              type="color"
-                              value={editValues[area.id]?.color || area.color || "#ff6b35"}
-                              onChange={(e) =>
-                                setEditValues({
-                                  ...editValues,
-                                  [area.id]: {
-                                    ...editValues[area.id],
-                                    color: e.target.value,
-                                  },
-                                })
-                              }
-                              className="mt-1 h-10"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            onClick={() => handleSaveEdit(area.id)}
-                            disabled={updateMutation.isPending}
-                          >
-                            Salvar
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setEditingId(null)}
-                          >
-                            Cancelar
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-lg">{area.displayName}</h3>
-                          {area.description && (
-                            <p className="text-sm text-gray-600 mt-1">{area.description}</p>
-                          )}
-                          <div className="flex gap-2 mt-2">
-                            {area.icon && (
-                              <span className="text-xs bg-gray-100 px-2 py-1 rounded">
-                                {area.icon}
-                              </span>
-                            )}
-                            <span
-                              className="text-xs px-2 py-1 rounded text-white"
-                              style={{ backgroundColor: area.color || "#ff6b35" }}
-                            >
-                              Cor
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-600">
-                              {area.isActive ? "Ativo" : "Inativo"}
-                            </span>
-                            <Switch
-                              checked={area.isActive ?? false}
-                              onCheckedChange={() => handleToggle(area.id, area.isActive ?? false)}
-                              disabled={toggleMutation.isPending}
-                            />
-                          </div>
-
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setEditingId(area.id);
-                              setEditValues({
-                                [area.id]: {
-                                  displayName: area.displayName,
-                                  description: area.description,
-                                  icon: area.icon,
-                                  color: area.color,
-                                },
-                              });
-                            }}
-                          >
-                            <Edit2 size={16} />
-                          </Button>
-                        </div>
-                      </div>
-                    )}
+        <Card className="border-0 shadow-lg">
+          <CardContent className="p-0">
+            <div className="space-y-0 divide-y">
+              {areas.map((area, index) => (
+                <div
+                  key={area.id}
+                  draggable
+                  onDragStart={() => handleDragStart(area.id)}
+                  onDragOver={handleDragOver}
+                  onDrop={() => handleDrop(area.id)}
+                  className={`flex items-center gap-4 p-4 cursor-move transition-all hover:bg-gray-50 ${
+                    draggedItem === area.id ? "bg-blue-50 opacity-60" : ""
+                  }`}
+                >
+                  {/* Drag Handle */}
+                  <div className="flex-shrink-0 text-gray-400 cursor-grab active:cursor-grabbing">
+                    <GripVertical size={20} />
                   </div>
+
+                  {/* Content */}
+                  {editingId === area.id ? (
+                    <div className="flex-1 space-y-3">
+                      <Input
+                        value={editValues[area.id]?.displayName || area.displayName}
+                        onChange={(e) =>
+                          setEditValues({
+                            ...editValues,
+                            [area.id]: {
+                              ...editValues[area.id],
+                              displayName: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="Nome da área"
+                        className="text-sm"
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleSaveEdit(area.id)}
+                          disabled={updateMutation.isPending}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          Salvar
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setEditingId(null)}
+                        >
+                          Cancelar
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900">{area.displayName}</h3>
+                        {area.description && (
+                          <p className="text-xs text-gray-500 mt-1">{area.description}</p>
+                        )}
+                      </div>
+
+                      {/* Edit Button */}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setEditingId(area.id);
+                          setEditValues({
+                            [area.id]: {
+                              displayName: area.displayName,
+                              description: area.description,
+                              icon: area.icon,
+                              color: area.color,
+                            },
+                          });
+                        }}
+                        className="flex-shrink-0"
+                      >
+                        <Edit2 size={16} />
+                      </Button>
+
+                      {/* Toggle Switch */}
+                      <Switch
+                        checked={area.isActive ?? false}
+                        onCheckedChange={() => handleToggle(area.id, area.isActive ?? false)}
+                        disabled={toggleMutation.isPending}
+                        className="flex-shrink-0"
+                      />
+                    </>
+                  )}
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <h3 className="font-semibold text-blue-900 mb-2">💡 Dicas</h3>
+        <h3 className="font-semibold text-blue-900 mb-2">💡 Como usar</h3>
         <ul className="text-sm text-blue-800 space-y-1">
-          <li>• Arraste para reordenar</li>
-          <li>• Desative para remover do menu</li>
-          <li>• Edite o nome para personalizar</li>
+          <li>• Arraste o ícone ≡ para reordenar as áreas</li>
+          <li>• Use o toggle verde para ativar ou desativar áreas</li>
+          <li>• Clique no lápis para editar o nome da área</li>
+          <li>• Áreas desativadas não aparecem para o atendente</li>
         </ul>
       </div>
     </div>
