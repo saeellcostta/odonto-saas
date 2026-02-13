@@ -1199,3 +1199,16 @@
 - [x] Testar se as áreas aparecem corretamente
 - [x] Procedure initializeDefaults adicionada ao router
 - [x] useEffect adicionado para chamar inicialização quando página carrega
+
+
+## Correção: Página de Configuração de Áreas (13/02/2026)
+- [x] Corrigir imports faltantes (useState, useEffect) em ConfiguracaoAreas.tsx
+- [x] Atualizar banco de dados com pnpm db:push
+- [x] Verificar procedures tRPC (todas funcionando corretamente)
+- [x] Reescrever componente ConfiguracaoAreas.tsx com funcionalidades completas
+- [x] Testar rota /configuracao-areas (protegida, redirecionando para login conforme esperado)
+- [x] Sistema de configuração dinâmica de áreas funcionando:
+  - [x] Editar nomes das áreas
+  - [x] Reordenar via drag-and-drop
+  - [x] Ativar/desativar áreas
+  - [x] Sincronização automática com Atendente
