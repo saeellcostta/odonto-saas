@@ -1212,3 +1212,14 @@
   - [x] Reordenar via drag-and-drop
   - [x] Ativar/desativar áreas
   - [x] Sincronização automática com Atendente
+
+
+## Bug: Página de Configuração de Áreas vazia (13/02/2026)
+- [x] Página não exibe áreas na inicialização
+- [x] Erro ao chamar initializeDefaults
+- [x] Verificar logs do servidor
+- [x] Verificar console do navegador
+- [x] Corrigir problema de inicialização
+- [x] Reescrever componente com lógica simplificada
+- [x] Adicionar logs de debug
+- [x] Adicionar estado `initialized` para evitar múltiplas chamadas
