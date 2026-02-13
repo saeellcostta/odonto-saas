@@ -13,13 +13,11 @@ export default function ConfiguracaoAreas() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editValues, setEditValues] = useState<Record<number, any>>({});
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
-  const [initialized, setInitialized] = useState(false);
   
   const initializeMutation = trpc.specializedAreas.initializeDefaults.useMutation({
     onSuccess: () => {
       console.log("✅ Áreas inicializadas com sucesso!");
       toast.success("Áreas padrão inicializadas!");
-      setInitialized(true);
       refetch();
     },
     onError: (error) => {
@@ -52,14 +50,6 @@ export default function ConfiguracaoAreas() {
     },
     onError: () => toast.error("Erro ao reordenar"),
   });
-
-  // Inicializar áreas quando a página carrega
-  useEffect(() => {
-    if (!isLoading && areas.length === 0 && !initialized && !initializeMutation.isPending) {
-      console.log("🔄 Tentando inicializar áreas...");
-      initializeMutation.mutate();
-    }
-  }, [isLoading, areas.length, initialized, initializeMutation.isPending]);
 
   const handleSaveEdit = (id: number) => {
     const values = editValues[id];
