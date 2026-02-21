@@ -1223,3 +1223,10 @@
 - [x] Reescrever componente com lógica simplificada
 - [x] Adicionar logs de debug
 - [x] Adicionar estado `initialized` para evitar múltiplas chamadas
+
+
+## Tarefa: Adicionar Configuração de Áreas no Menu (13/02/2026)
+- [x] Encontrar arquivo do menu principal (DashboardLayout.tsx)
+- [x] Adicionar link para /configuracao-areas (JÁ ESTAVA CONFIGURADO)
+- [x] Testar acesso ao menu
+- [x] Salvar checkpoint
