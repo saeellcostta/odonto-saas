@@ -1237,9 +1237,3 @@
 - [x] Modificar DashboardLayout para carregar áreas dinamicamente
 - [x] Filtrar apenas áreas com isActive = true
 - [x] Testar sincronização
-
-
-## Bug: TypeError ao carregar áreas (21/02/2026)
-- [x] Corrigir erro "Cannot read properties of undefined (reading 'toLowerCase')"
-- [x] Verificar estrutura de dados retornada por listActive
-- [x] Adicionar validação de campos (usar areaKey em vez de name)

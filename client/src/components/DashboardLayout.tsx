@@ -200,9 +200,9 @@ function DashboardLayoutContent({
   useEffect(() => {
     if (activeAreas && activeAreas.length > 0) {
       const mapped = activeAreas.map((area: any) => ({
-        icon: Stethoscope,
-        label: area.displayName || area.areaKey,
-        path: `/area-${(area.areaKey || area.displayName || "").toLowerCase().replace(/\s+/g, "-")}`,
+        icon: Stethoscope, // Usar ícone padrão
+        label: area.displayName,
+        path: `/area-${area.name.toLowerCase().replace(/\s+/g, '-')}`,
         permission: "canViewAreaDentista" as PermissionKey,
       }));
       setDynamicSpecializedAreas(mapped);
