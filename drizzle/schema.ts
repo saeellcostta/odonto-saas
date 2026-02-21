@@ -1077,22 +1077,3 @@ export const medicalDocuments = mysqlTable("medical_documents", {
 
 export type MedicalDocument = typeof medicalDocuments.$inferSelect;
 export type InsertMedicalDocument = typeof medicalDocuments.$inferInsert;
-
-
-// Tabela de configuração de áreas especializadas
-export const specializedAreaConfig = mysqlTable("specialized_area_config", {
-  id: int("id").autoincrement().primaryKey(),
-  clinicId: int("clinicId").notNull(), // Multi-tenancy
-  areaKey: varchar("areaKey", { length: 100 }).notNull(), // Identificador único (ex: "dentist", "orthodontist")
-  displayName: varchar("displayName", { length: 255 }).notNull(), // Nome exibido no menu
-  description: text("description"), // Descrição da área
-  isActive: boolean("isActive").default(true), // Ativada/Desativada
-  sortOrder: int("sortOrder").default(0), // Ordem de exibição
-  icon: varchar("icon", { length: 100 }), // Ícone (ex: "tooth", "smile", etc)
-  color: varchar("color", { length: 20 }), // Cor do badge/card
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type SpecializedAreaConfig = typeof specializedAreaConfig.$inferSelect;
-export type InsertSpecializedAreaConfig = typeof specializedAreaConfig.$inferInsert;

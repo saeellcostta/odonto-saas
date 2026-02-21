@@ -32,7 +32,6 @@ import {
   ClipboardList,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ActiveAreasSelectContent } from "@/components/ActiveAreasSelect";
 
 type QueueType = "reception" | "budget" | "dentist" | "orthodontics" | "implant" | "prosthetics" | "maxillofacial" | "pediatric";
 
@@ -774,7 +773,15 @@ export default function Atendente() {
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
-                      <ActiveAreasSelectContent />
+                      <SelectContent>
+                        <SelectItem value="budget">Orçamento</SelectItem>
+                        <SelectItem value="dentist">Dentista</SelectItem>
+                        <SelectItem value="orthodontics">Ortodontia</SelectItem>
+                        <SelectItem value="implant">Implante</SelectItem>
+                        <SelectItem value="prosthetics">Prótese</SelectItem>
+                        <SelectItem value="maxillofacial">Buco-Maxilo-Facial</SelectItem>
+                        <SelectItem value="pediatric">Odontopediatria</SelectItem>
+                      </SelectContent>
                     </Select>
                   </div>
                   <div>
@@ -1079,7 +1086,13 @@ export default function Atendente() {
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
-                  <ActiveAreasSelectContent />
+                  <SelectContent>
+                    <SelectItem value="budget">Orçamento</SelectItem>
+                    <SelectItem value="dentist">Dentista</SelectItem>
+                    <SelectItem value="orthodontics">Ortodontia</SelectItem>
+                    <SelectItem value="implant">Implante</SelectItem>
+                    <SelectItem value="prosthetics">Prótese</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div>
@@ -1140,7 +1153,14 @@ export default function Atendente() {
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
-                  <ActiveAreasSelectContent />
+                  <SelectContent>
+                    <SelectItem value="dentist">Dentista</SelectItem>
+                    <SelectItem value="orthodontics">Ortodontia</SelectItem>
+                    <SelectItem value="implant">Implante</SelectItem>
+                    <SelectItem value="prosthetics">Prótese</SelectItem>
+                    <SelectItem value="maxillofacial">Buco-Maxilo-Facial</SelectItem>
+                    <SelectItem value="pediatric">Odontopediatria</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div>
