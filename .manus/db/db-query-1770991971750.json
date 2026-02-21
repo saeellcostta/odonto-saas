@@ -1,9 +1,0 @@
-{
-  "query": "CREATE TABLE IF NOT EXISTS `specialized_area_config` (\n  `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,\n  `clinicId` int NOT NULL,\n  `areaKey` varchar(255) NOT NULL,\n  `displayName` varchar(255) NOT NULL,\n  `description` text,\n  `isActive` boolean NOT NULL DEFAULT true,\n  `sortOrder` int NOT NULL DEFAULT 0,\n  `icon` varchar(255),\n  `color` varchar(7),\n  `createdAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  FOREIGN KEY (`clinicId`) REFERENCES `clinics`(`id`) ON DELETE CASCADE,\n  UNIQUE KEY `unique_clinic_area_key` (`clinicId`, `areaKey`)\n);",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3oCPfWeBHeZbvmV.root --database ZxQkmxiVcK2LVVsppAdeCn --execute CREATE TABLE IF NOT EXISTS `specialized_area_config` (\n  `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,\n  `clinicId` int NOT NULL,\n  `areaKey` varchar(255) NOT NULL,\n  `displayName` varchar(255) NOT NULL,\n  `description` text,\n  `isActive` boolean NOT NULL DEFAULT true,\n  `sortOrder` int NOT NULL DEFAULT 0,\n  `icon` varchar(255),\n  `color` varchar(7),\n  `createdAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  FOREIGN KEY (`clinicId`) REFERENCES `clinics`(`id`) ON DELETE CASCADE,\n  UNIQUE KEY `unique_clinic_area_key` (`clinicId`, `areaKey`)\n);",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 538
-}
