@@ -1230,3 +1230,10 @@
 - [x] Adicionar link para /configuracao-areas (JÁ ESTAVA CONFIGURADO)
 - [x] Testar acesso ao menu
 - [x] Salvar checkpoint
+
+
+## Bug: Áreas desativadas continuam no menu (14/02/2026)
+- [x] Criar procedure para obter áreas ativas (já existia: listActive)
+- [x] Modificar DashboardLayout para carregar áreas dinamicamente
+- [x] Filtrar apenas áreas com isActive = true
+- [x] Testar sincronização

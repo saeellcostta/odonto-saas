@@ -185,12 +185,29 @@ function DashboardLayoutContent({
     analytics: true,
     system: true,
   });
+  const [dynamicSpecializedAreas, setDynamicSpecializedAreas] = useState<typeof specializedAreas>([]);
   const [notificationCounts, setNotificationCounts] = useState<NotificationCounts>({
     atendente: 0,
     orcamentista: 0,
     pagamentos: 0,
     alertas: 0,
   });
+
+  // Buscar áreas ativas
+  const { data: activeAreas } = trpc.specializedAreas.listActive.useQuery();
+  
+  // Atualizar áreas dinâmicas quando dados chegam
+  useEffect(() => {
+    if (activeAreas && activeAreas.length > 0) {
+      const mapped = activeAreas.map((area: any) => ({
+        icon: Stethoscope, // Usar ícone padrão
+        label: area.displayName,
+        path: `/area-${area.name.toLowerCase().replace(/\s+/g, '-')}`,
+        permission: "canViewAreaDentista" as PermissionKey,
+      }));
+      setDynamicSpecializedAreas(mapped);
+    }
+  }, [activeAreas]);
 
   // Buscar dados de notificações
   const { data: queueStats } = trpc.serviceQueue.stats.useQuery();
@@ -355,7 +372,7 @@ function DashboardLayoutContent({
 
           <SidebarContent className="gap-0 py-2 custom-scrollbar">
             {renderMenuSection(menuItems, "Principal", "main")}
-            {renderMenuSection(specializedAreas, "Áreas Especializadas", "specialized")}
+            {renderMenuSection(dynamicSpecializedAreas.length > 0 ? dynamicSpecializedAreas : specializedAreas, "Áreas Especializadas", "specialized")}
             {renderMenuSection(managementItems, "Gestão", "management")}
             {renderMenuSection(analyticsItems, "Análises", "analytics")}
             {renderMenuSection(systemItems, "Sistema", "system")}
