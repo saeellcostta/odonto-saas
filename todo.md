@@ -1177,3 +1177,11 @@
 - [ ] Adicionar logística correta para enviar paciente manual para o Atendente
 - [x] Garantir que requestPayment funcione com paciente manual
 - [x] Testar fluxo completo: cadastro manual → orçamento → finalização → Atendente
+
+
+## Tarefa: Criar dados de teste iniciais (21/02/2026)
+- [ ] Criar dentistas de teste (Dr. Misael Pinheiro teste, etc)
+- [ ] Criar procedimentos pré-configurados (Restaurações, Próteses, Implantes, Canal, Cirurgias)
+- [ ] Criar pacientes de teste (Rute teste, Maria teste, etc)
+- [ ] Executar seed para todas as clínicas
+- [ ] Validar dados no banco
