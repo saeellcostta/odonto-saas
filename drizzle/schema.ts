@@ -745,6 +745,8 @@ export const serviceQueue = mysqlTable("service_queue", {
   // Profissional que está atendendo
   professionalId: int("professionalId"),
   professionalName: varchar("professionalName", { length: 255 }),
+  // Usuário que chamou o paciente (para divisão de sala)
+  calledByUserId: int("calledByUserId"),
   // Orçamento vinculado (se houver)
   budgetId: int("budgetId"),
   budgetValue: decimal("budgetValue", { precision: 10, scale: 2 }),

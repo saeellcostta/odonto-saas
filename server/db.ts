@@ -1775,7 +1775,7 @@ export async function updateServiceQueueEntry(id: number, data: Partial<InsertSe
   return { success: true };
 }
 
-export async function callPatientFromQueue(id: number, officeId: number, officeName: string, professionalId?: number, professionalName?: string) {
+export async function callPatientFromQueue(id: number, officeId: number, officeName: string, professionalId?: number, professionalName?: string, calledByUserId?: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
@@ -1789,6 +1789,7 @@ export async function callPatientFromQueue(id: number, officeId: number, officeN
     officeName,
     professionalId,
     professionalName,
+    calledByUserId,
     calledTime: new Date(),
     updatedAt: new Date(),
   }).where(eq(serviceQueue.id, id));

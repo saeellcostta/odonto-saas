@@ -1185,3 +1185,18 @@
 - [ ] Criar pacientes de teste (Rute teste, Maria teste, etc)
 - [ ] Executar seed para todas as clínicas
 - [ ] Validar dados no banco
+
+
+## Tarefa: Divisão de Sala de Pacientes por Atendente (22/02/2026)
+- [ ] Adicionar botão para dividir/unificar visualização de pacientes chamados
+- [ ] Implementar filtro para mostrar apenas pacientes do atendente atual
+- [ ] Garantir que pacientes não desapareçam quando outro atendente chama
+- [ ] Testar com múltiplos atendentes/orçamentistas
+- [ ] Salvar checkpoint
+
+
+## Bug: Cor customizada do sistema desaparece ao atualizar página (22/02/2026)
+- [x] Investigar onde a cor é salva (localStorage com chave "dentrics-color-preset")
+- [x] Verificar se está sendo recuperada ao carregar página (estava carregando mas não aplicando CSS)
+- [x] Corrigir persistência da cor customizada (adicionar aplicação de CSS no useEffect)
+- [x] Testar funcionalidade

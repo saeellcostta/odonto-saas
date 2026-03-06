@@ -1788,8 +1788,8 @@ Formate sua resposta de forma clara e organizada.`;
         professionalId: z.number().optional(),
         professionalName: z.string().optional(),
       }))
-      .mutation(async ({ input }) => {
-        return db.callPatientFromQueue(input.id, input.officeId, input.officeName, input.professionalId, input.professionalName);
+      .mutation(async ({ input, ctx }) => {
+        return db.callPatientFromQueue(input.id, input.officeId, input.officeName, input.professionalId, input.professionalName, ctx.user?.id);
       }),
     startService: clinicProcedure
       .input(z.object({ id: z.number() }))

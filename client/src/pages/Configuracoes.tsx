@@ -136,7 +136,15 @@ export default function Configuracoes() {
   useEffect(() => {
     const savedPreset = localStorage.getItem("dentrics-color-preset");
     if (savedPreset) {
-      setSelectedPreset(parseInt(savedPreset));
+      const presetIndex = parseInt(savedPreset);
+      setSelectedPreset(presetIndex);
+      // Aplicar as cores CSS imediatamente
+      const preset = colorPresets[presetIndex];
+      document.documentElement.style.setProperty("--primary", preset.primary);
+      document.documentElement.style.setProperty("--sidebar", preset.sidebar);
+      document.documentElement.style.setProperty("--accent", preset.accent);
+      document.documentElement.style.setProperty("--ring", preset.primary);
+      document.documentElement.style.setProperty("--sidebar-ring", preset.primary);
     }
   }, []);
 
