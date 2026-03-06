@@ -1200,3 +1200,13 @@
 - [x] Verificar se está sendo recuperada ao carregar página (estava carregando mas não aplicando CSS)
 - [x] Corrigir persistência da cor customizada (adicionar script inline no index.html ANTES do Tailwind renderizar)
 - [x] Testar funcionalidade (CONFIRMADO: cores persistem após refresh)
+
+
+## Funcionalidade: Tradução para Espanhol (06/03/2026) - ✅ COMPLETA
+- [x] Instalar biblioteca i18n (i18next + react-i18next)
+- [x] Criar estrutura de arquivos de tradução (locales/pt-BR, locales/es)
+- [x] Traduzir strings principais para espanhol (10 namespaces com 100+ strings)
+- [x] Implementar seletor de idioma nas configurações (LanguageSwitcher component)
+- [x] Persistir escolha de idioma no localStorage
+- [x] Testar tradução em todos os módulos principais (8/8 testes passando)
+- [x] Salvar checkpoint

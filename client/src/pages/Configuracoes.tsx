@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -638,6 +639,21 @@ export default function Configuracoes() {
                       )}
                     </button>
                   ))}
+                </div>
+              </div>
+
+              {/* Idioma */}
+              <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
+                <div className="flex items-center gap-3">
+                  <div>
+                    <p className="font-medium">Idioma</p>
+                    <p className="text-sm text-muted-foreground">
+                      Selecione o idioma da interface
+                    </p>
+                  </div>
+                </div>
+                <div className="w-[180px]">
+                  <LanguageSwitcher />
                 </div>
               </div>
 
