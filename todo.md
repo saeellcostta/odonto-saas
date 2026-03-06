@@ -1195,8 +1195,8 @@
 - [ ] Salvar checkpoint
 
 
-## Bug: Cor customizada do sistema desaparece ao atualizar página (22/02/2026)
+## Bug: Cor customizada do sistema desaparece ao atualizar página (22/02/2026) - ✅ CORRIGIDO
 - [x] Investigar onde a cor é salva (localStorage com chave "dentrics-color-preset")
 - [x] Verificar se está sendo recuperada ao carregar página (estava carregando mas não aplicando CSS)
-- [x] Corrigir persistência da cor customizada (adicionar aplicação de CSS no useEffect)
-- [x] Testar funcionalidade
+- [x] Corrigir persistência da cor customizada (adicionar script inline no index.html ANTES do Tailwind renderizar)
+- [x] Testar funcionalidade (CONFIRMADO: cores persistem após refresh)
