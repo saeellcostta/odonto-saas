@@ -1209,4 +1209,6 @@
 - [x] Implementar seletor de idioma nas configurações (LanguageSwitcher component)
 - [x] Persistir escolha de idioma no localStorage
 - [x] Testar tradução em todos os módulos principais (8/8 testes passando)
-- [x] Salvar checkpoint
+- [x] Criar documentação de i18n (I18N_DOCUMENTATION.md)
+- [ ] Teste manual: Verificar se o seletor aparece nas configurações (requer login)
+- [ ] Teste manual: Trocar idioma e verificar se persiste após reload
