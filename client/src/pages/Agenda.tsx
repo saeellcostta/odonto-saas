@@ -90,6 +90,7 @@ export default function Agenda() {
   const [formData, setFormData] = useState<AppointmentFormData>(initialFormData);
   const [selectedDentist, setSelectedDentist] = useState<string>("all");
   const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
+  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
 
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
@@ -235,7 +236,9 @@ export default function Agenda() {
     if (!appointments) return [];
     return appointments.filter((apt) => {
       const aptDate = new Date(apt.date);
-      return isSameDay(aptDate, day) && apt.startTime === time + ":00";
+      const aptStartTime = apt.startTime.substring(0, 5); // Pega apenas HH:MM
+      const slotTime = time.substring(0, 5); // Garante que está em HH:MM
+      return isSameDay(aptDate, day) && aptStartTime === slotTime;
     });
   };
 
@@ -371,9 +374,12 @@ export default function Agenda() {
                   {weekDays.map((day) => (
                     <div
                       key={day.toISOString()}
-                      className={`p-2 text-center rounded-lg ${
+                      className={`p-2 text-center rounded-lg cursor-pointer transition-colors hover:bg-accent/50 ${
                         isSameDay(day, new Date()) ? "bg-primary/10" : ""
+                      } ${
+                        selectedDay && isSameDay(day, selectedDay) ? "bg-accent" : ""
                       }`}
+                      onClick={() => setSelectedDay(selectedDay && isSameDay(day, selectedDay) ? null : day)}
                     >
                       <p className="text-xs text-muted-foreground uppercase">
                         {format(day, "EEE", { locale: ptBR })}

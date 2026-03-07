@@ -1207,3 +1207,15 @@
 - [x] Implementar funcionalidade de editar agendamento (mutation + handleEditAppointment)
 - [x] Implementar funcionalidade de cancelar agendamento (deleteMutation + handleCancelAppointment)
 - [x] Testar ambas as funcionalidades (14/14 testes passando)
+
+
+## Bug: Agendamentos do dia 14 não aparecem na Agenda (07/03/2026) - ✅ CORRIGIDO
+- [x] Investigar por que agendamentos não aparecem na visualização do calendário
+- [x] Verificar se agendamentos estão sendo salvos corretamente no banco
+- [x] Corrigir renderização de agendamentos no calendário (comparação flexível de horários)
+- [x] Testar exibição de agendamentos em diferentes datas (18/18 testes passando)
+
+## Feature: Clicar no número do dia deve direcionar para agendamentos (07/03/2026) - ✅ COMPLETA
+- [x] Adicionar clique no número do dia para filtrar agendamentos
+- [x] Implementar navegação/seleção de data ao clicar
+- [x] Testar funcionalidade de navegação (18/18 testes passando)

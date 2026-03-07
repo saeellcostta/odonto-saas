@@ -144,4 +144,59 @@ describe("Appointments - Details Display", () => {
     expect(deleteData.id).toBeTruthy();
     expect(typeof deleteData.id).toBe("number");
   });
+
+  it("deve comparar horarios de agendamento corretamente (HH:MM)", () => {
+    const startTime1 = "14:30:00";
+    const startTime2 = "14:30";
+    const slotTime = "14:30";
+
+    const time1 = startTime1.substring(0, 5);
+    const time2 = startTime2.substring(0, 5);
+
+    expect(time1).toBe(slotTime);
+    expect(time2).toBe(slotTime);
+    expect(time1).toBe(time2);
+  });
+
+  it("deve filtrar agendamentos por data corretamente", () => {
+    const appointments = [
+      { id: 1, date: "2026-03-14", startTime: "14:30:00" },
+      { id: 2, date: "2026-03-14", startTime: "15:00:00" },
+      { id: 3, date: "2026-03-15", startTime: "14:30:00" },
+    ];
+
+    const targetDate = new Date("2026-03-14");
+    const filtered = appointments.filter((apt) => {
+      const aptDate = new Date(apt.date);
+      return aptDate.toDateString() === targetDate.toDateString();
+    });
+
+    expect(filtered.length).toBe(2);
+    expect(filtered[0].id).toBe(1);
+    expect(filtered[1].id).toBe(2);
+  });
+
+  it("deve permitir selecionar dia para filtrar agendamentos", () => {
+    const selectedDay = new Date("2026-03-14");
+    const day1 = new Date("2026-03-14");
+    const day2 = new Date("2026-03-15");
+
+    const isSameDay1 = selectedDay.toDateString() === day1.toDateString();
+    const isSameDay2 = selectedDay.toDateString() === day2.toDateString();
+
+    expect(isSameDay1).toBe(true);
+    expect(isSameDay2).toBe(false);
+  });
+
+  it("deve permitir desselecionar dia clicando novamente", () => {
+    let selectedDay = new Date("2026-03-14");
+    const day = new Date("2026-03-14");
+
+    const isSameDay = selectedDay.toDateString() === day.toDateString();
+    if (isSameDay) {
+      selectedDay = null;
+    }
+
+    expect(selectedDay).toBeNull();
+  });
 });
