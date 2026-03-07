@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -137,15 +136,7 @@ export default function Configuracoes() {
   useEffect(() => {
     const savedPreset = localStorage.getItem("dentrics-color-preset");
     if (savedPreset) {
-      const presetIndex = parseInt(savedPreset);
-      setSelectedPreset(presetIndex);
-      // Aplicar as cores CSS imediatamente
-      const preset = colorPresets[presetIndex];
-      document.documentElement.style.setProperty("--primary", preset.primary);
-      document.documentElement.style.setProperty("--sidebar", preset.sidebar);
-      document.documentElement.style.setProperty("--accent", preset.accent);
-      document.documentElement.style.setProperty("--ring", preset.primary);
-      document.documentElement.style.setProperty("--sidebar-ring", preset.primary);
+      setSelectedPreset(parseInt(savedPreset));
     }
   }, []);
 
@@ -639,21 +630,6 @@ export default function Configuracoes() {
                       )}
                     </button>
                   ))}
-                </div>
-              </div>
-
-              {/* Idioma */}
-              <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
-                <div className="flex items-center gap-3">
-                  <div>
-                    <p className="font-medium">Idioma</p>
-                    <p className="text-sm text-muted-foreground">
-                      Selecione o idioma da interface
-                    </p>
-                  </div>
-                </div>
-                <div className="w-[180px]">
-                  <LanguageSwitcher />
                 </div>
               </div>
 

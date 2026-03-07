@@ -308,9 +308,6 @@ export default function Atendente() {
   // Estados para encaminhamento com procedimentos
   const [forwardWithProceduresOpen, setForwardWithProceduresOpen] = useState(false);
   const [selectedProcedures, setSelectedProcedures] = useState<number[]>([]);
-  
-  // Estado para filtro de divisão de sala
-  const [showOnlyMyPatients, setShowOnlyMyPatients] = useState(false);
 
   const utils = trpc.useUtils();
   
@@ -340,7 +337,7 @@ export default function Atendente() {
   );
   
   // Filter pending payments
-  const paymentsToReceive = pendingPayments?.filter(p => p.status === "pending_payment" && p.queueType === "reception" && (!showOnlyMyPatients || p.calledByUserId === user?.id)) || [];
+  const paymentsToReceive = pendingPayments?.filter(p => p.status === "pending_payment" && p.queueType === "reception") || [];
   
   // Query para procedimentos do tratamento (quando modal de encaminhamento está aberto)
   // Usa getForSpecialist que busca por queueEntryId OU por patientId
@@ -446,11 +443,7 @@ export default function Atendente() {
       resetForm();
       toast.success("Paciente adicionado à fila!");
     },
-    onError: (error: any) => {
-      const errorMessage = error?.message || error?.data?.json?.message || "Erro ao adicionar paciente à fila";
-      toast.error(errorMessage);
-      console.error("[Atendente] Erro ao adicionar paciente à fila:", error);
-    },
+    onError: () => toast.error("Erro ao adicionar paciente à fila"),
   });
 
   const receivePayment = trpc.serviceQueue.receivePayment.useMutation({
@@ -847,9 +840,8 @@ export default function Atendente() {
         </div>
 
         <Tabs defaultValue="payments" className="space-y-4">
-          <div className="flex items-center justify-between mb-4">
-            <TabsList>
-              <TabsTrigger value="payments" className="gap-2 relative">
+          <TabsList>
+            <TabsTrigger value="payments" className="gap-2 relative">
               <DollarSign className="h-4 w-4" />
               Pagamentos Pendentes
               {paymentsToReceive.length > 0 && (
@@ -861,24 +853,14 @@ export default function Atendente() {
                 <span className="absolute -top-1 -right-1 flex h-3 w-3">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-orange-500" />
-                </span>              )}\n              </TabsTrigger>
-                <TabsTrigger value="forward" className="gap-2">
-                <ArrowRight className="h-4 w-4" />
-                Encaminhar/Finalizar
-              </TabsTrigger>
-            </TabsList>
-            
-            {/* Botão de Divisão de Sala */}
-            <Button
-              variant={showOnlyMyPatients ? "default" : "outline"}
-              size="sm"
-              onClick={() => setShowOnlyMyPatients(!showOnlyMyPatients)}
-              className="gap-2"
-            >
-              <Users className="h-4 w-4" />
-              {showOnlyMyPatients ? "Meus Pacientes" : "Todos os Pacientes"}
-            </Button>
-          </div>
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="forward" className="gap-2">
+              <ArrowRight className="h-4 w-4" />
+              Encaminhar/Finalizar
+            </TabsTrigger>
+          </TabsList>
 
           {/* Pagamentos Pendentes */}
           <TabsContent value="payments">
@@ -904,7 +886,7 @@ export default function Atendente() {
                 ) : (
                   <ScrollArea className="h-[400px]">
                     <div className="space-y-3">
-                      {paymentsToReceive.filter(p => !showOnlyMyPatients || p.calledByUserId === user?.id).map((entry, index) => (
+                      {paymentsToReceive.map((entry, index) => (
                         <div
                           key={entry.id}
                           className={`flex items-center justify-between p-4 border rounded-lg transition-all ${
@@ -990,10 +972,10 @@ export default function Atendente() {
                   <div className="flex items-center justify-center py-8">
                     <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                   </div>
-                ) : receptionQueue && receptionQueue.filter(e => e.paymentStatus === "paid" && (!showOnlyMyPatients || e.calledByUserId === user?.id)).length > 0 ? (
+                ) : receptionQueue && receptionQueue.filter(e => e.paymentStatus === "paid").length > 0 ? (
                   <ScrollArea className="h-[500px]">
                     <div className="space-y-4">
-                      {receptionQueue.filter(e => e.paymentStatus === "paid" && (!showOnlyMyPatients || e.calledByUserId === user?.id)).map((entry) => (
+                      {receptionQueue.filter(e => e.paymentStatus === "paid").map((entry) => (
                         <PaidPatientCard 
                           key={entry.id} 
                           entry={entry} 

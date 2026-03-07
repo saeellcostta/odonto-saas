@@ -16,31 +16,6 @@
 
   <body>
     <div id="root"></div>
-    <script>
-      // Carregar cores customizadas ANTES do Tailwind renderizar
-      (function() {
-        const colorPresets = [
-          { name: "Laranja Dentrics", primary: "oklch(0.70 0.18 55)", sidebar: "oklch(0.25 0.06 30)", accent: "oklch(0.94 0.04 55)" },
-          { name: "Azul Clássico", primary: "oklch(0.55 0.15 240)", sidebar: "oklch(0.20 0.04 240)", accent: "oklch(0.94 0.02 240)" },
-          { name: "Verde Saúde", primary: "oklch(0.55 0.15 160)", sidebar: "oklch(0.20 0.05 160)", accent: "oklch(0.94 0.03 160)" },
-          { name: "Roxo Moderno", primary: "oklch(0.55 0.18 290)", sidebar: "oklch(0.22 0.06 290)", accent: "oklch(0.94 0.04 290)" },
-          { name: "Vermelho Elegante", primary: "oklch(0.55 0.20 25)", sidebar: "oklch(0.22 0.05 25)", accent: "oklch(0.94 0.04 25)" },
-          { name: "Teal Profissional", primary: "oklch(0.55 0.15 195)", sidebar: "oklch(0.20 0.04 195)", accent: "oklch(0.94 0.02 195)" }
-        ];
-        
-        const savedPreset = localStorage.getItem("dentrics-color-preset");
-        if (savedPreset) {
-          const presetIndex = parseInt(savedPreset);
-          const preset = colorPresets[presetIndex];
-          const root = document.documentElement;
-          root.style.setProperty("--primary", preset.primary);
-          root.style.setProperty("--sidebar", preset.sidebar);
-          root.style.setProperty("--accent", preset.accent);
-          root.style.setProperty("--ring", preset.primary);
-          root.style.setProperty("--sidebar-ring", preset.primary);
-        }
-      })();
-    </script>
     <script type="module" src="/src/main.tsx"></script>
     <script
       defer
