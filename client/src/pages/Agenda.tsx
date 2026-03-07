@@ -120,9 +120,22 @@ export default function Agenda() {
     onSuccess: () => {
       toast.success("Consulta atualizada!");
       utils.appointments.list.invalidate();
+      handleCloseDetails();
     },
     onError: (error) => {
       toast.error("Erro ao atualizar consulta: " + error.message);
+    },
+  });
+
+  const deleteMutation = trpc.appointments.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Consulta cancelada!");
+      utils.appointments.list.invalidate();
+      utils.dashboard.stats.invalidate();
+      handleCloseDetails();
+    },
+    onError: (error) => {
+      toast.error("Erro ao cancelar consulta: " + error.message);
     },
   });
 
@@ -139,6 +152,28 @@ export default function Agenda() {
   const handleCloseDetails = () => {
     setIsDetailsDialogOpen(false);
     setSelectedAppointment(null);
+  };
+
+  const handleEditAppointment = () => {
+    if (selectedAppointment) {
+      setFormData({
+        patientId: selectedAppointment.patientId,
+        dentistId: selectedAppointment.dentistId || "",
+        date: selectedAppointment.date,
+        startTime: selectedAppointment.startTime.substring(0, 5),
+        endTime: selectedAppointment.endTime.substring(0, 5),
+        type: selectedAppointment.type || "",
+        notes: selectedAppointment.notes || "",
+      });
+      handleCloseDetails();
+      setIsDialogOpen(true);
+    }
+  };
+
+  const handleCancelAppointment = () => {
+    if (selectedAppointment && confirm("Tem certeza que deseja cancelar esta consulta?")) {
+      deleteMutation.mutate({ id: selectedAppointment.id });
+    }
   };
 
   const handleOpenNew = (date?: Date, time?: string) => {
@@ -159,16 +194,31 @@ export default function Agenda() {
       return;
     }
 
-    createMutation.mutate({
-      patientId: formData.patientId as number,
-      dentistId: formData.dentistId ? formData.dentistId as number : undefined,
-      date: formData.date,
-      startTime: formData.startTime,
-      endTime: formData.endTime,
-      type: formData.type || undefined,
-      notes: formData.notes || undefined,
-    });
-  };
+    if (selectedAppointment) {
+      updateMutation.mutate({
+        id: selectedAppointment.id,
+        data: {
+          patientId: formData.patientId as number,
+          dentistId: formData.dentistId ? formData.dentistId as number : undefined,
+          date: formData.date,
+          startTime: formData.startTime,
+          endTime: formData.endTime,
+          type: formData.type || undefined,
+          notes: formData.notes || undefined,
+        },
+      });
+    } else {
+      createMutation.mutate({
+        patientId: formData.patientId as number,
+        dentistId: formData.dentistId ? formData.dentistId as number : undefined,
+        date: formData.date,
+        startTime: formData.startTime,
+        endTime: formData.endTime,
+        type: formData.type || undefined,
+        notes: formData.notes || undefined,
+      });
+    }
+  }
 
   const handleStatusChange = (appointmentId: number, status: string) => {
     updateMutation.mutate({
@@ -554,10 +604,29 @@ export default function Agenda() {
               )}
             </div>
           )}
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleCloseDetails}>
-              Fechar
-            </Button>
+          <DialogFooter className="flex gap-2 justify-between">
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleCancelAppointment}
+                disabled={deleteMutation.isPending}
+              >
+                {deleteMutation.isPending ? "Cancelando..." : "Cancelar Consulta"}
+              </Button>
+            </div>
+            <div className="flex gap-2">
+              <Button type="button" variant="outline" onClick={handleCloseDetails}>
+                Fechar
+              </Button>
+              <Button
+                type="button"
+                onClick={handleEditAppointment}
+                disabled={updateMutation.isPending}
+              >
+                Editar
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>

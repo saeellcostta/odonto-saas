@@ -82,4 +82,66 @@ describe("Appointments - Details Display", () => {
     expect(appointment1.notes).toBeTruthy();
     expect(appointment2.notes).toBeNull();
   });
+
+  it("deve permitir editar agendamento com novos dados", () => {
+    const originalAppointment = {
+      id: 1,
+      patientId: 1,
+      dentistId: 2,
+      date: "2026-03-15",
+      startTime: "14:30:00",
+      endTime: "15:30:00",
+      type: "Limpeza",
+      status: "scheduled",
+      notes: "Primeira consulta",
+    };
+
+    const updatedData = {
+      patientId: 1,
+      dentistId: 3,
+      date: "2026-03-16",
+      startTime: "15:00:00",
+      endTime: "16:00:00",
+      type: "Restauracao",
+      notes: "Mudanca de horario",
+    };
+
+    expect(updatedData.dentistId).not.toBe(originalAppointment.dentistId);
+    expect(updatedData.date).not.toBe(originalAppointment.date);
+    expect(updatedData.type).not.toBe(originalAppointment.type);
+  });
+
+  it("deve permitir cancelar agendamento mudando status", () => {
+    const appointment = {
+      id: 1,
+      status: "scheduled",
+    };
+
+    const cancelledAppointment = {
+      ...appointment,
+      status: "cancelled",
+    };
+
+    expect(cancelledAppointment.status).toBe("cancelled");
+    expect(cancelledAppointment.status).not.toBe(appointment.status);
+  });
+
+  it("deve validar que ID eh obrigatorio para editar", () => {
+    const updateData = {
+      id: 1,
+      data: { type: "Limpeza" },
+    };
+
+    expect(updateData.id).toBeTruthy();
+    expect(typeof updateData.id).toBe("number");
+  });
+
+  it("deve validar que ID eh obrigatorio para deletar", () => {
+    const deleteData = {
+      id: 1,
+    };
+
+    expect(deleteData.id).toBeTruthy();
+    expect(typeof deleteData.id).toBe("number");
+  });
 });

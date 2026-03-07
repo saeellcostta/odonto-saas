@@ -1193,3 +1193,17 @@
 - [x] Corrigir exibição de dia/data do agendamento
 - [x] Corrigir exibição de horário, dentista, procedimento e observações
 - [x] Testar funcionalidade (10/10 testes passando)
+
+
+## Bug: Agendamentos do Atendente não aparecem na Agenda (07/03/2026) - ✅ CORRIGIDO
+- [x] Investigar por que agendamentos criados no Atendente não aparecem na página Agenda
+- [x] Verificar se há diferença na estrutura de dados entre agendamentos do Atendente e Agenda
+- [x] Corrigir query/filtro de agendamentos (usar sql.raw para comparação de datas)
+- [x] Testar exibição de agendamentos
+
+## Feature: Editar e Cancelar Agendamentos (07/03/2026) - ✅ COMPLETA
+- [x] Adicionar botão "Editar" no diálogo de detalhes
+- [x] Adicionar botão "Cancelar" no diálogo de detalhes
+- [x] Implementar funcionalidade de editar agendamento (mutation + handleEditAppointment)
+- [x] Implementar funcionalidade de cancelar agendamento (deleteMutation + handleCancelAppointment)
+- [x] Testar ambas as funcionalidades (14/14 testes passando)

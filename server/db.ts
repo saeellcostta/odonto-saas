@@ -343,8 +343,8 @@ export async function getAppointments(startDate?: string, endDate?: string, dent
   
   let conditions = [];
   if (clinicId) conditions.push(eq(appointments.clinicId, clinicId));
-  if (startDate) conditions.push(gte(appointments.date, new Date(startDate)));
-  if (endDate) conditions.push(lte(appointments.date, new Date(endDate)));
+  if (startDate) conditions.push(sql`DATE(${appointments.date}) >= DATE(${startDate})`);
+  if (endDate) conditions.push(sql`DATE(${appointments.date}) <= DATE(${endDate})`);
   if (dentistId) conditions.push(eq(appointments.dentistId, dentistId));
   
   if (conditions.length > 0) {
