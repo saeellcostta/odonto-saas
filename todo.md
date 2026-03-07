@@ -1212,3 +1212,12 @@
 - [x] Criar documentação de i18n (I18N_DOCUMENTATION.md)
 - [ ] Teste manual: Verificar se o seletor aparece nas configurações (requer login)
 - [ ] Teste manual: Trocar idioma e verificar se persiste após reload
+
+
+## Bug: Não consegue adicionar paciente à fila (07/03/2026) - ✅ CORRIGIDO
+- [x] Investigar erro ao adicionar paciente à fila
+- [x] Verificar logs do servidor e console do navegador
+- [x] Identificar a causa raiz (falta de validação e campos obrigatórios)
+- [x] Implementar correção (adicionar validação e campos padrão em addToServiceQueue)
+- [x] Testar funcionalidade (10/10 testes passando)
+- [x] Melhorar mensagem de erro no frontend para exibir erro real

@@ -446,7 +446,11 @@ export default function Atendente() {
       resetForm();
       toast.success("Paciente adicionado à fila!");
     },
-    onError: () => toast.error("Erro ao adicionar paciente à fila"),
+    onError: (error: any) => {
+      const errorMessage = error?.message || error?.data?.json?.message || "Erro ao adicionar paciente à fila";
+      toast.error(errorMessage);
+      console.error("[Atendente] Erro ao adicionar paciente à fila:", error);
+    },
   });
 
   const receivePayment = trpc.serviceQueue.receivePayment.useMutation({

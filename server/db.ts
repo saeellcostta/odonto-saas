@@ -1754,18 +1754,39 @@ export async function getServiceQueueEntry(id: number) {
 export async function addToServiceQueue(data: InsertServiceQueue) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(serviceQueue).values(data);
   
-  // Adicionar ao histórico
-  await db.insert(queueHistory).values({
-    queueEntryId: result[0].insertId,
-    patientId: data.patientId,
-    action: "added",
-    toQueue: data.queueType,
-    notes: data.notes,
-  });
+  // Validar campos obrigatórios
+  if (!data.patientId) throw new Error("patientId é obrigatório");
+  if (!data.patientName) throw new Error("patientName é obrigatório");
+  if (!data.queueType) throw new Error("queueType é obrigatório");
+  if (!data.clinicId) throw new Error("clinicId é obrigatório");
   
-  return { id: result[0].insertId };
+  // Garantir que status e arrivalTime têm valores padrão
+  const queueData = {
+    ...data,
+    status: data.status || "waiting",
+    arrivalTime: data.arrivalTime || new Date(),
+    priority: data.priority || "normal",
+  };
+  
+  try {
+    const result = await db.insert(serviceQueue).values(queueData);
+    
+    // Adicionar ao histórico
+    await db.insert(queueHistory).values({
+      queueEntryId: result[0].insertId,
+      patientId: data.patientId,
+      action: "added",
+      toQueue: data.queueType,
+      notes: data.notes,
+      clinicId: data.clinicId,
+    });
+    
+    return { id: result[0].insertId };
+  } catch (error: any) {
+    console.error("[DB] Erro ao adicionar paciente à fila:", error.message);
+    throw new Error(`Erro ao adicionar paciente à fila: ${error.message}`);
+  }
 }
 
 export async function updateServiceQueueEntry(id: number, data: Partial<InsertServiceQueue>) {
