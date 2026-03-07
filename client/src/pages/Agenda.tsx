@@ -86,8 +86,10 @@ const statusLabels: Record<string, string> = {
 export default function Agenda() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [formData, setFormData] = useState<AppointmentFormData>(initialFormData);
   const [selectedDentist, setSelectedDentist] = useState<string>("all");
+  const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
 
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
@@ -127,6 +129,16 @@ export default function Agenda() {
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setFormData(initialFormData);
+  };
+
+  const handleOpenDetails = (appointment: any) => {
+    setSelectedAppointment(appointment);
+    setIsDetailsDialogOpen(true);
+  };
+
+  const handleCloseDetails = () => {
+    setIsDetailsDialogOpen(false);
+    setSelectedAppointment(null);
   };
 
   const handleOpenNew = (date?: Date, time?: string) => {
@@ -346,7 +358,7 @@ export default function Agenda() {
                                 className={`${statusColors[apt.status || "scheduled"]} text-white text-xs p-1.5 rounded mb-1 cursor-pointer hover:opacity-90`}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  // Could open edit dialog here
+                                  handleOpenDetails(apt);
                                 }}
                               >
                                 <p className="font-medium truncate">
@@ -487,6 +499,66 @@ export default function Agenda() {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Details Dialog */}
+      <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Detalhes da Consulta</DialogTitle>
+          </DialogHeader>
+          {selectedAppointment && (
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Paciente</p>
+                <p className="text-lg font-semibold">{getPatientName(selectedAppointment.patientId)}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Data</p>
+                <p className="text-lg font-semibold">
+                  {format(new Date(selectedAppointment.date), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Horario Inicio</p>
+                  <p className="text-lg font-semibold">{selectedAppointment.startTime}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Horario Fim</p>
+                  <p className="text-lg font-semibold">{selectedAppointment.endTime}</p>
+                </div>
+              </div>
+              {selectedAppointment.dentistId && (
+                <div>
+                  <p className="text-sm text-muted-foreground">Dentista</p>
+                  <p className="text-lg font-semibold">{getDentistName(selectedAppointment.dentistId)}</p>
+                </div>
+              )}
+              {selectedAppointment.type && (
+                <div>
+                  <p className="text-sm text-muted-foreground">Procedimento</p>
+                  <p className="text-lg font-semibold">{selectedAppointment.type}</p>
+                </div>
+              )}
+              <div>
+                <p className="text-sm text-muted-foreground">Status</p>
+                <Badge className="mt-1">{statusLabels[selectedAppointment.status] || selectedAppointment.status}</Badge>
+              </div>
+              {selectedAppointment.notes && (
+                <div>
+                  <p className="text-sm text-muted-foreground">Observacoes</p>
+                  <p className="text-base">{selectedAppointment.notes}</p>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={handleCloseDetails}>
+              Fechar
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

@@ -1185,3 +1185,11 @@
 - [ ] Criar pacientes de teste (Rute teste, Maria teste, etc)
 - [ ] Executar seed para todas as clínicas
 - [ ] Validar dados no banco
+
+
+## Bug: Agendamentos não mostram detalhes (dia, horário, dentista, procedimento) (07/03/2026) - ✅ CORRIGIDO
+- [x] Investigar por que agendamentos não exibem detalhes
+- [x] Verificar estrutura de dados do agendamento
+- [x] Corrigir exibição de dia/data do agendamento
+- [x] Corrigir exibição de horário, dentista, procedimento e observações
+- [x] Testar funcionalidade (10/10 testes passando)
