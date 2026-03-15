@@ -1234,3 +1234,12 @@
 - [x] Aplicar design glass-morphism nos formulários
 - [x] Personalizar cores com tema laranja-âmbar
 - [x] Testar responsividade em mobile e desktop
+
+
+## Bug Crítico: Isolamento de Configurações por Clínica (15/03/2026)
+- [x] Analisar schema do banco para identificar tabelas sem clinicId
+- [x] Adicionar clinicId em tabelas de configuração (colors, appearance, consultories, notifications)
+- [x] Corrigir queries para filtrar por clinicId do usuário
+- [x] Atualizar página de Configurações para usar clinicId (localStorage agora inclui clinicId)
+- [ ] Testar isolamento entre múltiplas clínicas
+- [ ] Validar que cada clínica tem suas próprias configurações isoladas

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,6 +45,7 @@ const colorPresets = [
 
 export default function Configuracoes() {
   const { theme, toggleTheme } = useTheme();
+  const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [clinicData, setClinicData] = useState({
@@ -132,15 +134,18 @@ export default function Configuracoes() {
     }
   }, [settingsData]);
 
-  // Load saved theme settings
+  // Load saved theme settings - incluir clinicId para isolar por clínica
   useEffect(() => {
-    const savedPreset = localStorage.getItem("dentrics-color-preset");
-    if (savedPreset) {
-      setSelectedPreset(parseInt(savedPreset));
+    if (user?.clinicId) {
+      const storageKey = `dentrics-color-preset-${user.clinicId}`;
+      const savedPreset = localStorage.getItem(storageKey);
+      if (savedPreset) {
+        setSelectedPreset(parseInt(savedPreset));
+      }
     }
-  }, []);
+  }, [user?.clinicId]);
 
-  // Apply color preset
+  // Apply color preset - incluir clinicId para isolar por clínica
   const applyColorPreset = (index: number) => {
     setSelectedPreset(index);
     const preset = colorPresets[index];
@@ -151,9 +156,13 @@ export default function Configuracoes() {
     document.documentElement.style.setProperty("--ring", preset.primary);
     document.documentElement.style.setProperty("--sidebar-ring", preset.primary);
     
-    localStorage.setItem("dentrics-color-preset", index.toString());
+    // Salvar com isolamento por clínica
+    if (user?.clinicId) {
+      const storageKey = `dentrics-color-preset-${user.clinicId}`;
+      localStorage.setItem(storageKey, index.toString());
+    }
     toast.success(`Tema "${preset.name}" aplicado!`);
-  };
+  }
 
   // Consultórios
   const [officeDialogOpen, setOfficeDialogOpen] = useState(false);
