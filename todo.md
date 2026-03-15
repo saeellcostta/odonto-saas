@@ -1226,3 +1226,11 @@
 - [x] Atualizar página de login com novo design (fundo + glass-morphism)
 - [x] Integrar logo profissional da Dentrics
 - [x] Testar responsividade em mobile e desktop
+
+
+## Feature: Personalizar páginas de cadastro (15/03/2026)
+- [x] Personalizar página de cadastro de clínica com fundo de consultório
+- [x] Adicionar logo da Dentrics na página de cadastro
+- [x] Aplicar design glass-morphism nos formulários
+- [x] Personalizar cores com tema laranja-âmbar
+- [x] Testar responsividade em mobile e desktop
