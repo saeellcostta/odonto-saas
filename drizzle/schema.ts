@@ -387,7 +387,6 @@ export const transactions = mysqlTable("transactions", {
   clinicId: int("clinicId"), // Multi-tenancy: ID da clínica
   patientId: int("patientId"),
   budgetId: int("budgetId"),
-  queueEntryId: int("queueEntryId"), // Vincula a transação ao atendimento na fila
   type: mysqlEnum("type", ["income", "expense"]).notNull(),
   category: varchar("category", { length: 100 }),
   description: text("description"),
