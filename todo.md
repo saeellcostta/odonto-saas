@@ -1219,3 +1219,10 @@
 - [x] Adicionar clique no número do dia para filtrar agendamentos
 - [x] Implementar navegação/seleção de data ao clicar
 - [x] Testar funcionalidade de navegação (18/18 testes passando)
+
+
+## Feature: Melhorar página de login (15/03/2026)
+- [x] Gerar imagem de consultório moderno para fundo
+- [x] Atualizar página de login com novo design (fundo + glass-morphism)
+- [x] Integrar logo profissional da Dentrics
+- [x] Testar responsividade em mobile e desktop
