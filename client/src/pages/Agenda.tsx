@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,8 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  Edit2,
+  Trash2,
 } from "lucide-react";
 import { format, addDays, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -219,7 +221,7 @@ export default function Agenda() {
         notes: formData.notes || undefined,
       });
     }
-  }
+  };
 
   const handleStatusChange = (appointmentId: number, status: string) => {
     updateMutation.mutate({
@@ -236,8 +238,8 @@ export default function Agenda() {
     if (!appointments) return [];
     return appointments.filter((apt) => {
       const aptDate = new Date(apt.date);
-      const aptStartTime = apt.startTime.substring(0, 5); // Pega apenas HH:MM
-      const slotTime = time.substring(0, 5); // Garante que está em HH:MM
+      const aptStartTime = apt.startTime.substring(0, 5);
+      const slotTime = time.substring(0, 5);
       return isSameDay(aptDate, day) && aptStartTime === slotTime;
     });
   };
@@ -253,7 +255,6 @@ export default function Agenda() {
     return dentist?.name || null;
   };
 
-  // Stats
   const weekStats = useMemo(() => {
     if (!appointments) return { total: 0, confirmed: 0, pending: 0 };
     return {
@@ -265,189 +266,226 @@ export default function Agenda() {
 
   return (
     <DashboardLayout>
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Agenda</h1>
-          <p className="text-muted-foreground">
-            Gerencie os agendamentos da clínica
-          </p>
-        </div>
-        <Button onClick={() => handleOpenNew()} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Nova Consulta
-        </Button>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                <CalendarIcon className="h-6 w-6 text-blue-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{weekStats.total}</p>
-                <p className="text-sm text-muted-foreground">Agendamentos da Semana</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-lg bg-green-500/10 flex items-center justify-center">
-                <CheckCircle className="h-6 w-6 text-green-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{weekStats.confirmed}</p>
-                <p className="text-sm text-muted-foreground">Confirmados</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                <AlertCircle className="h-6 w-6 text-amber-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{weekStats.pending}</p>
-                <p className="text-sm text-muted-foreground">Pendentes</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Calendar */}
-      <Card>
-        <CardHeader className="pb-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="icon" onClick={goToPrevWeek}>
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" onClick={goToToday}>
-                Hoje
-              </Button>
-              <Button variant="outline" size="icon" onClick={goToNextWeek}>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-              <span className="ml-2 font-medium">
-                {format(weekStart, "dd/MM", { locale: ptBR })} - {format(weekEnd, "dd/MM/yyyy", { locale: ptBR })}
-              </span>
-            </div>
-            <Select value={selectedDentist} onValueChange={setSelectedDentist}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Filtrar por dentista" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os dentistas</SelectItem>
-                {dentists?.map((dentist) => (
-                  <SelectItem key={dentist.id} value={dentist.id.toString()}>
-                    {dentist.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Agenda</h1>
+            <p className="text-muted-foreground">
+              Gerencie os agendamentos da clínica
+            </p>
           </div>
-        </CardHeader>
-        <CardContent>
-          {loadingAppointments ? (
-            <div className="space-y-2">
-              {Array.from({ length: 10 }).map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full" />
-              ))}
+          <Button onClick={() => handleOpenNew()} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Nova Consulta
+          </Button>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Agendamentos da Semana
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{weekStats.total}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                +{weekStats.pending} pendentes
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Confirmados
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">{weekStats.confirmed}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Pendentes
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-amber-600">{weekStats.pending}</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Calendar View */}
+        <Card>
+          <CardHeader>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <CardTitle>Calendário Semanal</CardTitle>
+                <CardDescription>
+                  {format(weekStart, "d 'de' MMMM", { locale: ptBR })} - {format(weekEnd, "d 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                </CardDescription>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={goToPrevWeek}>
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="sm" onClick={goToToday}>
+                  Hoje
+                </Button>
+                <Button variant="outline" size="sm" onClick={goToNextWeek}>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <div className="min-w-[800px]">
-                {/* Header */}
-                <div className="grid grid-cols-8 gap-1 mb-2">
-                  <div className="p-2 text-center text-sm font-medium text-muted-foreground">
-                    Horário
-                  </div>
+          </CardHeader>
+          <CardContent>
+            {loadingAppointments ? (
+              <div className="space-y-2">
+                {[...Array(5)].map((_, i) => (
+                  <Skeleton key={i} className="h-12 w-full" />
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Days Header */}
+                <div className="grid grid-cols-7 gap-2 mb-4">
                   {weekDays.map((day) => (
                     <div
                       key={day.toISOString()}
-                      className={`p-2 text-center rounded-lg cursor-pointer transition-colors hover:bg-accent/50 ${
-                        isSameDay(day, new Date()) ? "bg-primary/10" : ""
-                      } ${
-                        selectedDay && isSameDay(day, selectedDay) ? "bg-accent" : ""
+                      onClick={() => setSelectedDay(selectedDay?.toDateString() === day.toDateString() ? null : day)}
+                      className={`p-3 rounded-lg text-center cursor-pointer transition-colors ${
+                        selectedDay?.toDateString() === day.toDateString()
+                          ? "bg-orange-500 text-white"
+                          : "bg-muted hover:bg-muted/80"
                       }`}
-                      onClick={() => setSelectedDay(selectedDay && isSameDay(day, selectedDay) ? null : day)}
                     >
-                      <p className="text-xs text-muted-foreground uppercase">
-                        {format(day, "EEE", { locale: ptBR })}
-                      </p>
-                      <p className={`text-lg font-semibold ${
-                        isSameDay(day, new Date()) ? "text-primary" : ""
-                      }`}>
-                        {format(day, "dd")}
-                      </p>
+                      <div className="text-xs font-medium">
+                        {format(day, "EEE", { locale: ptBR }).toUpperCase()}
+                      </div>
+                      <div className="text-lg font-bold">
+                        {format(day, "d")}
+                      </div>
                     </div>
                   ))}
                 </div>
 
                 {/* Time Slots */}
-                <div className="border rounded-lg overflow-hidden">
-                  {timeSlots.map((time) => (
-                    <div key={time} className="grid grid-cols-8 gap-px bg-border">
-                      <div className="bg-card p-2 text-center text-sm text-muted-foreground">
-                        {time}
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {timeSlots.map((time) => {
+                    const dayAppointments = selectedDay
+                      ? getAppointmentsForSlot(selectedDay, time)
+                      : [];
+
+                    if (dayAppointments.length === 0 && selectedDay) return null;
+
+                    return (
+                      <div key={time} className="flex gap-2">
+                        <div className="w-16 text-sm font-medium text-muted-foreground pt-2">
+                          {time}
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          {dayAppointments.map((apt) => (
+                            <div
+                              key={apt.id}
+                              onClick={() => handleOpenDetails(apt)}
+                              className={`p-2 rounded cursor-pointer transition-colors ${statusColors[apt.status as keyof typeof statusColors] || "bg-gray-400"} text-white text-sm hover:opacity-80`}
+                            >
+                              <div className="font-medium">{getPatientName(apt.patientId)}</div>
+                              {getDentistName(apt.dentistId) && (
+                                <div className="text-xs opacity-90">{getDentistName(apt.dentistId)}</div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      {weekDays.map((day) => {
-                        const slotAppointments = getAppointmentsForSlot(day, time);
-                        return (
-                          <div
-                            key={`${day.toISOString()}-${time}`}
-                            className="bg-card p-1 min-h-[60px] hover:bg-accent/50 cursor-pointer transition-colors"
-                            onClick={() => slotAppointments.length === 0 && handleOpenNew(day, time)}
-                          >
-                            {slotAppointments.map((apt) => (
-                              <div
-                                key={apt.id}
-                                className={`${statusColors[apt.status || "scheduled"]} text-white text-xs p-1.5 rounded mb-1 cursor-pointer hover:opacity-90`}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleOpenDetails(apt);
-                                }}
-                              >
-                                <p className="font-medium truncate">
-                                  {getPatientName(apt.patientId)}
-                                </p>
-                                {apt.type && (
-                                  <p className="truncate opacity-90">{apt.type}</p>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            )}
+          </CardContent>
+        </Card>
 
-      {/* Create Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Agendar Consulta</DialogTitle>
-            <DialogDescription>
-              {formData.date && format(parseISO(formData.date), "EEEE, dd 'de' MMMM", { locale: ptBR })} às {formData.startTime}
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSubmit}>
-            <div className="grid gap-4 py-4">
+        {/* Details Dialog */}
+        <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Detalhes da Consulta</DialogTitle>
+            </DialogHeader>
+            {selectedAppointment && (
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-muted-foreground">Paciente</Label>
+                  <p className="font-medium">{getPatientName(selectedAppointment.patientId)}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Data</Label>
+                  <p className="font-medium">
+                    {format(new Date(selectedAppointment.date), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-muted-foreground">Horário Início</Label>
+                    <p className="font-medium">{selectedAppointment.startTime.substring(0, 5)}</p>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground">Horário Fim</Label>
+                    <p className="font-medium">{selectedAppointment.endTime.substring(0, 5)}</p>
+                  </div>
+                </div>
+                {getDentistName(selectedAppointment.dentistId) && (
+                  <div>
+                    <Label className="text-muted-foreground">Dentista</Label>
+                    <p className="font-medium">{getDentistName(selectedAppointment.dentistId)}</p>
+                  </div>
+                )}
+                {selectedAppointment.type && (
+                  <div>
+                    <Label className="text-muted-foreground">Procedimento</Label>
+                    <p className="font-medium">{selectedAppointment.type}</p>
+                  </div>
+                )}
+                <div>
+                  <Label className="text-muted-foreground">Status</Label>
+                  <Badge className={statusColors[selectedAppointment.status] || "bg-gray-400"}>
+                    {statusLabels[selectedAppointment.status] || selectedAppointment.status}
+                  </Badge>
+                </div>
+                {selectedAppointment.notes && (
+                  <div>
+                    <Label className="text-muted-foreground">Observações</Label>
+                    <p className="text-sm">{selectedAppointment.notes}</p>
+                  </div>
+                )}
+              </div>
+            )}
+            <DialogFooter className="flex gap-2">
+              <Button variant="outline" onClick={handleEditAppointment} className="gap-2">
+                <Edit2 className="h-4 w-4" />
+                Editar
+              </Button>
+              <Button variant="destructive" onClick={handleCancelAppointment} className="gap-2">
+                <Trash2 className="h-4 w-4" />
+                Cancelar Consulta
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Create/Edit Dialog */}
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{selectedAppointment ? "Editar Consulta" : "Nova Consulta"}</DialogTitle>
+              <DialogDescription>
+                {selectedAppointment ? "Atualize os dados da consulta" : "Agende uma nova consulta"}
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="patient">Paciente *</Label>
                 <Select
@@ -455,7 +493,7 @@ export default function Agenda() {
                   onValueChange={(value) => setFormData({ ...formData, patientId: parseInt(value) })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione o paciente" />
+                    <SelectValue placeholder="Selecione um paciente" />
                   </SelectTrigger>
                   <SelectContent>
                     {patients?.map((patient) => (
@@ -471,12 +509,13 @@ export default function Agenda() {
                 <Label htmlFor="dentist">Dentista</Label>
                 <Select
                   value={formData.dentistId.toString()}
-                  onValueChange={(value) => setFormData({ ...formData, dentistId: parseInt(value) })}
+                  onValueChange={(value) => setFormData({ ...formData, dentistId: value ? parseInt(value) : "" })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione o dentista" />
+                    <SelectValue placeholder="Selecione um dentista (opcional)" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="">Nenhum</SelectItem>
                     {dentists?.map((dentist) => (
                       <SelectItem key={dentist.id} value={dentist.id.toString()}>
                         {dentist.name}
@@ -486,33 +525,43 @@ export default function Agenda() {
                 </Select>
               </div>
 
+              <div>
+                <Label htmlFor="date">Data *</Label>
+                <Input
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                  required
+                />
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="date">Data</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="startTime">Horário</Label>
+                  <Label htmlFor="startTime">Horário Início *</Label>
                   <Select
                     value={formData.startTime}
-                    onValueChange={(value) => {
-                      const [h, m] = value.split(":");
-                      const endHour = (parseInt(h) + 1).toString().padStart(2, "0");
-                      setFormData({ 
-                        ...formData, 
-                        startTime: value,
-                        endTime: `${endHour}:${m}`
-                      });
-                    }}
+                    onValueChange={(value) => setFormData({ ...formData, startTime: value })}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Horário" />
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {timeSlots.map((time) => (
+                        <SelectItem key={time} value={time}>
+                          {time}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="endTime">Horário Fim *</Label>
+                  <Select
+                    value={formData.endTime}
+                    onValueChange={(value) => setFormData({ ...formData, endTime: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {timeSlots.map((time) => (
@@ -526,117 +575,36 @@ export default function Agenda() {
               </div>
 
               <div>
-                <Label htmlFor="type">Tipo de Consulta</Label>
+                <Label htmlFor="type">Procedimento</Label>
                 <Input
-                  id="type"
+                  placeholder="Ex: Limpeza, Restauração, etc."
                   value={formData.type}
                   onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                  placeholder="Ex: Limpeza, Avaliação, Retorno"
                 />
               </div>
 
               <div>
                 <Label htmlFor="notes">Observações</Label>
                 <Textarea
-                  id="notes"
+                  placeholder="Notas adicionais sobre a consulta"
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  placeholder="Observações sobre a consulta"
                   rows={3}
                 />
               </div>
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={handleCloseDialog}>
-                Cancelar
-              </Button>
-              <Button type="submit" disabled={createMutation.isPending}>
-                {createMutation.isPending ? "Agendando..." : "Agendar"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
 
-      {/* Details Dialog */}
-      <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Detalhes da Consulta</DialogTitle>
-          </DialogHeader>
-          {selectedAppointment && (
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Paciente</p>
-                <p className="text-lg font-semibold">{getPatientName(selectedAppointment.patientId)}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Data</p>
-                <p className="text-lg font-semibold">
-                  {format(new Date(selectedAppointment.date), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Horario Inicio</p>
-                  <p className="text-lg font-semibold">{selectedAppointment.startTime}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Horario Fim</p>
-                  <p className="text-lg font-semibold">{selectedAppointment.endTime}</p>
-                </div>
-              </div>
-              {selectedAppointment.dentistId && (
-                <div>
-                  <p className="text-sm text-muted-foreground">Dentista</p>
-                  <p className="text-lg font-semibold">{getDentistName(selectedAppointment.dentistId)}</p>
-                </div>
-              )}
-              {selectedAppointment.type && (
-                <div>
-                  <p className="text-sm text-muted-foreground">Procedimento</p>
-                  <p className="text-lg font-semibold">{selectedAppointment.type}</p>
-                </div>
-              )}
-              <div>
-                <p className="text-sm text-muted-foreground">Status</p>
-                <Badge className="mt-1">{statusLabels[selectedAppointment.status] || selectedAppointment.status}</Badge>
-              </div>
-              {selectedAppointment.notes && (
-                <div>
-                  <p className="text-sm text-muted-foreground">Observacoes</p>
-                  <p className="text-base">{selectedAppointment.notes}</p>
-                </div>
-              )}
-            </div>
-          )}
-          <DialogFooter className="flex gap-2 justify-between">
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={handleCancelAppointment}
-                disabled={deleteMutation.isPending}
-              >
-                {deleteMutation.isPending ? "Cancelando..." : "Cancelar Consulta"}
-              </Button>
-            </div>
-            <div className="flex gap-2">
-              <Button type="button" variant="outline" onClick={handleCloseDetails}>
-                Fechar
-              </Button>
-              <Button
-                type="button"
-                onClick={handleEditAppointment}
-                disabled={updateMutation.isPending}
-              >
-                Editar
-              </Button>
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={handleCloseDialog}>
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
+                  {selectedAppointment ? "Atualizar" : "Agendar"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
     </DashboardLayout>
   );
 }

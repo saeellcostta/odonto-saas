@@ -1219,3 +1219,17 @@
 - [x] Adicionar clique no número do dia para filtrar agendamentos
 - [x] Implementar navegação/seleção de data ao clicar
 - [x] Testar funcionalidade de navegação (18/18 testes passando)
+
+
+## Bug: Valores não entram no Financeiro ao finalizar atendimento (07/03/2026)
+- [ ] Investigar fluxo de finalização do atendimento
+- [ ] Verificar se valores estão sendo salvos no banco de dados
+- [ ] Corrigir criação de registro financeiro
+- [ ] Testar fluxo completo de atendimento → financeiro
+
+
+## Feature: Melhorar página de login (07/03/2026) - ✅ COMPLETA
+- [x] Gerar imagem de consultório moderno para fundo (consultório com cadeira azul, equipamentos modernos)
+- [x] Criar/encontrar logo da Dentrics (ícone de sorriso em laranja)
+- [x] Atualizar página de login com novo design (fundo com overlay, glass-morphism card, gradientes)
+- [x] Testar responsividade em mobile e desktop (layout adaptativo confirmado)
