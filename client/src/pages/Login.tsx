@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Eye, EyeOff, Loader2, Smile } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 export default function Login() {
   const [, setLocation] = useLocation();
@@ -51,9 +51,11 @@ export default function Login() {
       <Card className="w-full max-w-md shadow-2xl relative z-10 bg-white/97 backdrop-blur-md border-0">
         <CardHeader className="text-center space-y-3 pb-4">
           <div className="flex justify-center mb-2">
-            <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow">
-              <Smile className="w-10 h-10 text-white" />
-            </div>
+            <img 
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663313164752/ZxQkmxiVcK2LVVsppAdeCn/dentrics-logo.png" 
+              alt="Dentrics Logo" 
+              className="w-20 h-20 object-contain drop-shadow-lg hover:drop-shadow-xl transition-all"
+            />
           </div>
           <CardTitle className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
             Dentrics
