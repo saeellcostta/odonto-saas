@@ -1181,15 +1181,21 @@ export const appRouter = router({
       .query(async ({ input, ctx }) => {
         return db.getAiAnalyses(input?.patientId, ctx.clinicId);
       }),
-    create: publicProcedure
+    create: clinicProcedure
       .input(z.object({
         patientId: z.number(),
         imageUrl: z.string().min(1),
         imageType: z.enum(["panoramic", "periapical", "bitewing", "cephalometric", "intraoral"]).optional(),
       }))
-      .mutation(async ({ input }) => {
-        // Criar registro inicial
-        const result = await db.createAiAnalysis(input);
+      .mutation(async ({ input, ctx }) => {
+        // Validar que o paciente pertence à clínica do usuário
+        const patient = await db.getPatientById(input.patientId);
+        if (!patient || patient.clinicId !== ctx.clinicId) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado a este paciente' });
+        }
+        
+        // Criar registro inicial com clinicId
+        const result = await db.createAiAnalysis({ ...input, clinicId: ctx.clinicId } as any);
         
         // Iniciar análise assíncrona com LLM
         (async () => {
@@ -1240,6 +1246,8 @@ IMPORTANTE: Esta é uma ferramenta de auxílio ao diagnóstico. O diagnóstico f
 
 Formate sua resposta de forma clara e organizada.`;
 
+            console.log(`[AI Analysis] Iniciando análise ${result.id} com URL: ${input.imageUrl}`);
+            
             const response = await invokeLLM({
               messages: [
                 { role: "system", content: systemPrompt },
@@ -1253,8 +1261,14 @@ Formate sua resposta de forma clara e organizada.`;
               ],
               maxTokens: 2000,
             });
+            
+            console.log(`[AI Analysis] Resposta recebida:`, response);
 
-            const analysisText = response.choices[0]?.message?.content || "";
+            const analysisText = response.choices?.[0]?.message?.content || "";
+            
+            if (!analysisText) {
+              throw new Error("LLM retornou resposta vazia");
+            }
             
             // Extrair seções da resposta
             let findings = "";
@@ -1289,10 +1303,11 @@ Formate sua resposta de forma clara e organizada.`;
             });
             
             console.log(`[AI Analysis] Análise ${result.id} concluída com sucesso`);
-          } catch (error) {
-            console.error(`[AI Analysis] Erro na análise ${result.id}:`, error);
+          } catch (error: any) {
+            console.error(`[AI Analysis] Erro na análise ${result.id}:`, error?.message || error);
+            const errorMessage = error?.message || "Erro desconhecido";
             await db.updateAiAnalysis(result.id, {
-              findings: "Erro ao processar a análise. Por favor, tente novamente.",
+              findings: `Erro ao processar a análise: ${errorMessage}`,
               recommendations: "Recomendamos enviar a imagem novamente ou consultar um profissional.",
               confidence: "0",
               analyzedAt: new Date(),
@@ -1693,18 +1708,23 @@ Formate sua resposta de forma clara e organizada.`;
 
   // Consultórios
   offices: router({
-    list: publicProcedure.query(async () => {
-      return db.getOffices();
+    list: clinicProcedure.query(async ({ ctx }) => {
+      return db.getOfficesByClinic(ctx.clinicId);
     }),
-    active: publicProcedure.query(async () => {
-      return db.getActiveOffices();
+    active: clinicProcedure.query(async ({ ctx }) => {
+      return db.getActiveOfficesByClinic(ctx.clinicId);
     }),
-    getById: publicProcedure
+    getById: clinicProcedure
       .input(z.object({ id: z.number() }))
-      .query(async ({ input }) => {
-        return db.getOfficeById(input.id);
+      .query(async ({ input, ctx }) => {
+        const office = await db.getOfficeById(input.id);
+        // Validar que o consultório pertence à clínica do usuário
+        if (office && office.clinicId !== ctx.clinicId) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado a este consultório' });
+        }
+        return office;
       }),
-    create: publicProcedure
+    create: clinicProcedure
       .input(z.object({
         name: z.string(),
         number: z.string().optional(),
@@ -1713,10 +1733,10 @@ Formate sua resposta de forma clara e organizada.`;
         specialties: z.string().optional(),
         isActive: z.boolean().optional(),
       }))
-      .mutation(async ({ input }) => {
-        return db.createOffice(input);
+      .mutation(async ({ input, ctx }) => {
+        return db.createOffice({ ...input, clinicId: ctx.clinicId });
       }),
-    update: publicProcedure
+    update: clinicProcedure
       .input(z.object({
         id: z.number(),
         data: z.object({
@@ -1728,12 +1748,22 @@ Formate sua resposta de forma clara e organizada.`;
           isActive: z.boolean().optional(),
         }),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        // Validar que o consultório pertence à clínica do usuário
+        const office = await db.getOfficeById(input.id);
+        if (!office || office.clinicId !== ctx.clinicId) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado a este consultório' });
+        }
         return db.updateOffice(input.id, input.data);
       }),
-    delete: publicProcedure
+    delete: clinicProcedure
       .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        // Validar que o consultório pertence à clínica do usuário
+        const office = await db.getOfficeById(input.id);
+        if (!office || office.clinicId !== ctx.clinicId) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado a este consultório' });
+        }
         return db.deleteOffice(input.id);
       }),
   }),

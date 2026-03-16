@@ -1680,10 +1680,22 @@ export async function getOffices() {
   return db.select().from(offices).orderBy(offices.name);
 }
 
+export async function getOfficesByClinic(clinicId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(offices).where(eq(offices.clinicId, clinicId)).orderBy(offices.name);
+}
+
 export async function getActiveOffices() {
   const db = await getDb();
   if (!db) return [];
   return db.select().from(offices).where(eq(offices.isActive, true)).orderBy(offices.name);
+}
+
+export async function getActiveOfficesByClinic(clinicId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(offices).where(and(eq(offices.clinicId, clinicId), eq(offices.isActive, true))).orderBy(offices.name);
 }
 
 export async function getOfficeById(id: number) {

@@ -1243,3 +1243,16 @@
 - [x] Atualizar página de Configurações para usar clinicId (localStorage agora inclui clinicId)
 - [ ] Testar isolamento entre múltiplas clínicas
 - [ ] Validar que cada clínica tem suas próprias configurações isoladas
+
+
+## Bug Crítico: Consultórios Ainda Compartilhados Entre Clínicas (16/03/2026)
+- [x] Investigar por que consultórios adicionados aparecem em todas as clínicas
+- [x] Verificar se trpc.offices.list está filtrando corretamente por clinicId
+- [x] Verificar se trpc.offices.create está salvando clinicId corretamente
+- [x] Corrigir isolamento de consultórios no backend (mudado para clinicProcedure)
+
+## Bug: Análise de Radiografia com IA Não Funciona (16/03/2026)
+- [x] Investigar por que a IA não retorna resultado ao enviar imagem
+- [x] Verificar se a integração com LLM está configurada corretamente
+- [x] Testar envio de imagem e validar resposta da IA
+- [x] Implementar tratamento de erros e feedback ao usuário (adicionado logging detalhado)
