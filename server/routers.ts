@@ -1210,6 +1210,46 @@ export const appRouter = router({
             
             const imageTypeLabel = imageTypeLabels[input.imageType || "panoramic"] || "Imagem Odontológica";
             
+            // Buscar referências no PubMed baseado no tipo de imagem
+            let pubmedContext = "";
+            try {
+              const searchTerms = {
+                panoramic: "panoramic radiography dental diagnosis",
+                periapical: "periapical radiography endodontic treatment",
+                bitewing: "bitewing radiography caries detection",
+                cephalometric: "cephalometric radiography orthodontics",
+                intraoral: "intraoral photography dental examination",
+              }[input.imageType || "panoramic"] || "dental radiography diagnosis";
+              
+              const searchUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=${encodeURIComponent(searchTerms)}&retmax=3&retmode=json&sort=relevance`;
+              
+              const searchResponse = await fetch(searchUrl);
+              const searchData = await searchResponse.json();
+              
+              if (searchData.esearchresult?.idlist?.length > 0) {
+                const ids = searchData.esearchresult.idlist.join(",");
+                const summaryUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=${ids}&retmode=json`;
+                
+                const summaryResponse = await fetch(summaryUrl);
+                const summaryData = await summaryResponse.json();
+                
+                pubmedContext = "\n\n## Referências Científicas Relevantes (PubMed)\n";
+                
+                for (const id of searchData.esearchresult.idlist) {
+                  const article = summaryData.result?.[id];
+                  if (article) {
+                    pubmedContext += `\n- **${article.title}**\n`;
+                    pubmedContext += `  Autores: ${article.authors?.slice(0, 3).map((a: any) => a.name).join(", ") || "N/A"}${article.authors?.length > 3 ? " et al." : ""}\n`;
+                    pubmedContext += `  Publicação: ${article.source} (${article.pubdate})\n`;
+                    pubmedContext += `  PMID: ${id} - https://pubmed.ncbi.nlm.nih.gov/${id}/\n`;
+                  }
+                }
+              }
+            } catch (error) {
+              console.error(`[AI Analysis] Erro ao buscar PubMed para análise ${result.id}:`, error);
+              // Continuar sem referências se PubMed falhar
+            }
+            
             const systemPrompt = `Você é um especialista em radiologia odontológica e diagnóstico por imagem dental com vasta experiência clínica.
 Sua função é analisar imagens odontológicas e fornecer uma avaliação detalhada baseada em evidências científicas.
 
@@ -1244,7 +1284,7 @@ IMPORTANTE: Esta é uma ferramenta de auxílio ao diagnóstico. O diagnóstico f
 
 3. **REFERÊNCIAS CIENTÍFICAS**: Cite estudos ou literatura relevante que suportam sua análise.
 
-Formate sua resposta de forma clara e organizada.`;
+Formate sua resposta de forma clara e organizada.${pubmedContext ? `\n\nReferências científicas disponíveis para consulta:${pubmedContext}` : ""}`;
 
             console.log(`[AI Analysis] Iniciando análise ${result.id} com URL: ${input.imageUrl}`);
             
@@ -1259,52 +1299,69 @@ Formate sua resposta de forma clara e organizada.`;
                   ]
                 }
               ],
-              maxTokens: 2000,
+              max_tokens: 2000,
             });
             
             console.log(`[AI Analysis] Resposta recebida:`, response);
 
-            const analysisText = response.choices?.[0]?.message?.content || "";
+            const analysisText = response.choices?.[0]?.message?.content;
             
+            // Validar tipo de resposta
             if (!analysisText) {
+              console.error(`[AI Analysis] Resposta vazia. Resposta completa:`, JSON.stringify(response, null, 2));
               throw new Error("LLM retornou resposta vazia");
+            }
+            
+            // Se analysisText for array, converter para string
+            const analysisString = typeof analysisText === "string" 
+              ? analysisText 
+              : Array.isArray(analysisText)
+                ? analysisText.map(part => typeof part === "string" ? part : JSON.stringify(part)).join("\n")
+                : JSON.stringify(analysisText);
+            
+            if (!analysisString || analysisString.trim().length === 0) {
+              throw new Error("Análise processada está vazia");
             }
             
             // Extrair seções da resposta
             let findings = "";
             let recommendations = "";
             
-            if (typeof analysisText === "string") {
-              // Tentar extrair achados
-              const findingsMatch = analysisText.match(/\*\*ACHADOS\*\*[:\s]*([\s\S]*?)(?=\*\*RECOMENDAÇÕES\*\*|\*\*REFERÊNCIAS|$)/i);
-              if (findingsMatch) {
-                findings = findingsMatch[1].trim();
-              }
-              
-              // Tentar extrair recomendações
-              const recsMatch = analysisText.match(/\*\*RECOMENDAÇÕES\*\*[:\s]*([\s\S]*?)(?=\*\*REFERÊNCIAS|$)/i);
-              if (recsMatch) {
-                recommendations = recsMatch[1].trim();
-              }
-              
-              // Se não conseguiu extrair, usar o texto completo
-              if (!findings) {
-                findings = analysisText;
-              }
+            // Tentar extrair achados
+            const findingsMatch = analysisString.match(/\*\*ACHADOS\*\*[:\s]*([\s\S]*?)(?=\*\*RECOMENDAÇÕES\*\*|\*\*REFERÈNCIAS|$)/i);
+            if (findingsMatch) {
+              findings = findingsMatch[1].trim();
+            }
+            
+            // Tentar extrair recomendações
+            const recsMatch = analysisString.match(/\*\*RECOMENDAÇÕES\*\*[:\s]*([\s\S]*?)(?=\*\*REFERÈNCIAS|$)/i);
+            if (recsMatch) {
+              recommendations = recsMatch[1].trim();
+            }
+            
+            // Se não conseguiu extrair, usar o texto completo
+            if (!findings) {
+              findings = analysisString;
+            }
+            
+            // Adicionar referências do PubMed se disponíveis
+            if (pubmedContext && !recommendations.includes("pubmed")) {
+              recommendations += pubmedContext;
             }
 
             // Atualizar o registro com os resultados
             await db.updateAiAnalysis(result.id, {
-              analysisResult: typeof analysisText === "string" ? analysisText : JSON.stringify(analysisText),
+              analysisResult: analysisString,
               findings: findings || "Análise concluída. Verifique o resultado completo.",
               recommendations: recommendations || "Consulte um profissional para avaliação clínica.",
               confidence: "85",
               analyzedAt: new Date(),
             });
             
-            console.log(`[AI Analysis] Análise ${result.id} concluída com sucesso`);
+            console.log(`[AI Analysis] Análise ${result.id} concluída com sucesso. Findings: ${findings?.substring(0, 100)}...`);
           } catch (error: any) {
             console.error(`[AI Analysis] Erro na análise ${result.id}:`, error?.message || error);
+            console.error(`[AI Analysis] Stack trace:`, error?.stack);
             const errorMessage = error?.message || "Erro desconhecido";
             await db.updateAiAnalysis(result.id, {
               findings: `Erro ao processar a análise: ${errorMessage}`,

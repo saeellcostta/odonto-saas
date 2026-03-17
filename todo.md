@@ -1256,3 +1256,19 @@
 - [x] Verificar se a integração com LLM está configurada corretamente
 - [x] Testar envio de imagem e validar resposta da IA
 - [x] Implementar tratamento de erros e feedback ao usuário (adicionado logging detalhado)
+
+
+## Bug: LLM Retorna Resposta Vazia na Análise de Radiografia (17/03/2026)
+- [x] Investigar por que invokeLLM retorna resposta vazia
+- [x] Verificar se a URL da imagem está acessível para a LLM
+- [x] Testar chamada direta à LLM com parâmetros corretos
+- [x] Validar formato de resposta da LLM
+- [x] Corrigir parsing de resposta se necessário (mudado maxTokens para max_tokens, adicionado handling de array)
+
+
+## Feature: Restaurar Integra\u00e7\u00e3o com PubMed para An\u00e1lise de Radiografia (17/03/2026)
+- [ ] Verificar se integra\u00e7\u00e3o com PubMed foi removida
+- [ ] Implementar busca em PubMed para refer\u00eancias cient\u00edficas relevantes
+- [ ] Integrar refer\u00eancias do PubMed na resposta da IA
+- [ ] Formatar refer\u00eancias de forma clara e profissional
+- [ ] Testar an\u00e1lise com refer\u00eancias do PubMed
