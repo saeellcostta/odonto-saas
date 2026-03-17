@@ -1306,21 +1306,27 @@ Formate sua resposta de forma clara e organizada.${pubmedContext ? `\n\nReferên
 
             console.log(`[AI Analysis] Iniciando análise ${result.id} com URL: ${input.imageUrl}`);
             
-            const response = await invokeLLM({
-              messages: [
-                { role: "system", content: systemPrompt },
-                { 
-                  role: "user", 
-                  content: [
-                    { type: "text", text: userPrompt },
-                    { type: "image_url", image_url: { url: input.imageUrl, detail: "high" } }
-                  ]
-                }
-              ],
-              max_tokens: 2000,
-            });
-            
-            console.log(`[AI Analysis] Resposta recebida:`, response);
+            let response;
+            try {
+              response = await invokeLLM({
+                messages: [
+                  { role: "system", content: systemPrompt },
+                  { 
+                    role: "user", 
+                    content: [
+                      { type: "text", text: userPrompt },
+                      { type: "image_url", image_url: { url: input.imageUrl, detail: "high" } }
+                    ]
+                  }
+                ],
+                max_tokens: 2000,
+              });
+              console.log(`[AI Analysis] Resposta recebida:`, JSON.stringify(response).substring(0, 500));
+            } catch (llmError: any) {
+              console.error(`[AI Analysis] Erro ao chamar LLM para análise ${result.id}:`, llmError?.message);
+              console.error(`[AI Analysis] Detalhes do erro LLM:`, llmError);
+              throw llmError;
+            }
 
             const analysisText = response.choices?.[0]?.message?.content;
             

@@ -52,7 +52,11 @@ export default function AnaliseIA() {
       setNewAnalysis({ patientId: 0, imageUrl: "", imageType: "panoramic" });
       setPreviewUrl(null);
     },
-    onError: () => toast.error("Erro ao criar análise"),
+    onError: (error) => {
+      const errorMsg = error.message || "Erro ao criar análise";
+      console.error("Erro ao criar análise:", error);
+      toast.error(errorMsg);
+    },
   });
 
   // Verificar se há análises pendentes e mostrar indicador

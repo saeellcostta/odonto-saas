@@ -1280,3 +1280,12 @@
 - [x] Verificar se análise já existe antes de chamar LLM
 - [x] Reutilizar resultados de análises anteriores com mesma imagem
 - [x] Testar cache com imagens idênticas (todos os 5 testes passaram)
+
+
+## Bug Crítico: Erro ao Criar Análise de Radiografia (17/03/2026)
+- [x] Investigar por que retorna "Erro ao criar análise"
+- [x] Verificar se a imagem está sendo enviada corretamente para S3
+- [x] Validar integração com LLM e PubMed
+- [x] Melhorar tratamento de erros no frontend para mostrar mensagem real
+- [x] Adicionar logging detalhado na chamada à LLM
+- [ ] Testar análise com imagem real
