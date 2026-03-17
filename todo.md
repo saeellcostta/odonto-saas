@@ -1266,9 +1266,9 @@
 - [x] Corrigir parsing de resposta se necessário (mudado maxTokens para max_tokens, adicionado handling de array)
 
 
-## Feature: Restaurar Integra\u00e7\u00e3o com PubMed para An\u00e1lise de Radiografia (17/03/2026)
-- [ ] Verificar se integra\u00e7\u00e3o com PubMed foi removida
-- [ ] Implementar busca em PubMed para refer\u00eancias cient\u00edficas relevantes
-- [ ] Integrar refer\u00eancias do PubMed na resposta da IA
-- [ ] Formatar refer\u00eancias de forma clara e profissional
-- [ ] Testar an\u00e1lise com refer\u00eancias do PubMed
+## Feature: Restaurar Integração com PubMed para Análise de Radiografia (17/03/2026)
+- [x] Verificar se integração com PubMed foi removida
+- [x] Implementar busca em PubMed para referências científicas relevantes
+- [x] Integrar referências do PubMed na resposta da IA
+- [x] Formatar referências de forma clara e profissional
+- [x] Testar análise com referências do PubMed
