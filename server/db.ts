@@ -1079,6 +1079,21 @@ export async function createAiAnalysis(data: InsertAiAnalysis) {
   return { id: result[0].insertId };
 }
 
+export async function getAiAnalysisByImageHash(imageHash: string, clinicId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(aiAnalysis)
+    .where(and(
+      eq(aiAnalysis.imageHash, imageHash),
+      eq(aiAnalysis.clinicId, clinicId),
+      // Retornar apenas análises completas (com findings)
+      sql`${aiAnalysis.findings} IS NOT NULL`
+    ))
+    .orderBy(desc(aiAnalysis.analyzedAt))
+    .limit(1);
+  return result[0] || null;
+}
+
 export async function updateAiAnalysis(id: number, data: Partial<InsertAiAnalysis>, clinicId?: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

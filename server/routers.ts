@@ -1194,11 +1194,29 @@ export const appRouter = router({
           throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado a este paciente' });
         }
         
-        // Criar registro inicial com clinicId
-        const result = await db.createAiAnalysis({ ...input, clinicId: ctx.clinicId } as any);
+        // Gerar hash SHA-256 da URL da imagem para cache
+        const crypto = await import('crypto');
+        const imageHash = crypto.createHash('sha256').update(input.imageUrl).digest('hex');
+        
+        // Verificar se já existe uma análise em cache para esta imagem
+        const cachedAnalysis = await db.getAiAnalysisByImageHash(imageHash, ctx.clinicId);
+        if (cachedAnalysis) {
+          console.log(`[AI Analysis] Retornando análise em cache para imagem ${imageHash}`);
+          return {
+            id: cachedAnalysis.id,
+            isCached: true,
+            findings: cachedAnalysis.findings,
+            recommendations: cachedAnalysis.recommendations,
+            confidence: cachedAnalysis.confidence,
+            analyzedAt: cachedAnalysis.analyzedAt,
+          };
+        }
+        
+        // Criar registro inicial com clinicId e imageHash
+        const result = await db.createAiAnalysis({ ...input, clinicId: ctx.clinicId, imageHash } as any);
         
         // Iniciar análise assíncrona com LLM
-        (async () => {
+        const analysisPromise = (async () => {
           try {
             const imageTypeLabels: Record<string, string> = {
               panoramic: "Radiografia Panorâmica",
@@ -1371,6 +1389,11 @@ Formate sua resposta de forma clara e organizada.${pubmedContext ? `\n\nReferên
             });
           }
         })();
+        
+        // Adicionar tratamento de erro global
+        analysisPromise.catch((error) => {
+          console.error(`[AI Analysis] Erro não capturado na análise ${result.id}:`, error);
+        });
         
         return result;
       }),

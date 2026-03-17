@@ -540,6 +540,7 @@ export const aiAnalysis = mysqlTable("ai_analysis", {
   clinicId: int("clinicId"), // Multi-tenancy: ID da clínica
   patientId: int("patientId").notNull(),
   imageUrl: text("imageUrl").notNull(),
+  imageHash: varchar("imageHash", { length: 64 }),
   imageType: mysqlEnum("imageType", ["panoramic", "periapical", "bitewing", "cephalometric", "intraoral"]).default("panoramic"),
   analysisResult: text("analysisResult"),
   findings: text("findings"),

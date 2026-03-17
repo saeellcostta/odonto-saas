@@ -1272,3 +1272,11 @@
 - [x] Integrar referências do PubMed na resposta da IA
 - [x] Formatar referências de forma clara e profissional
 - [x] Testar análise com referências do PubMed
+
+
+## Feature: Implementar Cache de Análises de IA (17/03/2026)
+- [x] Adicionar campo de hash de imagem na tabela aiAnalysis
+- [x] Implementar geração de hash para imagens enviadas
+- [x] Verificar se análise já existe antes de chamar LLM
+- [x] Reutilizar resultados de análises anteriores com mesma imagem
+- [x] Testar cache com imagens idênticas (todos os 5 testes passaram)
