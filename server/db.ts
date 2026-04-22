@@ -3720,12 +3720,19 @@ export async function getDentistCommissions(clinicId: number, dentistId?: number
   const db = await getDb();
   if (!db) return [];
   
-  const conditions = [eq(dentistCommissions, clinicId)];
+  const conditions = [eq(dentistCommissions.clinicId, clinicId)];
   if (dentistId) {
     conditions.push(eq(dentistCommissions.dentistId, dentistId));
   }
   
   return db.select().from(dentistCommissions).where(and(...conditions));
+}
+
+export async function getDentistCommissionById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(dentistCommissions).where(eq(dentistCommissions.id, id)).limit(1);
+  return result[0];
 }
 
 export async function createDentistCommission(data: any) {
@@ -3858,10 +3865,11 @@ export async function createOrUpdateDailyEarningsSummary(clinicId: number, denti
       .where(eq(dailyEarningsSummary.id, existing.id));
   } else {
     // Criar novo
+    const dateObj = new Date(date);
     await db.insert(dailyEarningsSummary).values({
       clinicId,
       dentistId,
-      date,
+      date: dateObj,
       totalProcedures,
       totalRevenue: totalRevenue.toString(),
       totalCommission: totalCommission.toString(),

@@ -30,8 +30,11 @@ import { storagePut, storageGet } from "./storage";
 import { invokeLLM } from "./_core/llm";
 import { generateImage } from "./_core/imageGeneration";
 
+import { earningsRouter } from './routers/earningsRouter';
+
 export const appRouter = router({
   system: systemRouter,
+  earnings: earningsRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

@@ -1299,3 +1299,11 @@
 - [ ] Criar página de Mapa de Ganho com cálculos em tempo real
 - [ ] Implementar comprovante de ganho por dentista
 - [ ] Testar cálculos e integração com atendimentos
+
+
+## Feature: Implementar Mapa de Ganho Completo (22/04/2026)
+- [x] Corrigir erros de compilação TypeScript nas tabelas de comissão (parcialmente)
+- [x] Implementar página de Mapa de Ganho com tabela visual (MapaGanho.tsx criado)
+- [ ] Integrar com fluxo de atendimento para registrar automaticamente
+- [ ] Testar cálculos de comissão e ganhos diários
+- [ ] Adicionar funcionalidade de finalizar e marcar como pago
