@@ -213,4 +213,58 @@ export const earningsRouter = router({
         return { success: true };
       }),
   }),
+
+  // Routers para página de configuração de comissões
+  getCommissions: clinicProcedure
+    .input(z.object({
+      clinicId: z.number(),
+    }))
+    .query(async ({ input, ctx }) => {
+      return db.getDentistCommissions(input.clinicId);
+    }),
+
+  getDentistsForClinic: clinicProcedure
+    .input(z.object({
+      clinicId: z.number(),
+    }))
+    .query(async ({ input, ctx }) => {
+      return db.getDentistsByClinic(input.clinicId);
+    }),
+
+  updateCommission: clinicProcedure
+    .input(z.object({
+      id: z.number(),
+      commissionPercentage: z.number().min(0).max(100),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      await db.updateDentistCommission(input.id, {
+        commissionPercentage: input.commissionPercentage.toString(),
+      });
+      return { success: true };
+    }),
+
+  createCommission: clinicProcedure
+    .input(z.object({
+      clinicId: z.number(),
+      dentistId: z.number(),
+      commissionPercentage: z.number().min(0).max(100),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      return db.createDentistCommission({
+        clinicId: input.clinicId,
+        dentistId: input.dentistId,
+        procedureId: 0, // Usar 0 para comissão geral
+        commissionPercentage: input.commissionPercentage.toString(),
+        isActive: true,
+      });
+    }),
+
+  deleteCommission: clinicProcedure
+    .input(z.object({
+      id: z.number(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      await db.deleteDentistCommission(input.id);
+      return { success: true };
+    }),
 });

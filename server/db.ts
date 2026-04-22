@@ -2057,25 +2057,23 @@ export async function completeService(id: number, notes?: string) {
   });
   
   // Registrar no Mapa de Ganho se houver valor a pagar
-  if (entry.amountToPay && entry.amountToPay > 0 && entry.professionalId) {
+  const amountToPay: number = Number(entry.amountToPay) || 0;
+  const professionalId: number | null = Number(entry.professionalId) || 0;
+  
+  if (amountToPay && amountToPay > 0 && professionalId > 0) {
     try {
       // Obter comissão do dentista
-      const commission = await db.query.dentistCommissions.findFirst({
-        where: (dc, { eq: eqOp, and: andOp }) => andOp(
-          eqOp(dc.dentistId, entry.professionalId),
-          eqOp(dc.clinicId, entry.clinicId)
-        ),
-      });
-      
-      const commissionPercentage = commission?.commissionPercentage || 0;
-      const earningAmount = (entry.amountToPay * commissionPercentage) / 100;
+      const commissions = await getDentistCommissions(entry.clinicId, professionalId);
+      const commission = commissions[0];
+      const commissionPercentage = commission ? Number(commission.commissionPercentage) : 0;
+      const earningAmount = (amountToPay * commissionPercentage) / 100;
       
       // Registrar atendimento completo
-      await db.insert(completedAppointments).values({
+      await createCompletedAppointment({
         clinicId: entry.clinicId,
-        dentistId: entry.professionalId,
+        dentistId: professionalId,
         patientId: entry.patientId,
-        procedureAmount: entry.amountToPay,
+        procedureAmount: amountToPay,
         commissionPercentage: commissionPercentage,
         earningAmount: earningAmount,
         queueEntryId: id,
@@ -2085,33 +2083,9 @@ export async function completeService(id: number, notes?: string) {
       // Atualizar resumo diário
       const today = new Date();
       today.setHours(0, 0, 0, 0);
+      const dateStr = today.toISOString().split('T')[0];
       
-      const existingSummary = await db.query.dailyEarningsSummary.findFirst({
-        where: (des, { eq: eqOp, and: andOp }) => andOp(
-          eqOp(des.clinicId, entry.clinicId),
-          eqOp(des.dentistId, entry.professionalId),
-          eqOp(des.date, today as any)
-        ),
-      });
-      
-      if (existingSummary) {
-        await db.update(dailyEarningsSummary).set({
-          totalRevenue: (existingSummary.totalRevenue || 0) + entry.amountToPay,
-          totalCommission: (existingSummary.totalCommission || 0) + earningAmount,
-          completedAppointments: (existingSummary.completedAppointments || 0) + 1,
-          updatedAt: new Date(),
-        }).where(eq(dailyEarningsSummary.id, existingSummary.id));
-      } else {
-        await db.insert(dailyEarningsSummary).values({
-          clinicId: entry.clinicId,
-          dentistId: entry.professionalId,
-          date: today as any,
-          totalRevenue: entry.amountToPay,
-          totalCommission: earningAmount,
-          completedAppointments: 1,
-          status: "pending",
-        });
-      }
+      await createOrUpdateDailyEarningsSummary(entry.clinicId, professionalId, dateStr);
     } catch (error) {
       console.error("Erro ao registrar no Mapa de Ganho:", error);
     }
@@ -3777,7 +3751,7 @@ export async function getMedicalDocumentsByClinic(clinicId: number, type?: strin
 
 // ============ Funções de Comissão de Dentista ============
 
-export async function getDentistCommissions(clinicId: number, dentistId?: number) {
+export async function getDentistCommissions(clinicId: number, dentistId?: number | null) {
   const db = await getDb();
   if (!db) return [];
   
@@ -3837,34 +3811,34 @@ export async function getCompletedAppointmentsByClinic(clinicId: number, date?: 
   const db = await getDb();
   if (!db) return [];
   
-  let query = db.select().from(completedAppointments).where(eq(completedAppointments.clinicId, clinicId));
+  const conditions = [eq(completedAppointments.clinicId, clinicId)];
   
   if (date) {
-    query = query.andWhere(eq(sql`DATE(${completedAppointments.completedAt})`, date));
+    const dateObj = new Date(date);
+    conditions.push(eq(sql`DATE(${completedAppointments.completedAt})`, dateObj));
   }
   
-  return query.orderBy(desc(completedAppointments.completedAt));
+  return db.select().from(completedAppointments).where(and(...conditions)).orderBy(desc(completedAppointments.completedAt));
 }
 
 export async function getCompletedAppointmentsByDentist(clinicId: number, dentistId: number, date?: string) {
   const db = await getDb();
   if (!db) return [];
   
-  let query = db.select().from(completedAppointments).where(
-    and(
-      eq(completedAppointments.clinicId, clinicId),
-      eq(completedAppointments.dentistId, dentistId)
-    )
-  );
+  const conditions = [
+    eq(completedAppointments.clinicId, clinicId),
+    eq(completedAppointments.dentistId, dentistId)
+  ];
   
   if (date) {
-    query = query.andWhere(eq(sql`DATE(${completedAppointments.completedAt})`, date));
+    const dateObj = new Date(date);
+    conditions.push(eq(sql`DATE(${completedAppointments.completedAt})`, dateObj));
   }
   
-  return query.orderBy(desc(completedAppointments.completedAt));
+  return db.select().from(completedAppointments).where(and(...conditions)).orderBy(desc(completedAppointments.completedAt));
 }
 
-export async function updateCompletedAppointmentStatus(id: number, paymentStatus: string) {
+export async function updateCompletedAppointmentStatus(id: number, paymentStatus: 'pending' | 'paid' | 'cancelled') {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.update(completedAppointments).set({ paymentStatus }).where(eq(completedAppointments.id, id));
@@ -3876,11 +3850,12 @@ export async function getDailyEarningsSummary(clinicId: number, dentistId: numbe
   const db = await getDb();
   if (!db) return undefined;
   
+  const dateObj = new Date(date);
   const result = await db.select().from(dailyEarningsSummary).where(
     and(
       eq(dailyEarningsSummary.clinicId, clinicId),
       eq(dailyEarningsSummary.dentistId, dentistId),
-      eq(dailyEarningsSummary.date, date)
+      eq(dailyEarningsSummary.date, dateObj)
     )
   ).limit(1);
   
@@ -3891,17 +3866,20 @@ export async function getDailyEarningsSummaryByClinic(clinicId: number, date: st
   const db = await getDb();
   if (!db) return [];
   
+  const dateObj = new Date(date);
   return db.select().from(dailyEarningsSummary).where(
     and(
       eq(dailyEarningsSummary.clinicId, clinicId),
-      eq(dailyEarningsSummary.date, date)
+      eq(dailyEarningsSummary.date, dateObj)
     )
   ).orderBy(asc(dailyEarningsSummary.dentistId));
 }
 
-export async function createOrUpdateDailyEarningsSummary(clinicId: number, dentistId: number, date: string) {
+export async function createOrUpdateDailyEarningsSummary(clinicId: number, dentistId: number | null, date: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+  
+  if (!dentistId) throw new Error("Dentist ID is required");
   
   // Buscar todos os atendimentos do dentista neste dia
   const appointments = await getCompletedAppointmentsByDentist(clinicId, dentistId, date);
@@ -3951,4 +3929,33 @@ export async function markDailyEarningsSummaryAsPaid(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.update(dailyEarningsSummary).set({ status: "paid" }).where(eq(dailyEarningsSummary.id, id));
+}
+
+// Função para obter dentistas de uma clínica
+export async function getDentistsByClinic(clinicId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+    })
+    .from(users)
+    .innerJoin(userClinics, eq(users.id, userClinics.userId))
+    .where(
+      and(
+        eq(userClinics.clinicId, clinicId),
+        eq(userClinics.role, 'dentista')
+      )
+    );
+}
+
+// Função para deletar comissão de dentista
+export async function deleteDentistCommission(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return db
+    .delete(dentistCommissions)
+    .where(eq(dentistCommissions.id, id));
 }

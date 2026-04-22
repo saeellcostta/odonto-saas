@@ -49,6 +49,7 @@ import Orcamentos from "./pages/Orcamentos";
 import ValidarDocumento from "./pages/ValidarDocumento";
 import Inadimplente from "./pages/Inadimplente";
 import { MapaGanho } from "./pages/MapaGanho";
+import ConfiguracaoComissoes from "./pages/ConfiguracaoComissoes";
 
 // Componente wrapper para rotas protegidas
 function Protected({ children }: { children: React.ReactNode }) {
@@ -155,6 +156,9 @@ function Router() {
       </Route>
       <Route path="/mapa-ganho">
         <Protected><MapaGanho /></Protected>
+      </Route>
+      <Route path="/configuracao-comissoes">
+        <Protected><ConfiguracaoComissoes /></Protected>
       </Route>
       <Route path="/configuracoes">
         <Protected><Configuracoes /></Protected>

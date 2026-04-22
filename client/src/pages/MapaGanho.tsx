@@ -23,8 +23,8 @@ export function MapaGanho() {
   );
 
   // Calcular totais
-  const totalRevenue = dailySummary?.reduce((sum, s) => sum + parseFloat(s.totalRevenue.toString()), 0) || 0;
-  const totalCommission = dailySummary?.reduce((sum, s) => sum + parseFloat(s.totalCommission.toString()), 0) || 0;
+  const totalRevenue = dailySummary?.reduce((sum, s) => sum + parseFloat((s.totalRevenue ?? 0).toString()), 0) || 0;
+  const totalCommission = dailySummary?.reduce((sum, s) => sum + parseFloat((s.totalCommission ?? 0).toString()), 0) || 0;
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -156,13 +156,13 @@ export function MapaGanho() {
                           {summary.totalProcedures}
                         </td>
                         <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                          {formatCurrency(parseFloat(summary.totalRevenue.toString()))}
+                          {formatCurrency(parseFloat((summary.totalRevenue ?? 0).toString()))}
                         </td>
                         <td className="px-6 py-4 text-sm font-semibold text-orange-600">
-                          {formatCurrency(parseFloat(summary.totalCommission.toString()))}
+                          {formatCurrency(parseFloat((summary.totalCommission ?? 0).toString()))}
                         </td>
                         <td className="px-6 py-4 text-sm">
-                          {getStatusBadge(summary.status)}
+                          {getStatusBadge(summary.status ?? 'pending')}
                         </td>
                         <td className="px-6 py-4 text-sm">
                           <button
