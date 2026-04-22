@@ -1078,3 +1078,61 @@ export const medicalDocuments = mysqlTable("medical_documents", {
 
 export type MedicalDocument = typeof medicalDocuments.$inferSelect;
 export type InsertMedicalDocument = typeof medicalDocuments.$inferInsert;
+
+
+// Tabela de Comissão por Dentista
+// Armazena a porcentagem que cada dentista ganha por procedimento
+export const dentistCommissions = mysqlTable("dentist_commissions", {
+  id: int("id").autoincrement().primaryKey(),
+  clinicId: int("clinicId").notNull(), // Multi-tenancy
+  dentistId: int("dentistId").notNull(), // Referência ao dentista
+  procedureId: int("procedureId").notNull(), // Referência ao procedimento
+  commissionPercentage: decimal("commissionPercentage", { precision: 5, scale: 2 }).notNull(), // Porcentagem de comissão (ex: 50.00 para 50%)
+  isActive: boolean("isActive").default(true),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type DentistCommission = typeof dentistCommissions.$inferSelect;
+export type InsertDentistCommission = typeof dentistCommissions.$inferInsert;
+
+// Tabela de Atendimentos Realizados
+// Registra cada procedimento realizado por um dentista
+export const completedAppointments = mysqlTable("completed_appointments", {
+  id: int("id").autoincrement().primaryKey(),
+  clinicId: int("clinicId").notNull(), // Multi-tenancy
+  appointmentId: int("appointmentId"), // Referência ao agendamento original
+  dentistId: int("dentistId").notNull(), // Dentista que realizou o atendimento
+  patientId: int("patientId").notNull(), // Paciente atendido
+  procedureId: int("procedureId").notNull(), // Procedimento realizado
+  procedureName: varchar("procedureName", { length: 255 }).notNull(), // Nome do procedimento (snapshot)
+  procedurePrice: decimal("procedurePrice", { precision: 10, scale: 2 }).notNull(), // Preço do procedimento no momento do atendimento
+  commissionPercentage: decimal("commissionPercentage", { precision: 5, scale: 2 }).notNull(), // Porcentagem de comissão no momento do atendimento
+  commissionAmount: decimal("commissionAmount", { precision: 10, scale: 2 }).notNull(), // Valor da comissão calculado (procedurePrice * commissionPercentage / 100)
+  completedAt: timestamp("completedAt").notNull(), // Data e hora da conclusão do atendimento
+  paymentStatus: mysqlEnum("paymentStatus", ["pending", "paid", "cancelled"]).default("pending"), // Status do pagamento
+  notes: text("notes"), // Observações adicionais
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CompletedAppointment = typeof completedAppointments.$inferSelect;
+export type InsertCompletedAppointment = typeof completedAppointments.$inferInsert;
+
+// Tabela de Resumo Diário de Ganhos
+// Armazena o resumo dos ganhos de cada dentista por dia
+export const dailyEarningsSummary = mysqlTable("daily_earnings_summary", {
+  id: int("id").autoincrement().primaryKey(),
+  clinicId: int("clinicId").notNull(), // Multi-tenancy
+  dentistId: int("dentistId").notNull(), // Dentista
+  date: date("date").notNull(), // Data do resumo
+  totalProcedures: int("totalProcedures").default(0), // Total de procedimentos realizados
+  totalRevenue: decimal("totalRevenue", { precision: 10, scale: 2 }).default("0"), // Receita total dos procedimentos
+  totalCommission: decimal("totalCommission", { precision: 10, scale: 2 }).default("0"), // Total de comissão do dentista
+  status: mysqlEnum("status", ["draft", "finalized", "paid"]).default("draft"), // Status do resumo
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type DailyEarningsSummary = typeof dailyEarningsSummary.$inferSelect;
+export type InsertDailyEarningsSummary = typeof dailyEarningsSummary.$inferInsert;

@@ -45,6 +45,9 @@ import {
   models3DLibrary, InsertModel3DLibrary, Model3DLibrary,
   treatmentProcedures, InsertTreatmentProcedure, TreatmentProcedure,
   medicalDocuments, InsertMedicalDocument, MedicalDocument,
+  dentistCommissions, InsertDentistCommission, DentistCommission,
+  completedAppointments, InsertCompletedAppointment, CompletedAppointment,
+  dailyEarningsSummary, InsertDailyEarningsSummary, DailyEarningsSummary,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -3708,4 +3711,175 @@ export async function getMedicalDocumentsByClinic(clinicId: number, type?: strin
     .from(medicalDocuments)
     .where(and(...conditions))
     .orderBy(desc(medicalDocuments.createdAt));
+}
+
+
+// ============ Funções de Comissão de Dentista ============
+
+export async function getDentistCommissions(clinicId: number, dentistId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const conditions = [eq(dentistCommissions, clinicId)];
+  if (dentistId) {
+    conditions.push(eq(dentistCommissions.dentistId, dentistId));
+  }
+  
+  return db.select().from(dentistCommissions).where(and(...conditions));
+}
+
+export async function createDentistCommission(data: any) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(dentistCommissions).values(data);
+  return { id: result[0].insertId };
+}
+
+export async function updateDentistCommission(id: number, data: any) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(dentistCommissions).set(data).where(eq(dentistCommissions.id, id));
+}
+
+export async function getDentistCommissionByProcedure(clinicId: number, dentistId: number, procedureId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(dentistCommissions).where(
+    and(
+      eq(dentistCommissions.clinicId, clinicId),
+      eq(dentistCommissions.dentistId, dentistId),
+      eq(dentistCommissions.procedureId, procedureId)
+    )
+  ).limit(1);
+  
+  return result[0];
+}
+
+// ============ Funções de Atendimentos Realizados ============
+
+export async function createCompletedAppointment(data: any) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(completedAppointments).values(data);
+  return { id: result[0].insertId };
+}
+
+export async function getCompletedAppointmentsByClinic(clinicId: number, date?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  let query = db.select().from(completedAppointments).where(eq(completedAppointments.clinicId, clinicId));
+  
+  if (date) {
+    query = query.andWhere(eq(sql`DATE(${completedAppointments.completedAt})`, date));
+  }
+  
+  return query.orderBy(desc(completedAppointments.completedAt));
+}
+
+export async function getCompletedAppointmentsByDentist(clinicId: number, dentistId: number, date?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  let query = db.select().from(completedAppointments).where(
+    and(
+      eq(completedAppointments.clinicId, clinicId),
+      eq(completedAppointments.dentistId, dentistId)
+    )
+  );
+  
+  if (date) {
+    query = query.andWhere(eq(sql`DATE(${completedAppointments.completedAt})`, date));
+  }
+  
+  return query.orderBy(desc(completedAppointments.completedAt));
+}
+
+export async function updateCompletedAppointmentStatus(id: number, paymentStatus: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(completedAppointments).set({ paymentStatus }).where(eq(completedAppointments.id, id));
+}
+
+// ============ Funções de Resumo Diário de Ganhos ============
+
+export async function getDailyEarningsSummary(clinicId: number, dentistId: number, date: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(dailyEarningsSummary).where(
+    and(
+      eq(dailyEarningsSummary.clinicId, clinicId),
+      eq(dailyEarningsSummary.dentistId, dentistId),
+      eq(dailyEarningsSummary.date, date)
+    )
+  ).limit(1);
+  
+  return result[0];
+}
+
+export async function getDailyEarningsSummaryByClinic(clinicId: number, date: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(dailyEarningsSummary).where(
+    and(
+      eq(dailyEarningsSummary.clinicId, clinicId),
+      eq(dailyEarningsSummary.date, date)
+    )
+  ).orderBy(asc(dailyEarningsSummary.dentistId));
+}
+
+export async function createOrUpdateDailyEarningsSummary(clinicId: number, dentistId: number, date: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Buscar todos os atendimentos do dentista neste dia
+  const appointments = await getCompletedAppointmentsByDentist(clinicId, dentistId, date);
+  
+  // Calcular totais
+  const totalProcedures = appointments.length;
+  const totalRevenue = appointments.reduce((sum, apt) => sum + parseFloat(apt.procedurePrice.toString()), 0);
+  const totalCommission = appointments.reduce((sum, apt) => sum + parseFloat(apt.commissionAmount.toString()), 0);
+  
+  // Verificar se já existe resumo para este dia
+  const existing = await getDailyEarningsSummary(clinicId, dentistId, date);
+  
+  if (existing) {
+    // Atualizar
+    await db.update(dailyEarningsSummary)
+      .set({
+        totalProcedures,
+        totalRevenue: totalRevenue.toString(),
+        totalCommission: totalCommission.toString(),
+        updatedAt: new Date(),
+      })
+      .where(eq(dailyEarningsSummary.id, existing.id));
+  } else {
+    // Criar novo
+    await db.insert(dailyEarningsSummary).values({
+      clinicId,
+      dentistId,
+      date,
+      totalProcedures,
+      totalRevenue: totalRevenue.toString(),
+      totalCommission: totalCommission.toString(),
+      status: "draft",
+    });
+  }
+  
+  return getDailyEarningsSummary(clinicId, dentistId, date);
+}
+
+export async function finalizeDailyEarningsSummary(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(dailyEarningsSummary).set({ status: "finalized" }).where(eq(dailyEarningsSummary.id, id));
+}
+
+export async function markDailyEarningsSummaryAsPaid(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(dailyEarningsSummary).set({ status: "paid" }).where(eq(dailyEarningsSummary.id, id));
 }

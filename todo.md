@@ -1289,3 +1289,13 @@
 - [x] Melhorar tratamento de erros no frontend para mostrar mensagem real
 - [x] Adicionar logging detalhado na chamada à LLM
 - [ ] Testar análise com imagem real
+
+
+## Feature: Mapa de Ganho - Sistema de Comissão por Dentista (22/04/2026)
+- [ ] Criar tabela de procedimentos com valores
+- [ ] Criar tabela de comissão por dentista (porcentagem por procedimento)
+- [ ] Criar tabela de atendimentos realizados
+- [ ] Implementar routers tRPC para gerenciar procedimentos e comissões
+- [ ] Criar página de Mapa de Ganho com cálculos em tempo real
+- [ ] Implementar comprovante de ganho por dentista
+- [ ] Testar cálculos e integração com atendimentos
