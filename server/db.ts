@@ -2056,6 +2056,67 @@ export async function completeService(id: number, notes?: string) {
     notes,
   });
   
+  // Registrar no Mapa de Ganho se houver valor a pagar
+  if (entry.amountToPay && entry.amountToPay > 0 && entry.professionalId) {
+    try {
+      // Obter comissão do dentista
+      const commission = await db.query.dentistCommissions.findFirst({
+        where: (dc, { eq: eqOp, and: andOp }) => andOp(
+          eqOp(dc.dentistId, entry.professionalId),
+          eqOp(dc.clinicId, entry.clinicId)
+        ),
+      });
+      
+      const commissionPercentage = commission?.commissionPercentage || 0;
+      const earningAmount = (entry.amountToPay * commissionPercentage) / 100;
+      
+      // Registrar atendimento completo
+      await db.insert(completedAppointments).values({
+        clinicId: entry.clinicId,
+        dentistId: entry.professionalId,
+        patientId: entry.patientId,
+        procedureAmount: entry.amountToPay,
+        commissionPercentage: commissionPercentage,
+        earningAmount: earningAmount,
+        queueEntryId: id,
+        completedAt: new Date(),
+      });
+      
+      // Atualizar resumo diário
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const existingSummary = await db.query.dailyEarningsSummary.findFirst({
+        where: (des, { eq: eqOp, and: andOp }) => andOp(
+          eqOp(des.clinicId, entry.clinicId),
+          eqOp(des.dentistId, entry.professionalId),
+          eqOp(des.date, today as any)
+        ),
+      });
+      
+      if (existingSummary) {
+        await db.update(dailyEarningsSummary).set({
+          totalRevenue: (existingSummary.totalRevenue || 0) + entry.amountToPay,
+          totalCommission: (existingSummary.totalCommission || 0) + earningAmount,
+          completedAppointments: (existingSummary.completedAppointments || 0) + 1,
+          updatedAt: new Date(),
+        }).where(eq(dailyEarningsSummary.id, existingSummary.id));
+      } else {
+        await db.insert(dailyEarningsSummary).values({
+          clinicId: entry.clinicId,
+          dentistId: entry.professionalId,
+          date: today as any,
+          totalRevenue: entry.amountToPay,
+          totalCommission: earningAmount,
+          completedAppointments: 1,
+          status: "pending",
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao registrar no Mapa de Ganho:", error);
+    }
+  }
+  
   return { success: true };
 }
 

@@ -1307,3 +1307,10 @@
 - [ ] Integrar com fluxo de atendimento para registrar automaticamente
 - [ ] Testar cálculos de comissão e ganhos diários
 - [ ] Adicionar funcionalidade de finalizar e marcar como pago
+
+
+## Feature: Integração Completa do Mapa de Ganho (22/04/2026)
+- [x] Conectar Mapa de Ganho com fluxo de agenda (registrar ao finalizar atendimento)
+- [ ] Criar página de configuração de comissões por dentista
+- [ ] Implementar exportação de comprovante em PDF
+- [ ] Testar fluxo completo de atendimento à geração de comprovante
