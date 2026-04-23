@@ -1086,7 +1086,7 @@ export const dentistCommissions = mysqlTable("dentist_commissions", {
   id: int("id").autoincrement().primaryKey(),
   clinicId: int("clinicId").notNull(), // Multi-tenancy
   dentistId: int("dentistId").notNull(), // Referência ao dentista
-  procedureId: int("procedureId").notNull(), // Referência ao procedimento
+  procedureId: int("procedureId"), // Referência ao procedimento (NULL = comissão genérica)
   commissionPercentage: decimal("commissionPercentage", { precision: 5, scale: 2 }).notNull(), // Porcentagem de comissão (ex: 50.00 para 50%)
   isActive: boolean("isActive").default(true),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

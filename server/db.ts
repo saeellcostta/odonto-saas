@@ -3757,7 +3757,7 @@ export async function getDentistCommissions(clinicId: number, dentistId?: number
   
   const conditions = [
     eq(dentistCommissions.clinicId, clinicId),
-    eq(dentistCommissions.procedureId, 0) // Apenas comissoes genericas
+    sql`${dentistCommissions.procedureId} IS NULL` // Apenas comissoes genericas (procedureId = NULL)
   ];
   if (dentistId) {
     conditions.push(eq(dentistCommissions.dentistId, dentistId));
@@ -3810,7 +3810,7 @@ export async function getDentistDefaultCommission(clinicId: number, dentistId: n
     and(
       eq(dentistCommissions.clinicId, clinicId),
       eq(dentistCommissions.dentistId, dentistId),
-      eq(dentistCommissions.procedureId, 0)
+      sql`${dentistCommissions.procedureId} IS NULL`
     )
   ).limit(1);
   

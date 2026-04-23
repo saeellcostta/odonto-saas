@@ -249,7 +249,7 @@ export const earningsRouter = router({
       return db.createDentistCommission({
         clinicId: input.clinicId,
         dentistId: input.dentistId,
-        procedureId: 0, // Usar 0 para comissão geral
+        procedureId: null, // Usar NULL para comissão geral
         commissionPercentage: input.commissionPercentage.toString(),
         isActive: true,
       });
