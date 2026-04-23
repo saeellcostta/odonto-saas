@@ -3935,6 +3935,22 @@ export async function markDailyEarningsSummaryAsPaid(id: number) {
 export async function getDentistsByClinic(clinicId: number) {
   const db = await getDb();
   if (!db) return [];
+  
+  // Buscar IDs dos dentistas na clínica
+  const dentistIds = await db
+    .selectDistinct({ userId: userClinics.userId })
+    .from(userClinics)
+    .where(
+      and(
+        eq(userClinics.clinicId, clinicId),
+        eq(userClinics.role, 'dentista')
+      )
+    );
+  
+  if (dentistIds.length === 0) return [];
+  
+  // Buscar dados dos usuários
+  const userIds = dentistIds.map(d => d.userId);
   return db
     .select({
       id: users.id,
@@ -3942,13 +3958,7 @@ export async function getDentistsByClinic(clinicId: number) {
       email: users.email,
     })
     .from(users)
-    .innerJoin(userClinics, eq(users.id, userClinics.userId))
-    .where(
-      and(
-        eq(userClinics.clinicId, clinicId),
-        eq(userClinics.role, 'dentista')
-      )
-    );
+    .where(inArray(users.id, userIds));
 }
 
 // Função para deletar comissão de dentista
