@@ -3936,29 +3936,21 @@ export async function getDentistsByClinic(clinicId: number) {
   const db = await getDb();
   if (!db) return [];
   
-  // Buscar IDs dos dentistas na clínica
-  const dentistIds = await db
-    .selectDistinct({ userId: userClinics.userId })
-    .from(userClinics)
-    .where(
-      and(
-        eq(userClinics.clinicId, clinicId),
-        eq(userClinics.role, 'dentista')
-      )
-    );
-  
-  if (dentistIds.length === 0) return [];
-  
-  // Buscar dados dos usuários
-  const userIds = dentistIds.map(d => d.userId);
+  // Buscar dentistas da tabela dentists
   return db
     .select({
-      id: users.id,
-      name: users.name,
-      email: users.email,
+      id: dentists.id,
+      name: dentists.name,
+      email: dentists.email,
     })
-    .from(users)
-    .where(inArray(users.id, userIds));
+    .from(dentists)
+    .where(
+      and(
+        eq(dentists.clinicId, clinicId),
+        eq(dentists.isActive, true)
+      )
+    )
+    .orderBy(dentists.name);
 }
 
 // Função para deletar comissão de dentista

@@ -26,11 +26,18 @@ export default function ConfiguracaoComissoes() {
     );
 
   // Buscar dentistas
-  const { data: dentists, isLoading: loadingDentists } = 
+  const { data: dentists, isLoading: loadingDentists, error: dentistsError } = 
     trpc.earnings.getDentistsForClinic.useQuery(
       undefined,
       { enabled: !!user?.clinicId }
     );
+
+  // Debug
+  if (typeof window !== 'undefined') {
+    console.log('ConfiguracaoComissoes - User:', user);
+    console.log('ConfiguracaoComissoes - Dentists:', dentists);
+    console.log('ConfiguracaoComissoes - Dentists Error:', dentistsError);
+  }
 
   // Mutations
   const updateCommission = trpc.earnings.updateCommission.useMutation({
