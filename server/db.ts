@@ -3755,7 +3755,10 @@ export async function getDentistCommissions(clinicId: number, dentistId?: number
   const db = await getDb();
   if (!db) return [];
   
-  const conditions = [eq(dentistCommissions.clinicId, clinicId)];
+  const conditions = [
+    eq(dentistCommissions.clinicId, clinicId),
+    eq(dentistCommissions.procedureId, 0) // Apenas comissoes genericas
+  ];
   if (dentistId) {
     conditions.push(eq(dentistCommissions.dentistId, dentistId));
   }
@@ -3792,6 +3795,22 @@ export async function getDentistCommissionByProcedure(clinicId: number, dentistI
       eq(dentistCommissions.clinicId, clinicId),
       eq(dentistCommissions.dentistId, dentistId),
       eq(dentistCommissions.procedureId, procedureId)
+    )
+  ).limit(1);
+  
+  return result[0];
+}
+
+// Buscar comissao padrao de um dentista
+export async function getDentistDefaultCommission(clinicId: number, dentistId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(dentistCommissions).where(
+    and(
+      eq(dentistCommissions.clinicId, clinicId),
+      eq(dentistCommissions.dentistId, dentistId),
+      eq(dentistCommissions.procedureId, 0)
     )
   ).limit(1);
   

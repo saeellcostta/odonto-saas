@@ -216,11 +216,9 @@ export const earningsRouter = router({
 
   // Routers para página de configuração de comissões
   getCommissions: clinicProcedure
-    .input(z.object({
-      clinicId: z.number(),
-    }))
-    .query(async ({ input, ctx }) => {
-      return db.getDentistCommissions(input.clinicId);
+    .input(z.object({}).optional())
+    .query(async ({ ctx }) => {
+      return db.getDentistCommissions(ctx.clinicId);
     }),
 
   getDentistsForClinic: clinicProcedure

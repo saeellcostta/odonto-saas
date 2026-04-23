@@ -21,7 +21,7 @@ export default function ConfiguracaoComissoes() {
   // Buscar comissões
   const { data: commissions, isLoading: loadingCommissions, refetch: refetchCommissions } = 
     trpc.earnings.getCommissions.useQuery(
-      { clinicId: user?.clinicId || 0 },
+      undefined,
       { enabled: !!user?.clinicId }
     );
 
