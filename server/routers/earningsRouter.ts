@@ -39,7 +39,7 @@ export const earningsRouter = router({
           clinicId: ctx.clinicId,
           dentistId: input.dentistId,
           procedureId: input.procedureId,
-          commissionPercentage: input.commissionPercentage.toString(),
+          commissionPercentage: input.commissionPercentage,
           isActive: true,
         });
       }),

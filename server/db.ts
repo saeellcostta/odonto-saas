@@ -3773,10 +3773,30 @@ export async function getDentistCommissionById(id: number) {
   return result[0];
 }
 
-export async function createDentistCommission(data: any) {
+export async function createDentistCommission(data: {
+  clinicId: number;
+  dentistId: number;
+  procedureId: number | null;
+  commissionPercentage: number;
+  isActive: boolean;
+}) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(dentistCommissions).values(data);
+  
+  // Validar dados
+  if (!data.clinicId || !data.dentistId) {
+    throw new Error("clinicId e dentistId são obrigatórios");
+  }
+  
+  // Inserir com tipos corretos
+  const result = await db.insert(dentistCommissions).values({
+    clinicId: data.clinicId,
+    dentistId: data.dentistId,
+    procedureId: data.procedureId,
+    commissionPercentage: data.commissionPercentage.toString(),
+    isActive: data.isActive,
+  });
+  
   return { id: result[0].insertId };
 }
 
