@@ -241,15 +241,14 @@ export const earningsRouter = router({
 
   createCommission: clinicProcedure
     .input(z.object({
-      clinicId: z.number(),
       dentistId: z.number(),
       commissionPercentage: z.number().min(0).max(100),
     }))
     .mutation(async ({ input, ctx }) => {
       return db.createDentistCommission({
-        clinicId: input.clinicId,
+        clinicId: ctx.clinicId,
         dentistId: input.dentistId,
-        procedureId: null, // Usar NULL para comissão geral
+        procedureId: null, // Usar NULL para comissao geral
         commissionPercentage: input.commissionPercentage,
         isActive: true,
       });
