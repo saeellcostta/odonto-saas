@@ -224,11 +224,9 @@ export const earningsRouter = router({
     }),
 
   getDentistsForClinic: clinicProcedure
-    .input(z.object({
-      clinicId: z.number(),
-    }))
-    .query(async ({ input, ctx }) => {
-      return db.getDentistsByClinic(input.clinicId);
+    .input(z.object({}).optional())
+    .query(async ({ ctx }) => {
+      return db.getDentistsByClinic(ctx.clinicId);
     }),
 
   updateCommission: clinicProcedure

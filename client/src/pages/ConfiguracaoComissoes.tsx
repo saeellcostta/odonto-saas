@@ -28,7 +28,7 @@ export default function ConfiguracaoComissoes() {
   // Buscar dentistas
   const { data: dentists, isLoading: loadingDentists } = 
     trpc.earnings.getDentistsForClinic.useQuery(
-      { clinicId: user?.clinicId || 0 },
+      undefined,
       { enabled: !!user?.clinicId }
     );
 
