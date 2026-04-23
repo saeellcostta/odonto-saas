@@ -250,7 +250,7 @@ export const earningsRouter = router({
         clinicId: input.clinicId,
         dentistId: input.dentistId,
         procedureId: null, // Usar NULL para comissão geral
-        commissionPercentage: input.commissionPercentage.toString(),
+        commissionPercentage: input.commissionPercentage,
         isActive: true,
       });
     }),
