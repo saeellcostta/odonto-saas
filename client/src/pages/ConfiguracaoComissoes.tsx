@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -7,115 +7,77 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Edit2, Plus, Trash2, Save, ChevronRight } from "lucide-react";
+import { Plus, Trash2, ChevronRight } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function ConfiguracaoComissoes() {
   const { user } = useAuth();
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editingPercentage, setEditingPercentage] = useState<number>(0);
-  const [selectedDentistId, setSelectedDentistId] = useState<number | null>(null);
-  const [newPercentage, setNewPercentage] = useState<number>(30);
-  const [step, setStep] = useState<"select" | "configure">("select");
+  const [selectedDentistId, setSelectedDentistId] = useState<string>("");
+  const [percentage, setPercentage] = useState<string>("0");
+  const [step, setStep] = useState<"list" | "add">("list");
 
-  // Buscar comissões
-  const { data: commissions, isLoading: loadingCommissions, refetch: refetchCommissions } = 
-    trpc.earnings.getCommissions.useQuery(
-      undefined,
-      { enabled: !!user?.clinicId }
-    );
-
-  // Buscar dentistas
-  const { data: dentists, isLoading: loadingDentists } = 
-    trpc.earnings.getDentistsForClinic.useQuery(
-      undefined,
-      { enabled: !!user?.clinicId }
-    );
+  // Queries
+  const commissionsQuery = trpc.earnings.commissions.list.useQuery();
+  const dentistsQuery = trpc.earnings.dentists.list.useQuery();
 
   // Mutations
-  const updateCommission = trpc.earnings.updateCommission.useMutation({
+  const upsertMutation = trpc.earnings.commissions.upsert.useMutation({
     onSuccess: () => {
-      toast.success("Comissão atualizada com sucesso!");
-      setEditingId(null);
-      refetchCommissions();
+      toast.success("Comissão salva com sucesso!");
+      setSelectedDentistId("");
+      setPercentage("0");
+      setStep("list");
+      commissionsQuery.refetch();
     },
     onError: (error) => {
-      toast.error(`Erro ao atualizar: ${error.message}`);
+      toast.error(`Erro: ${error.message}`);
     },
   });
 
-  const createCommission = trpc.earnings.createCommission.useMutation({
-    onSuccess: () => {
-      toast.success("Comissão criada com sucesso!");
-      setStep("select");
-      setSelectedDentistId(null);
-      setNewPercentage(30);
-      refetchCommissions();
-    },
-    onError: (error) => {
-      toast.error(`Erro ao criar: ${error.message}`);
-    },
-  });
-
-  const deleteCommission = trpc.earnings.deleteCommission.useMutation({
+  const deleteMutation = trpc.earnings.commissions.delete.useMutation({
     onSuccess: () => {
       toast.success("Comissão removida com sucesso!");
-      refetchCommissions();
+      commissionsQuery.refetch();
     },
     onError: (error) => {
-      toast.error(`Erro ao remover: ${error.message}`);
+      toast.error(`Erro: ${error.message}`);
     },
   });
 
-  const handleSaveEdit = (commissionId: number) => {
-    if (editingPercentage < 0 || editingPercentage > 100) {
-      toast.error("Porcentagem deve estar entre 0 e 100");
+  const handleSaveCommission = async () => {
+    if (!selectedDentistId || !percentage) {
+      toast.error("Selecione um dentista e defina a porcentagem");
       return;
     }
-    updateCommission.mutate({
-      id: commissionId,
-      commissionPercentage: editingPercentage,
+
+    await upsertMutation.mutateAsync({
+      dentistId: parseInt(selectedDentistId),
+      commissionPercentage: parseFloat(percentage),
     });
   };
 
-  const handleSelectDentist = (dentistId: number) => {
-    setSelectedDentistId(dentistId);
-    setStep("configure");
+  const handleDeleteCommission = async (dentistId: number) => {
+    if (confirm("Tem certeza que deseja remover esta comissão?")) {
+      await deleteMutation.mutateAsync({ dentistId });
+    }
   };
 
-  const handleConfirmCommission = () => {
-    if (!selectedDentistId) {
-      toast.error("Selecione um dentista");
-      return;
-    }
-    if (newPercentage < 0 || newPercentage > 100) {
-      toast.error("Porcentagem deve estar entre 0 e 100");
-      return;
-    }
-    createCommission.mutate({
-      dentistId: selectedDentistId,
-      commissionPercentage: newPercentage,
-    });
+  const getDentistName = (dentistId: number) => {
+    return dentistsQuery.data?.find((d) => d.id === dentistId)?.name || "Desconhecido";
   };
 
-  const dentistMap = useMemo(() => {
-    const map = new Map();
-    dentists?.forEach((d) => map.set(d.id, d.name));
-    return map;
-  }, [dentists]);
+  const getEstimatedEarnings = () => {
+    if (!percentage) return 0;
+    return (1000 * parseFloat(percentage)) / 100;
+  };
 
-  // Dentistas já com comissão configurada
-  const dentistasComComissao = useMemo(() => {
-    const ids = new Set(commissions?.map(c => c.dentistId) || []);
-    return ids;
-  }, [commissions]);
-
-  // Dentistas sem comissão
-  const dentistasDisponiveis = useMemo(() => {
-    return dentists?.filter(d => !dentistasComComissao.has(d.id)) || [];
-  }, [dentists, dentistasComComissao]);
-
-  const selectedDentist = dentists?.find(d => d.id === selectedDentistId);
-  const isLoading = loadingCommissions || loadingDentists;
+  const isLoading = commissionsQuery.isLoading || dentistsQuery.isLoading;
 
   if (isLoading) {
     return <div className="p-8 text-center">Carregando...</div>;
@@ -133,11 +95,11 @@ export default function ConfiguracaoComissoes() {
         <CardHeader>
           <CardTitle>Comissões Cadastradas</CardTitle>
           <CardDescription>
-            {commissions?.length || 0} dentista(s) com comissão configurada
+            {commissionsQuery.data?.length || 0} dentista(s) com comissão configurada
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {commissions && commissions.length > 0 ? (
+          {commissionsQuery.data && commissionsQuery.data.length > 0 ? (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
@@ -148,68 +110,23 @@ export default function ConfiguracaoComissoes() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {commissions.map((commission) => (
+                  {commissionsQuery.data.map((commission) => (
                     <TableRow key={commission.id}>
                       <TableCell>
-                        {dentistMap.get(commission.dentistId) || `Dentista #${commission.dentistId}`}
+                        {getDentistName(commission.dentistId)}
                       </TableCell>
                       <TableCell>
-                        {editingId === commission.id ? (
-                          <div className="flex items-center gap-2">
-                            <Input
-                              type="number"
-                              min="0"
-                              max="100"
-                              value={editingPercentage}
-                              onChange={(e) => setEditingPercentage(Number(e.target.value))}
-                              className="w-20"
-                            />
-                            <span>%</span>
-                          </div>
-                        ) : (
-                          <span className="font-semibold">{commission.commissionPercentage}%</span>
-                        )}
+                        <span className="font-semibold">{commission.commissionPercentage}%</span>
                       </TableCell>
                       <TableCell className="text-right">
-                        {editingId === commission.id ? (
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              size="sm"
-                              onClick={() => handleSaveEdit(commission.id)}
-                              disabled={updateCommission.isPending}
-                            >
-                              <Save className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => setEditingId(null)}
-                            >
-                              Cancelar
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setEditingId(commission.id);
-                                setEditingPercentage(Number(commission.commissionPercentage));
-                              }}
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => deleteCommission.mutate({ id: commission.id })}
-                              disabled={deleteCommission.isPending}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        )}
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => handleDeleteCommission(commission.dentistId)}
+                          disabled={deleteMutation.isPending}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -223,43 +140,31 @@ export default function ConfiguracaoComissoes() {
       </Card>
 
       {/* Adicionar Nova Comissão */}
-      {step === "select" && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Adicionar Nova Comissão</CardTitle>
-            <CardDescription>Selecione um dentista para configurar a comissão</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {dentistasDisponiveis.length > 0 ? (
-              <div className="space-y-2">
-                {dentistasDisponiveis.map((dentist) => (
-                  <button
-                    key={dentist.id}
-                    onClick={() => handleSelectDentist(dentist.id)}
-                    className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-orange-50 hover:border-orange-300 transition-colors"
-                  >
-                    <span className="font-medium text-gray-900">{dentist.name}</span>
-                    <ChevronRight className="w-5 h-5 text-gray-400" />
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-500 text-center py-8">
-                Todos os dentistas já possuem comissão configurada
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Configurar Comissão */}
-      {step === "configure" && selectedDentist && (
+      {step === "add" && (
         <Card className="border-orange-200 bg-orange-50">
           <CardHeader>
-            <CardTitle>Configurar Comissão</CardTitle>
-            <CardDescription>Dentista: {selectedDentist.name}</CardDescription>
+            <CardTitle>Adicionar Nova Comissão</CardTitle>
+            <CardDescription>Configure comissão para um novo dentista</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Seleção de Dentista */}
+            <div>
+              <Label htmlFor="dentist-select">Dentista</Label>
+              <Select value={selectedDentistId} onValueChange={setSelectedDentistId}>
+                <SelectTrigger id="dentist-select" className="mt-2">
+                  <SelectValue placeholder="Selecione um dentista" />
+                </SelectTrigger>
+                <SelectContent>
+                  {dentistsQuery.data?.map((dentist) => (
+                    <SelectItem key={dentist.id} value={dentist.id.toString()}>
+                      {dentist.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Porcentagem de Comissão */}
             <div>
               <Label htmlFor="percentage-input">Porcentagem de Comissão (%)</Label>
               <div className="flex items-center gap-2 mt-2">
@@ -268,21 +173,26 @@ export default function ConfiguracaoComissoes() {
                   type="number"
                   min="0"
                   max="100"
-                  value={newPercentage}
-                  onChange={(e) => setNewPercentage(Number(e.target.value))}
+                  step="0.01"
+                  value={percentage}
+                  onChange={(e) => setPercentage(e.target.value)}
+                  placeholder="0"
                   className="flex-1 text-lg"
                 />
                 <span className="text-gray-600 font-medium">%</span>
               </div>
-              <p className="text-sm text-gray-600 mt-3">
-                <span className="font-semibold">Ganho estimado por R$ 1.000:</span> R$ {(1000 * newPercentage) / 100}
-              </p>
+              {percentage && (
+                <p className="text-sm text-gray-600 mt-3">
+                  <span className="font-semibold">Ganho estimado por R$ 1.000:</span> R$ {getEstimatedEarnings().toFixed(2)}
+                </p>
+              )}
             </div>
 
+            {/* Botões */}
             <div className="flex gap-3">
               <Button
-                onClick={handleConfirmCommission}
-                disabled={createCommission.isPending}
+                onClick={handleSaveCommission}
+                disabled={upsertMutation.isPending || !selectedDentistId}
                 className="flex-1"
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -290,9 +200,9 @@ export default function ConfiguracaoComissoes() {
               </Button>
               <Button
                 onClick={() => {
-                  setStep("select");
-                  setSelectedDentistId(null);
-                  setNewPercentage(30);
+                  setStep("list");
+                  setSelectedDentistId("");
+                  setPercentage("0");
                 }}
                 variant="outline"
                 className="flex-1"
@@ -302,6 +212,20 @@ export default function ConfiguracaoComissoes() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Botão para adicionar */}
+      {step === "list" && (
+        <div className="flex justify-center">
+          <Button
+            onClick={() => setStep("add")}
+            size="lg"
+            className="bg-orange-500 hover:bg-orange-600"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Adicionar Nova Comissão
+          </Button>
+        </div>
       )}
 
       {/* Informações */}
@@ -318,9 +242,6 @@ export default function ConfiguracaoComissoes() {
           </p>
           <p>
             • Os ganhos aparecem no Mapa de Ganho no final do dia
-          </p>
-          <p>
-            • Você pode editar a porcentagem a qualquer momento
           </p>
         </CardContent>
       </Card>
