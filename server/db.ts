@@ -3789,7 +3789,7 @@ export async function createDentistCommission(data: {
   }
   
   // Inserir com tipos corretos
-  const result = await db.insert(dentistCommissions).values({
+  await db.insert(dentistCommissions).values({
     clinicId: data.clinicId,
     dentistId: data.dentistId,
     procedureId: data.procedureId,
@@ -3797,7 +3797,15 @@ export async function createDentistCommission(data: {
     isActive: data.isActive,
   });
   
-  return { id: result[0].insertId };
+  // Buscar a comissão criada
+  const result = await db
+    .select()
+    .from(dentistCommissions)
+    .where(eq(dentistCommissions.dentistId, data.dentistId))
+    .orderBy(sql`id DESC`)
+    .limit(1);
+  
+  return result[0] || null;
 }
 
 export async function updateDentistCommission(id: number, data: any) {
