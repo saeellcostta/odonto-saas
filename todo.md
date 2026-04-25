@@ -1324,3 +1324,17 @@
 - [x] Validar que todos os testes de comissões passam (7/7 ✓)
 - [x] Componente ConfiguracaoComissoes.tsx funcional com fluxo 2-passos
 - [x] Sistema de comissões pronto para uso
+
+## Feature: Mapa de Ganho - Implementação Completa (25/04/2026)
+- [x] Analisar tabelas de dados: completedAppointments, dailyEarningsSummary, dentistCommissions
+- [x] Criar endpoint tRPC: earnings.map.byDate (ganhos do dia)
+- [x] Criar endpoint tRPC: earnings.appointments.listByDate (atendimentos do dia)
+- [x] Criar endpoint tRPC: earnings.appointments.listByDentist (atendimentos por dentista)
+- [x] Reabilitar componente MapaGanho.tsx
+- [x] Implementar tabela de ganhos diários com resumo (receita, comissão, atendimentos)
+- [x] Implementar detalhamento por dentista com expandir/colapsar
+- [x] Implementar listagem de atendimentos por dentista
+- [x] Criar testes para cálculos de comissão (11 testes)
+- [x] Testar fluxo: finalizar atendimento → comissão calculada → ganho registrado
+- [x] Validar integração com recepção (valor do paciente → comissão do dentista)
+- [x] Adicionar funções de banco: getDailyEarningsSummaryByDate, getCompletedAppointmentsByDate, getCompletedAppointmentsByDentistAndDate

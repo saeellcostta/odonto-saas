@@ -79,4 +79,56 @@ export const earningsRouter = router({
       }
     }),
   }),
+
+  // Mapa de Ganho - Resumo de ganhos
+  map: router({
+    // Ganhos do dia por data
+    byDate: clinicProcedure
+      .input(z.object({ date: z.string() }))
+      .query(async ({ input, ctx }) => {
+        try {
+          return await db.getDailyEarningsSummaryByDate(ctx.clinicId, input.date);
+        } catch (error: any) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: error.message,
+          });
+        }
+      }),
+  }),
+
+  // Atendimentos realizados
+  appointments: router({
+    // Listar atendimentos do dia
+    listByDate: clinicProcedure
+      .input(z.object({ date: z.string() }))
+      .query(async ({ input, ctx }) => {
+        try {
+          return await db.getCompletedAppointmentsByDate(ctx.clinicId, input.date);
+        } catch (error: any) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: error.message,
+          });
+        }
+      }),
+
+    // Listar atendimentos por dentista
+    listByDentist: clinicProcedure
+      .input(z.object({ dentistId: z.number(), date: z.string() }))
+      .query(async ({ input, ctx }) => {
+        try {
+          return await db.getCompletedAppointmentsByDentistAndDate(
+            ctx.clinicId,
+            input.dentistId,
+            input.date
+          );
+        } catch (error: any) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: error.message,
+          });
+        }
+      }),
+  }),
 });

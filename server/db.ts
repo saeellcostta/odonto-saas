@@ -4009,3 +4009,72 @@ export async function deleteDentistCommission(id: number) {
     .delete(dentistCommissions)
     .where(eq(dentistCommissions.id, id));
 }
+
+
+// ============ Funções de Mapa de Ganho ============
+
+/**
+ * Obter resumo de ganhos do dia para uma clínica
+ * Retorna ganhos agrupados por dentista
+ */
+export async function getDailyEarningsSummaryByDate(clinicId: number, date: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const dateObj = new Date(date);
+  return db
+    .select()
+    .from(dailyEarningsSummary)
+    .where(
+      and(
+        eq(dailyEarningsSummary.clinicId, clinicId),
+        eq(dailyEarningsSummary.date, dateObj)
+      )
+    )
+    .orderBy(asc(dailyEarningsSummary.dentistId));
+}
+
+/**
+ * Obter atendimentos completados de uma data
+ */
+export async function getCompletedAppointmentsByDate(clinicId: number, date: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const dateObj = new Date(date);
+  return db
+    .select()
+    .from(completedAppointments)
+    .where(
+      and(
+        eq(completedAppointments.clinicId, clinicId),
+        eq(sql`DATE(${completedAppointments.completedAt})`, dateObj)
+      )
+    )
+    .orderBy(desc(completedAppointments.completedAt));
+}
+
+/**
+ * Obter atendimentos de um dentista em uma data específica
+ */
+export async function getCompletedAppointmentsByDentistAndDate(
+  clinicId: number,
+  dentistId: number,
+  date: string
+) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const dateObj = new Date(date);
+  return db
+    .select()
+    .from(completedAppointments)
+    .where(
+      and(
+        eq(completedAppointments.clinicId, clinicId),
+        eq(completedAppointments.dentistId, dentistId),
+        eq(sql`DATE(${completedAppointments.completedAt})`, dateObj)
+      )
+    )
+    .orderBy(desc(completedAppointments.completedAt));
+}
