@@ -2067,18 +2067,20 @@ export async function completeService(id: number, notes?: string) {
       const commissions = await getDentistCommissions(clinicIdNum, professionalIdNum);
       const commission = commissions[0];
       const commissionPercentage = commission ? Number(commission.commissionPercentage) : 0;
-      const earningAmount = (amountToPay * commissionPercentage) / 100;
+      const commissionAmount = (amountToPay * commissionPercentage) / 100;
       
       // Registrar atendimento completo
       await createCompletedAppointment({
         clinicId: clinicIdNum,
         dentistId: professionalIdNum,
         patientId: entry.patientId,
-        procedureAmount: amountToPay,
-        commissionPercentage: commissionPercentage,
-        earningAmount: earningAmount,
-        queueEntryId: id,
+        procedureId: 0,
+        procedureName: entry.queueType || 'Atendimento',
+        procedurePrice: amountToPay.toString(),
+        commissionPercentage: commissionPercentage.toString(),
+        commissionAmount: commissionAmount.toString(),
         completedAt: new Date(),
+        paymentStatus: 'pending',
       });
       
       // Atualizar resumo diário

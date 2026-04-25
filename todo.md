@@ -1338,3 +1338,15 @@
 - [x] Testar fluxo: finalizar atendimento → comissão calculada → ganho registrado
 - [x] Validar integração com recepção (valor do paciente → comissão do dentista)
 - [x] Adicionar funções de banco: getDailyEarningsSummaryByDate, getCompletedAppointmentsByDate, getCompletedAppointmentsByDentistAndDate
+
+
+## Bug Fix: Mapa de Ganho Não Exibia Ganhos (25/04/2026)
+- [x] Investigar por que completedAppointments não estava sendo populada
+- [x] Identificar que completeService passava campos com nomes incorretos
+- [x] Corrigir mapeamento de campos: procedureAmount → procedurePrice, earningAmount → commissionAmount
+- [x] Adicionar campos faltantes: procedureId, procedureName, paymentStatus
+- [x] Criar 10 testes para validar estrutura e cálculos de ganhos
+- [x] Validar que comissão ≤ receita
+- [x] Validar que percentuais estão entre 0-100%
+- [x] Validar status de pagamento (pending, paid, cancelled)
+- [x] Todos os 10 testes passando ✓
