@@ -48,7 +48,7 @@ import Visualizador3D from "./pages/Visualizador3D";
 import Orcamentos from "./pages/Orcamentos";
 import ValidarDocumento from "./pages/ValidarDocumento";
 import Inadimplente from "./pages/Inadimplente";
-import { MapaGanho } from "./pages/MapaGanho";
+// import { MapaGanho } from "./pages/MapaGanho";
 import ConfiguracaoComissoes from "./pages/ConfiguracaoComissoes";
 
 // Componente wrapper para rotas protegidas
@@ -154,9 +154,9 @@ function Router() {
       <Route path="/relatorios">
         <Protected><Relatorios /></Protected>
       </Route>
-      <Route path="/mapa-ganho">
+      {/* <Route path="/mapa-ganho">
         <Protected><MapaGanho /></Protected>
-      </Route>
+      </Route> */}
       <Route path="/configuracao-comissoes">
         <Protected><ConfiguracaoComissoes /></Protected>
       </Route>

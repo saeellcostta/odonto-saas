@@ -2058,20 +2058,21 @@ export async function completeService(id: number, notes?: string) {
   
   // Registrar no Mapa de Ganho se houver valor a pagar
   const amountToPay: number = Number(entry.amountToPay) || 0;
-  const professionalId: number | null = Number(entry.professionalId) || 0;
+  const professionalIdNum: number = Number(entry.professionalId) || 0;
+  const clinicIdNum: number = Number(entry.clinicId) || 0;
   
-  if (amountToPay && amountToPay > 0 && professionalId > 0) {
+  if (amountToPay && amountToPay > 0 && professionalIdNum > 0 && clinicIdNum > 0) {
     try {
       // Obter comissão do dentista
-      const commissions = await getDentistCommissions(entry.clinicId, professionalId);
+      const commissions = await getDentistCommissions(clinicIdNum, professionalIdNum);
       const commission = commissions[0];
       const commissionPercentage = commission ? Number(commission.commissionPercentage) : 0;
       const earningAmount = (amountToPay * commissionPercentage) / 100;
       
       // Registrar atendimento completo
       await createCompletedAppointment({
-        clinicId: entry.clinicId,
-        dentistId: professionalId,
+        clinicId: clinicIdNum,
+        dentistId: professionalIdNum,
         patientId: entry.patientId,
         procedureAmount: amountToPay,
         commissionPercentage: commissionPercentage,
@@ -2085,7 +2086,7 @@ export async function completeService(id: number, notes?: string) {
       today.setHours(0, 0, 0, 0);
       const dateStr = today.toISOString().split('T')[0];
       
-      await createOrUpdateDailyEarningsSummary(entry.clinicId, professionalId, dateStr);
+      await createOrUpdateDailyEarningsSummary(clinicIdNum, professionalIdNum, dateStr);
     } catch (error) {
       console.error("Erro ao registrar no Mapa de Ganho:", error);
     }
