@@ -1360,3 +1360,16 @@
 - [x] Exibir receita de atendimentos nas estatísticas do Financeiro
 - [x] Todos os 21 testes passando (10 completeService + 11 mapaGanho)
 - [x] Financeiro agora exibe histórico de ganhos dos atendimentos
+
+
+## Feature: Mapa de Ganho Separado por Especialidade (26/04/2026)
+- [x] Adicionar endpoint tRPC: earnings.specialties.list
+- [x] Adicionar endpoint tRPC: earnings.dentists.listBySpecialty
+- [x] Adicionar endpoint tRPC: earnings.map.bySpecialty
+- [x] Adicionar endpoint tRPC: earnings.appointments.listBySpecialty
+- [x] Refatorar MapaGanho.tsx com tabs por especialidade
+- [x] Refatorar ConfiguracaoComissoes.tsx com tabs por especialidade
+- [x] Adicionar funções de banco: getSpecialties, getDentistsBySpecialty, getDailyEarningsSummaryBySpecialty, getCompletedAppointmentsBySpecialty
+- [ ] Testar fluxo completo com múltiplas especialidades
+- [ ] Validar cálculos de comissão por especialidade
+- [ ] Criar testes unitários para endpoints de especialidade

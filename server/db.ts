@@ -4080,3 +4080,113 @@ export async function getCompletedAppointmentsByDentistAndDate(
     )
     .orderBy(desc(completedAppointments.completedAt));
 }
+
+
+/**
+ * Obter especialidades de uma clínica
+ */
+export async function getSpecialties(clinicId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db
+    .selectDistinct({ specialty: dentists.specialty })
+    .from(dentists)
+    .where(eq(dentists.clinicId, clinicId))
+    .orderBy(asc(dentists.specialty));
+  
+  return result.map(r => r.specialty).filter(s => s !== null && s !== undefined) as string[];
+}
+
+/**
+ * Obter dentistas de uma especialidade
+ */
+export async function getDentistsBySpecialty(clinicId: number, specialty: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db
+    .select()
+    .from(dentists)
+    .where(
+      and(
+        eq(dentists.clinicId, clinicId),
+        eq(dentists.specialty, specialty)
+      )
+    )
+    .orderBy(asc(dentists.name));
+}
+
+/**
+ * Obter resumo de ganhos diários por especialidade
+ */
+export async function getDailyEarningsSummaryBySpecialty(clinicId: number, specialty: string, date: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const dateObj = new Date(date);
+  
+  // Buscar dentistas da especialidade
+  const specialtyDentists = await db
+    .select({ id: dentists.id })
+    .from(dentists)
+    .where(
+      and(
+        eq(dentists.clinicId, clinicId),
+        eq(dentists.specialty, specialty)
+      )
+    );
+  
+  const dentistIds = specialtyDentists.map(d => d.id);
+  if (dentistIds.length === 0) return [];
+  
+  return db
+    .select()
+    .from(dailyEarningsSummary)
+    .where(
+      and(
+        eq(dailyEarningsSummary.clinicId, clinicId),
+        eq(sql`DATE(${dailyEarningsSummary.date})`, dateObj),
+        inArray(dailyEarningsSummary.dentistId, dentistIds)
+      )
+    )
+    .orderBy(asc(dailyEarningsSummary.dentistId));
+}
+
+/**
+ * Obter atendimentos completados por especialidade
+ */
+export async function getCompletedAppointmentsBySpecialty(clinicId: number, specialty: string, date?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  // Buscar dentistas da especialidade
+  const specialtyDentists = await db
+    .select({ id: dentists.id })
+    .from(dentists)
+    .where(
+      and(
+        eq(dentists.clinicId, clinicId),
+        eq(dentists.specialty, specialty)
+      )
+    );
+  
+  const dentistIds = specialtyDentists.map(d => d.id);
+  if (dentistIds.length === 0) return [];
+  
+  const conditions = [
+    eq(completedAppointments.clinicId, clinicId),
+    inArray(completedAppointments.dentistId, dentistIds)
+  ];
+  
+  if (date) {
+    const dateObj = new Date(date);
+    conditions.push(eq(sql`DATE(${completedAppointments.completedAt})`, dateObj));
+  }
+  
+  return db
+    .select()
+    .from(completedAppointments)
+    .where(and(...conditions))
+    .orderBy(desc(completedAppointments.completedAt));
+}

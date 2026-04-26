@@ -10,6 +10,21 @@ import {
 import * as db from "../db";
 
 export const earningsRouter = router({
+  // Especialidades
+  specialties: router({
+    // Listar especialidades da clínica
+    list: clinicProcedure.query(async ({ ctx }) => {
+      try {
+        return await db.getSpecialties(ctx.clinicId);
+      } catch (error: any) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: error.message,
+        });
+      }
+    }),
+  }),
+
   // Comissões
   commissions: router({
     // Listar comissões da clínica
@@ -78,6 +93,20 @@ export const earningsRouter = router({
         });
       }
     }),
+
+    // Listar dentistas por especialidade
+    listBySpecialty: clinicProcedure
+      .input(z.object({ specialty: z.string() }))
+      .query(async ({ input, ctx }) => {
+        try {
+          return await db.getDentistsBySpecialty(ctx.clinicId, input.specialty);
+        } catch (error: any) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: error.message,
+          });
+        }
+      }),
   }),
 
   // Mapa de Ganho - Resumo de ganhos
@@ -88,6 +117,24 @@ export const earningsRouter = router({
       .query(async ({ input, ctx }) => {
         try {
           return await db.getDailyEarningsSummaryByDate(ctx.clinicId, input.date);
+        } catch (error: any) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: error.message,
+          });
+        }
+      }),
+
+    // Ganhos por especialidade
+    bySpecialty: clinicProcedure
+      .input(z.object({ specialty: z.string(), date: z.string() }))
+      .query(async ({ input, ctx }) => {
+        try {
+          return await db.getDailyEarningsSummaryBySpecialty(
+            ctx.clinicId,
+            input.specialty,
+            input.date
+          );
         } catch (error: any) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
@@ -148,6 +195,24 @@ export const earningsRouter = router({
           return await db.getCompletedAppointmentsByDentistAndDate(
             ctx.clinicId,
             input.dentistId,
+            input.date
+          );
+        } catch (error: any) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: error.message,
+          });
+        }
+      }),
+
+    // Listar atendimentos por especialidade
+    listBySpecialty: clinicProcedure
+      .input(z.object({ specialty: z.string(), date: z.string().optional() }))
+      .query(async ({ input, ctx }) => {
+        try {
+          return await db.getCompletedAppointmentsBySpecialty(
+            ctx.clinicId,
+            input.specialty,
             input.date
           );
         } catch (error: any) {
