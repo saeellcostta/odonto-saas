@@ -1350,3 +1350,13 @@
 - [x] Validar que percentuais estão entre 0-100%
 - [x] Validar status de pagamento (pending, paid, cancelled)
 - [x] Todos os 10 testes passando ✓
+
+
+## Feature: Financeiro - Integração com Mapa de Ganho (26/04/2026)
+- [x] Adicionar endpoint tRPC earnings.appointments.list para recuperar atendimentos completados
+- [x] Integrar busca de completedAppointments no componente Financeiro
+- [x] Adicionar cálculo de receita de atendimentos no stats
+- [x] Adicionar cálculo de comissão total nos stats
+- [x] Exibir receita de atendimentos nas estatísticas do Financeiro
+- [x] Todos os 21 testes passando (10 completeService + 11 mapaGanho)
+- [x] Financeiro agora exibe histórico de ganhos dos atendimentos

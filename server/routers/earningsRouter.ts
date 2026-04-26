@@ -99,6 +99,33 @@ export const earningsRouter = router({
 
   // Atendimentos realizados
   appointments: router({
+    // Listar todos os atendimentos completados
+    list: clinicProcedure
+      .input(z.object({ 
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      }).optional())
+      .query(async ({ input, ctx }) => {
+        try {
+          const appointments = await db.getCompletedAppointmentsByClinic(ctx.clinicId);
+          if (!input?.startDate || !input?.endDate) return appointments;
+          
+          const start = new Date(input.startDate);
+          const end = new Date(input.endDate);
+          end.setHours(23, 59, 59, 999);
+          
+          return appointments.filter(apt => {
+            const aptDate = new Date(apt.completedAt);
+            return aptDate >= start && aptDate <= end;
+          });
+        } catch (error: any) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: error.message,
+          });
+        }
+      }),
+
     // Listar atendimentos do dia
     listByDate: clinicProcedure
       .input(z.object({ date: z.string() }))

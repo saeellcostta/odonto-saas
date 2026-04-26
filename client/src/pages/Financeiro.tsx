@@ -121,6 +121,9 @@ export default function Financeiro() {
   // Buscar pagamentos da fila de serviço para integrar ao financeiro
   const { data: queuePayments } = trpc.serviceQueue.list.useQuery({});
   const paidFromQueue = queuePayments?.filter(p => p.paymentStatus === "paid") || [];
+  
+  // Buscar atendimentos completados (ganhos)
+  const { data: completedAppointments } = trpc.earnings.appointments.list.useQuery({});
 
   const createMutation = trpc.transactions.create.useMutation({
     onSuccess: () => {
@@ -256,14 +259,27 @@ export default function Financeiro() {
     // Adicionar pagamentos da fila de serviço
     const queueIncome = paidFromQueue.reduce((sum, p) => sum + Number(p.amountPaid || 0), 0);
     
+    // Adicionar receita de atendimentos completados
+    const appointmentsIncome = completedAppointments?.reduce((sum, apt) => {
+      return sum + parseFloat(apt.procedurePrice?.toString() || '0');
+    }, 0) || 0;
+    
+    // Calcular comissão total
+    const totalCommission = completedAppointments?.reduce((sum, apt) => {
+      return sum + parseFloat(apt.commissionAmount?.toString() || '0');
+    }, 0) || 0;
+    
     return { 
-      income: income + queueIncome, 
+      income: income + queueIncome + appointmentsIncome, 
       expense, 
-      balance: (income + queueIncome) - expense,
+      balance: (income + queueIncome + appointmentsIncome) - expense,
       queuePaymentsCount: paidFromQueue.length,
       queuePaymentsTotal: queueIncome,
+      appointmentsCount: completedAppointments?.length || 0,
+      appointmentsIncome,
+      totalCommission,
     };
-  }, [transactions, paidFromQueue]);
+  }, [transactions, paidFromQueue, completedAppointments]);
 
   const getPatientName = (patientId: number | null) => {
     if (!patientId) return null;
