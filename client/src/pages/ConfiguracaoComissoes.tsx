@@ -32,6 +32,7 @@ export default function ConfiguracaoComissoes() {
     { specialty: selectedSpecialty },
     { enabled: !!selectedSpecialty }
   );
+  const utils = trpc.useUtils();
 
   // Mutations
   const upsertMutation = trpc.earnings.commissions.upsert.useMutation({
@@ -40,7 +41,8 @@ export default function ConfiguracaoComissoes() {
       setSelectedDentistId("");
       setPercentage("0");
       setStep("list");
-      commissionsQuery.refetch();
+      utils.earnings.commissions.list.invalidate();
+      utils.earnings.dentists.list.invalidate();
     },
     onError: (error) => {
       toast.error(`Erro: ${error.message}`);
@@ -50,7 +52,8 @@ export default function ConfiguracaoComissoes() {
   const deleteMutation = trpc.earnings.commissions.delete.useMutation({
     onSuccess: () => {
       toast.success("Comissão removida com sucesso!");
-      commissionsQuery.refetch();
+      utils.earnings.commissions.list.invalidate();
+      utils.earnings.dentists.list.invalidate();
     },
     onError: (error) => {
       toast.error(`Erro: ${error.message}`);
