@@ -27,10 +27,10 @@ export default function ConfiguracaoComissoes() {
   // Queries
   const specialtiesQuery = trpc.earnings.specialties.list.useQuery();
   const commissionsQuery = trpc.earnings.commissions.list.useQuery();
-  const dentistsQuery = trpc.earnings.dentists.list.useQuery();
-  const dentistsBySpecialtyQuery = trpc.earnings.dentists.listBySpecialty.useQuery(
-    { specialty: selectedSpecialty },
-    { enabled: !!selectedSpecialty }
+  const dentistsQuery = trpc.dentists.list.useQuery({ activeOnly: true });
+  const dentistsBySpecialtyQuery = trpc.dentists.list.useQuery(
+    { activeOnly: true },
+    { enabled: true }
   );
   const utils = trpc.useUtils();
 
@@ -66,8 +66,16 @@ export default function ConfiguracaoComissoes() {
       return;
     }
 
+    const dentistId = parseInt(selectedDentistId);
+    const selectedDentistObj = dentistsQuery.data?.find((d: any) => d.id === dentistId);
+    
+    if (!selectedDentistObj) {
+      toast.error("Dentista não encontrado");
+      return;
+    }
+
     await upsertMutation.mutateAsync({
-      dentistId: parseInt(selectedDentistId),
+      dentistId: dentistId,
       commissionPercentage: parseFloat(percentage),
     });
   };
@@ -79,7 +87,8 @@ export default function ConfiguracaoComissoes() {
   };
 
   const getDentistName = (dentistId: number) => {
-    return dentistsQuery.data?.find((d) => d.id === dentistId)?.name || "Desconhecido";
+    const dentist = dentistsQuery.data?.find((d: any) => d.id === dentistId);
+    return dentist?.name || "Desconhecido";
   };
 
   const getDentistSpecialty = (dentistId: number) => {
@@ -94,8 +103,8 @@ export default function ConfiguracaoComissoes() {
   const isLoading = commissionsQuery.isLoading || dentistsQuery.isLoading || specialtiesQuery.isLoading;
   const activeSpecialty = selectedSpecialty || specialtiesQuery.data?.[0] || "";
   
-  // Usar dentistas da query específica ou todos os dentistas filtrados
-  const dentistsForSpecialty = dentistsBySpecialtyQuery.data || dentistsQuery.data?.filter((d: any) => d.specialty === activeSpecialty) || [];
+  // Filtrar dentistas por especialidade
+  const dentistsForSpecialty = dentistsQuery.data?.filter((d: any) => d.specialty === activeSpecialty) || [];
   const commissionsForSpecialty = commissionsQuery.data?.filter((c: any) => {
     const dentist = dentistsQuery.data?.find((d: any) => d.id === c.dentistId);
     return (dentist as any)?.specialty === activeSpecialty;
