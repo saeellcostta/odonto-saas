@@ -90,7 +90,9 @@ export default function ConfiguracaoComissoes() {
 
   const isLoading = commissionsQuery.isLoading || dentistsQuery.isLoading || specialtiesQuery.isLoading;
   const activeSpecialty = selectedSpecialty || specialtiesQuery.data?.[0] || "";
-  const dentistsForSpecialty = dentistsBySpecialtyQuery.data || [];
+  
+  // Usar dentistas da query específica ou todos os dentistas filtrados
+  const dentistsForSpecialty = dentistsBySpecialtyQuery.data || dentistsQuery.data?.filter((d: any) => d.specialty === activeSpecialty) || [];
   const commissionsForSpecialty = commissionsQuery.data?.filter((c: any) => {
     const dentist = dentistsQuery.data?.find((d: any) => d.id === c.dentistId);
     return (dentist as any)?.specialty === activeSpecialty;
