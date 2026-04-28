@@ -40,10 +40,16 @@ export async function upsertDentistCommission(
         })
         .where(eq(dentistCommissions.dentistId, dentistId));
 
+      // Retornar dados atualizados
+      const updated = await db
+        .select()
+        .from(dentistCommissions)
+        .where(eq(dentistCommissions.dentistId, dentistId))
+        .limit(1);
+
       return {
-        success: true,
-        message: "Comissão atualizada com sucesso",
-        id: existing[0].id,
+        ...updated[0],
+        commissionPercentage: parseFloat(updated[0]?.commissionPercentage || "0"),
       };
     } else {
       // Inserir novo
@@ -63,9 +69,8 @@ export async function upsertDentistCommission(
         .limit(1);
 
       return {
-        success: true,
-        message: "Comissão criada com sucesso",
-        id: created[0]?.id,
+        ...created[0],
+        commissionPercentage: parseFloat(created[0]?.commissionPercentage || "0"),
       };
     }
   } catch (error: any) {
