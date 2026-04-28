@@ -112,7 +112,7 @@ export default function ConfiguracaoComissoes() {
       {/* Tabs por Especialidade */}
       {specialtiesQuery.data && specialtiesQuery.data.length > 0 ? (
         <Tabs value={activeSpecialty} onValueChange={setSelectedSpecialty} className="w-full">
-          <TabsList className="grid w-full gap-2 bg-white border border-gray-200 p-2 rounded-lg" style={{ gridTemplateColumns: `repeat(auto-fit, minmax(120px, 1fr))` }}>
+          <TabsList className="flex flex-wrap w-full gap-2 bg-white border border-gray-200 p-2 rounded-lg overflow-x-auto md:grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))' }}>
             {specialtiesQuery.data.map((specialty: string) => (
               <TabsTrigger key={specialty} value={specialty} className="px-4 py-2">
                 {specialty}

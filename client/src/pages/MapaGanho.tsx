@@ -91,7 +91,7 @@ export function MapaGanho() {
         {/* Tabs por Especialidade */}
         {specialties.length > 0 ? (
           <Tabs value={activeSpecialty} onValueChange={setSelectedSpecialty} className="mb-8">
-            <TabsList className="grid w-full gap-2 bg-white border border-gray-200 p-2 rounded-lg" style={{ gridTemplateColumns: `repeat(auto-fit, minmax(120px, 1fr))` }}>
+            <TabsList className="flex flex-wrap w-full gap-2 bg-white border border-gray-200 p-2 rounded-lg overflow-x-auto md:grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))' }}>
               {specialties.map((specialty: string) => (
                 <TabsTrigger key={specialty} value={specialty} className="px-4 py-2">
                   {specialty}
