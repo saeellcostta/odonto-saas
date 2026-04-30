@@ -2026,7 +2026,7 @@ export async function receivePayment(id: number, amountPaid: number, paymentMeth
   return { success: true, paymentStatus };
 }
 
-export async function completeService(id: number, notes?: string) {
+export async function completeService(id: number, notes?: string, contextClinicId?: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
@@ -2059,7 +2059,10 @@ export async function completeService(id: number, notes?: string) {
   // Registrar no Mapa de Ganho se houver valor a pagar
   const amountToPay: number = Number(entry.amountToPay) || 0;
   const professionalIdNum: number = Number(entry.professionalId) || 0;
-  const clinicIdNum: number = Number(entry.clinicId) || 0;
+  // Usar clinicId do contexto se o atendimento não tiver
+  const clinicIdNum: number = Number(entry.clinicId) || contextClinicId || 0;
+  
+  // Logging removido após debug
   
   if (amountToPay && amountToPay > 0 && professionalIdNum > 0 && clinicIdNum > 0) {
     try {
@@ -2068,6 +2071,8 @@ export async function completeService(id: number, notes?: string) {
       const commission = commissions[0];
       const commissionPercentage = commission ? Number(commission.commissionPercentage) : 0;
       const commissionAmount = (amountToPay * commissionPercentage) / 100;
+      
+      // Logging removido após debug
       
       // Registrar atendimento completo
       await createCompletedAppointment({
@@ -2084,13 +2089,17 @@ export async function completeService(id: number, notes?: string) {
       });
       
       // Atualizar resumo diário
+      // Usar UTC para evitar problemas de timezone
       const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const dateStr = today.toISOString().split('T')[0];
+      const dateStr = today.toISOString().split('T')[0]; // YYYY-MM-DD em UTC
       
       await createOrUpdateDailyEarningsSummary(clinicIdNum, professionalIdNum, dateStr);
     } catch (error) {
-      console.error("Erro ao registrar no Mapa de Ganho:", error);
+      console.error("[completeService] Erro ao registrar no Mapa de Ganho:", error);
+      if (error instanceof Error) {
+        console.error("[completeService] Stack:", error.stack);
+        console.error("[completeService] Message:", error.message);
+      }
     }
   }
   
@@ -3766,7 +3775,18 @@ export async function getDentistCommissions(clinicId: number, dentistId?: number
     conditions.push(eq(dentistCommissions.dentistId, dentistId));
   }
   
-  return db.select().from(dentistCommissions).where(and(...conditions));
+  let result = await db.select().from(dentistCommissions).where(and(...conditions));
+  
+  // Se nao encontrou comissao para a clinica especifica, buscar sem filtro de clinica
+  if (result.length === 0 && dentistId) {
+    const fallbackConditions = [
+      eq(dentistCommissions.dentistId, dentistId),
+      sql`${dentistCommissions.procedureId} IS NULL`
+    ];
+    result = await db.select().from(dentistCommissions).where(and(...fallbackConditions));
+  }
+  
+  return result;
 }
 
 export async function getDentistCommissionById(id: number) {
@@ -3853,8 +3873,12 @@ export async function getDentistDefaultCommission(clinicId: number, dentistId: n
 export async function createCompletedAppointment(data: any) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(completedAppointments).values(data);
-  return { id: result[0].insertId };
+  
+  // Inserir o atendimento completo
+  await db.insert(completedAppointments).values(data);
+  
+  // Retornar sucesso
+  return { success: true };
 }
 
 export async function getCompletedAppointmentsByClinic(clinicId: number, date?: string) {
@@ -3906,7 +3930,8 @@ export async function getDailyEarningsSummary(clinicId: number, dentistId: numbe
   const db = await getDb();
   if (!db) return undefined;
   
-  const dateObj = new Date(date);
+  // Converter string YYYY-MM-DD para Date em UTC
+  const dateObj = new Date(`${date}T00:00:00Z`);
   const result = await db.select().from(dailyEarningsSummary).where(
     and(
       eq(dailyEarningsSummary.clinicId, clinicId),
@@ -3922,7 +3947,8 @@ export async function getDailyEarningsSummaryByClinic(clinicId: number, date: st
   const db = await getDb();
   if (!db) return [];
   
-  const dateObj = new Date(date);
+  // Converter string YYYY-MM-DD para Date em UTC
+  const dateObj = new Date(`${date}T00:00:00Z`);
   return db.select().from(dailyEarningsSummary).where(
     and(
       eq(dailyEarningsSummary.clinicId, clinicId),
@@ -3960,7 +3986,7 @@ export async function createOrUpdateDailyEarningsSummary(clinicId: number, denti
       .where(eq(dailyEarningsSummary.id, existing.id));
   } else {
     // Criar novo
-    const dateObj = new Date(date);
+    const dateObj = new Date(`${date}T00:00:00Z`);
     await db.insert(dailyEarningsSummary).values({
       clinicId,
       dentistId,

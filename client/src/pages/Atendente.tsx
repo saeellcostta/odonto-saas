@@ -281,6 +281,7 @@ export default function Atendente() {
   const { user } = useAuth();
   const [addPatientOpen, setAddPatientOpen] = useState(false);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [isCompletingWithPayment, setIsCompletingWithPayment] = useState(false);
   const [forwardDialogOpen, setForwardDialogOpen] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<any>(null);
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
@@ -450,6 +451,12 @@ export default function Atendente() {
     onSuccess: (data) => {
       utils.serviceQueue.list.invalidate();
       utils.serviceQueue.stats.invalidate();
+      
+      // Se estava finalizando com pagamento, finalizar o atendimento agora
+      if (isCompletingWithPayment && selectedEntry) {
+        setTimeout(() => handleCompleteAfterPayment(), 500);
+      }
+      
       setPaymentDialogOpen(false);
       resetPaymentForm();
       playNotificationSound('new');
@@ -581,9 +588,15 @@ export default function Atendente() {
   };
 
   const handleComplete = (entry: any) => {
-    if (confirm("Finalizar atendimento deste paciente?")) {
-      completeService.mutate({ id: entry.id });
-    }
+    // Abrir diálogo de pagamento para registrar o valor antes de finalizar
+    setIsCompletingWithPayment(true);
+    openPaymentDialog(entry);
+  };
+
+  const handleCompleteAfterPayment = () => {
+    if (!selectedEntry) return;
+    completeService.mutate({ id: selectedEntry.id });
+    setIsCompletingWithPayment(false);
   };
 
   const openPaymentDialog = (entry: any) => {

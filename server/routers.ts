@@ -1949,8 +1949,9 @@ Formate sua resposta de forma clara e organizada.${pubmedContext ? `\n\nReferên
         id: z.number(),
         notes: z.string().optional(),
       }))
-      .mutation(async ({ input }) => {
-        return db.completeService(input.id, input.notes);
+      .mutation(async ({ input, ctx }) => {
+        const clinicId = ctx.user.clinicId ?? 1;
+        return db.completeService(input.id, input.notes, clinicId);
       }),
     cancel: clinicProcedure
       .input(z.object({
