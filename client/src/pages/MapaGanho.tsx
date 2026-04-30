@@ -179,14 +179,37 @@ export function MapaGanho() {
 
                                 {/* Atendimentos do Dentista */}
                                 <div className="mt-3 pt-3 border-t">
-                                  <h4 className="font-semibold text-gray-900 mb-2">Atendimentos</h4>
-                                  <div className="space-y-2 max-h-48 overflow-y-auto">
-                                    {currentAppointments?.filter((apt: any) => apt.dentistId === summary.dentistId).map((apt: any, idx: number) => (
-                                      <div key={idx} className="text-sm bg-gray-50 p-2 rounded flex justify-between">
-                                        <span className="text-gray-700">{apt.procedureName}</span>
-                                        <span className="font-semibold text-gray-900">{formatCurrency(parseFloat((apt.procedurePrice ?? 0).toString()))}</span>
-                                      </div>
-                                    )) || <p className="text-gray-500">Nenhum atendimento</p>}
+                                  <h4 className="font-semibold text-gray-900 mb-3">Atendimentos Individuais</h4>
+                                  <div className="overflow-x-auto max-h-64 overflow-y-auto">
+                                    {currentAppointments?.filter((apt: any) => apt.dentistId === summary.dentistId).length > 0 ? (
+                                      <table className="w-full text-sm">
+                                        <thead>
+                                          <tr className="border-b bg-gray-100 sticky top-0">
+                                            <th className="text-left p-2 font-semibold text-gray-700">Procedimento</th>
+                                            <th className="text-right p-2 font-semibold text-gray-700">Valor</th>
+                                            <th className="text-right p-2 font-semibold text-gray-700">Comissão %</th>
+                                            <th className="text-right p-2 font-semibold text-gray-700">Ganho</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          {currentAppointments?.filter((apt: any) => apt.dentistId === summary.dentistId).map((apt: any, idx: number) => {
+                                            const procedurePrice = parseFloat((apt.procedurePrice ?? 0).toString());
+                                            const commissionPercentage = parseFloat((apt.commissionPercentage ?? 0).toString());
+                                            const dentistGain = (procedurePrice * commissionPercentage) / 100;
+                                            return (
+                                              <tr key={idx} className="border-b hover:bg-gray-50">
+                                                <td className="p-2 text-gray-700">{apt.procedureName}</td>
+                                                <td className="p-2 text-right text-gray-900 font-semibold">{formatCurrency(procedurePrice)}</td>
+                                                <td className="p-2 text-right text-gray-700">{commissionPercentage}%</td>
+                                                <td className="p-2 text-right text-green-600 font-bold">{formatCurrency(dentistGain)}</td>
+                                              </tr>
+                                            );
+                                          })}
+                                        </tbody>
+                                      </table>
+                                    ) : (
+                                      <p className="text-gray-500 text-center py-4">Nenhum atendimento registrado</p>
+                                    )}
                                   </div>
                                 </div>
                               </div>
