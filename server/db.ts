@@ -3865,7 +3865,10 @@ export async function getCompletedAppointmentsByClinic(clinicId: number, date?: 
   
   if (date) {
     const dateStr = date.split('T')[0]; // Pega apenas YYYY-MM-DD
-    conditions.push(eq(sql`DATE(${completedAppointments.completedAt})`, sql`DATE('${dateStr}')`));
+    const startOfDay = new Date(`${dateStr}T00:00:00Z`);
+    const endOfDay = new Date(`${dateStr}T23:59:59Z`);
+    conditions.push(gte(completedAppointments.completedAt, startOfDay));
+    conditions.push(lt(completedAppointments.completedAt, endOfDay));
   }
   
   return db.select().from(completedAppointments).where(and(...conditions)).orderBy(desc(completedAppointments.completedAt));
@@ -3882,7 +3885,10 @@ export async function getCompletedAppointmentsByDentist(clinicId: number, dentis
   
   if (date) {
     const dateStr = date.split('T')[0]; // Pega apenas YYYY-MM-DD
-    conditions.push(eq(sql`DATE(${completedAppointments.completedAt})`, sql`DATE('${dateStr}')`));
+    const startOfDay = new Date(`${dateStr}T00:00:00Z`);
+    const endOfDay = new Date(`${dateStr}T23:59:59Z`);
+    conditions.push(gte(completedAppointments.completedAt, startOfDay));
+    conditions.push(lt(completedAppointments.completedAt, endOfDay));
   }
   
   return db.select().from(completedAppointments).where(and(...conditions)).orderBy(desc(completedAppointments.completedAt));
@@ -4181,7 +4187,10 @@ export async function getCompletedAppointmentsBySpecialty(clinicId: number, spec
   
   if (date) {
     const dateStr = date.split('T')[0]; // Pega apenas YYYY-MM-DD
-    conditions.push(eq(sql`DATE(${completedAppointments.completedAt})`, sql`DATE('${dateStr}')`));
+    const startOfDay = new Date(`${dateStr}T00:00:00Z`);
+    const endOfDay = new Date(`${dateStr}T23:59:59Z`);
+    conditions.push(gte(completedAppointments.completedAt, startOfDay));
+    conditions.push(lt(completedAppointments.completedAt, endOfDay));
   }
   
   return db
