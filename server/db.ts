@@ -1881,7 +1881,7 @@ export async function startService(id: number) {
   return { success: true };
 }
 
-export async function finishServiceAndForward(id: number, nextQueue: string, notes?: string, evaluationNotes?: string, amountToPay?: number) {
+export async function finishServiceAndForward(id: number, nextQueue: string, notes?: string, evaluationNotes?: string, amountToPay?: number, professionalId?: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
@@ -1930,6 +1930,7 @@ export async function finishServiceAndForward(id: number, nextQueue: string, not
     originProfessional: entry.professionalName,
     notes: notes || entry.notes,
     evaluationNotes,
+    professionalId: professionalId || undefined,
   });
   
   // Adicionar ao histórico da nova entrada

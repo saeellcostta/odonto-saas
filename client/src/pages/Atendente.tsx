@@ -291,6 +291,7 @@ export default function Atendente() {
   const [paymentAmount, setPaymentAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [forwardQueue, setForwardQueue] = useState<QueueType>("dentist");
+  const [forwardDentistId, setForwardDentistId] = useState<number | null>(null);
   const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
   const [scheduleDate, setScheduleDate] = useState("");
   const [scheduleTime, setScheduleTime] = useState("");
@@ -584,6 +585,7 @@ export default function Atendente() {
       id: selectedEntry.id,
       nextQueue: forwardQueue,
       notes,
+      professionalId: forwardDentistId || undefined,
     });
   };
 
@@ -1173,6 +1175,22 @@ export default function Atendente() {
                     <SelectItem value="prosthetics">Prótese</SelectItem>
                     <SelectItem value="maxillofacial">Buco-Maxilo-Facial</SelectItem>
                     <SelectItem value="pediatric">Odontopediatria</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Profissional (Opcional)</Label>
+                <Select value={forwardDentistId?.toString() || ""} onValueChange={(v) => setForwardDentistId(v ? parseInt(v) : null)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um profissional" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Sem profissional específico</SelectItem>
+                    {dentists.map((dentist: any) => (
+                      <SelectItem key={dentist.id} value={dentist.id.toString()}>
+                        {dentist.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

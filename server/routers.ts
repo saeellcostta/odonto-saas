@@ -1922,9 +1922,10 @@ Formate sua resposta de forma clara e organizada.${pubmedContext ? `\n\nReferên
         notes: z.string().optional(),
         evaluationNotes: z.string().optional(),
         amountToPay: z.number().optional(),
+        professionalId: z.number().optional(),
       }))
       .mutation(async ({ input }) => {
-        return db.finishServiceAndForward(input.id, input.nextQueue, input.notes, input.evaluationNotes, input.amountToPay);
+        return db.finishServiceAndForward(input.id, input.nextQueue, input.notes, input.evaluationNotes, input.amountToPay, input.professionalId);
       }),
     requestPayment: clinicProcedure
       .input(z.object({
