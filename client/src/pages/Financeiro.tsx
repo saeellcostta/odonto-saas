@@ -509,6 +509,59 @@ export default function Financeiro() {
         </CardContent>
       </Card>
 
+      {/* Comprovantes de Atendimentos Completados */}
+      {completedAppointments && completedAppointments.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-green-500" />
+              Comprovantes de Atendimentos
+            </CardTitle>
+            <CardDescription>Atendimentos finalizados com comissões calculadas</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Dentista</TableHead>
+                    <TableHead>Paciente</TableHead>
+                    <TableHead>Procedimento</TableHead>
+                    <TableHead>Valor</TableHead>
+                    <TableHead>Comissão</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {completedAppointments.map((apt: any) => (
+                    <TableRow key={apt.id}>
+                      <TableCell className="text-sm">
+                        {format(new Date(apt.completedAt), "dd/MM/yyyy", { locale: ptBR })}
+                      </TableCell>
+                      <TableCell className="font-medium">{apt.dentistName || "Dentista"}</TableCell>
+                      <TableCell>{apt.patientName || "Paciente"}</TableCell>
+                      <TableCell>{apt.procedureName}</TableCell>
+                      <TableCell className="text-green-600 font-medium">
+                        +{formatCurrency(apt.procedurePrice)}
+                      </TableCell>
+                      <TableCell className="text-amber-600 font-medium">
+                        {formatCurrency(apt.commissionAmount)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={apt.paymentStatus === "paid" ? "bg-green-500" : "bg-yellow-500"}>
+                          {apt.paymentStatus === "paid" ? "Pago" : "Pendente"}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Pagamentos da Fila */}
       {paidFromQueue.length > 0 && (
         <Card>

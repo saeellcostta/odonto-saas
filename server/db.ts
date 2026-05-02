@@ -4056,14 +4056,13 @@ export async function getDailyEarningsSummaryByDate(clinicId: number, date: stri
   const db = await getDb();
   if (!db) return [];
   
-  const dateObj = new Date(date);
   return db
     .select()
     .from(dailyEarningsSummary)
     .where(
       and(
         eq(dailyEarningsSummary.clinicId, clinicId),
-        eq(dailyEarningsSummary.date, dateObj)
+        eq(sql`DATE(${dailyEarningsSummary.date})`, sql`${date}`)
       )
     )
     .orderBy(asc(dailyEarningsSummary.dentistId));
@@ -4157,8 +4156,6 @@ export async function getDailyEarningsSummaryBySpecialty(clinicId: number, speci
   const db = await getDb();
   if (!db) return [];
   
-  const dateObj = new Date(date);
-  
   // Buscar dentistas da especialidade
   const specialtyDentists = await db
     .select({ id: dentists.id })
@@ -4179,7 +4176,7 @@ export async function getDailyEarningsSummaryBySpecialty(clinicId: number, speci
     .where(
       and(
         eq(dailyEarningsSummary.clinicId, clinicId),
-        eq(sql`DATE(${dailyEarningsSummary.date})`, dateObj),
+        eq(sql`DATE(${dailyEarningsSummary.date})`, sql`${date}`),
         inArray(dailyEarningsSummary.dentistId, dentistIds)
       )
     )
