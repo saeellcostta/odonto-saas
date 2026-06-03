@@ -8,7 +8,6 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
-import { serveStatic, setupVite } from "./vite";
 import { stripe } from "../stripe/stripe";
 import { ENV } from "./env";
 
@@ -32,6 +31,8 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function attachClient(app: express.Express, server: HttpServer) {
+  const { serveStatic, setupVite } = await import("./vite");
+
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
