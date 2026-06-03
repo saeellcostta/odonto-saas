@@ -17,6 +17,22 @@ DATABASE_URL="mysql://..." pnpm db:push
 
 Sem `DATABASE_URL`, o cadastro de clinica nao consegue criar as tabelas/usuarios e o app mostra um erro pedindo a configuracao do banco.
 
+## Exemplo com TiDB Cloud
+
+Use os dados da tela **Connect to odonto-saas** do TiDB Cloud. Para o host informado:
+
+```env
+DATABASE_URL="mysql://USUARIO:SENHA@gateway01.us-east-1.prod.aws.tidbcloud.com:4000/NOME_DO_BANCO?sslaccept=strict"
+```
+
+Substitua:
+
+- `USUARIO`: usuario mostrado no TiDB Cloud.
+- `SENHA`: senha gerada no TiDB Cloud.
+- `NOME_DO_BANCO`: banco escolhido na tela de conexao, normalmente `test` ou o banco que voce criou para o app.
+
+Se a senha tiver caracteres especiais como `@`, `#`, `/`, `?` ou `:`, codifique a senha para URL antes de colocar em `DATABASE_URL`.
+
 ## Sobre Supabase
 
 Supabase fornece PostgreSQL. A URL no formato `postgresql://...supabase.co:5432/postgres` nao e compativel com este app no estado atual, porque o schema e o driver usam MySQL (`mysql2`, `drizzle-orm/mysql2`, `mysqlTable`).
