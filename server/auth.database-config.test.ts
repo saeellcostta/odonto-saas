@@ -68,4 +68,31 @@ describe("auth database configuration", () => {
       }
     }
   });
+
+  it("shows a clear dialect error when DATABASE_URL points to Supabase Postgres", async () => {
+    const previousDatabaseUrl = process.env.DATABASE_URL;
+    process.env.DATABASE_URL = "postgresql://postgres:password@db.example.supabase.co:5432/postgres";
+
+    try {
+      const caller = appRouter.createCaller(createPublicContext());
+
+      await expect(
+        caller.auth.register({
+          name: "Supabase User",
+          email: "supabase@example.com",
+          password: "secret123",
+          clinicName: "Supabase Clinic",
+        })
+      ).rejects.toMatchObject({
+        code: "PRECONDITION_FAILED",
+        message: expect.stringContaining("PostgreSQL/Supabase"),
+      });
+    } finally {
+      if (previousDatabaseUrl === undefined) {
+        delete process.env.DATABASE_URL;
+      } else {
+        process.env.DATABASE_URL = previousDatabaseUrl;
+      }
+    }
+  });
 });

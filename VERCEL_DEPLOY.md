@@ -17,6 +17,19 @@ DATABASE_URL="mysql://..." pnpm db:push
 
 Sem `DATABASE_URL`, o cadastro de clinica nao consegue criar as tabelas/usuarios e o app mostra um erro pedindo a configuracao do banco.
 
+## Sobre Supabase
+
+Supabase fornece PostgreSQL. A URL no formato `postgresql://...supabase.co:5432/postgres` nao e compativel com este app no estado atual, porque o schema e o driver usam MySQL (`mysql2`, `drizzle-orm/mysql2`, `mysqlTable`).
+
+Para usar este codigo sem migracao estrutural, use um banco MySQL/TiDB, por exemplo:
+
+- TiDB Cloud
+- PlanetScale
+- Aiven MySQL
+- Railway MySQL
+
+Migrar para Supabase/PostgreSQL exige converter o schema Drizzle de `mysql-core` para `pg-core`, trocar o driver do backend e adaptar migracoes/queries.
+
 ## Variaveis opcionais
 
 - `OAUTH_SERVER_URL`, `VITE_OAUTH_PORTAL_URL`, `VITE_APP_ID`: necessarias apenas para login OAuth.

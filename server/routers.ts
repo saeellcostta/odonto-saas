@@ -34,6 +34,8 @@ import { earningsRouter } from './routers/earningsRouter';
 
 const DATABASE_SETUP_MESSAGE =
   "Banco de dados não configurado. Configure DATABASE_URL no Vercel, rode pnpm db:push e tente o cadastro novamente.";
+const DATABASE_DIALECT_MESSAGE =
+  "DATABASE_URL está usando PostgreSQL/Supabase, mas este projeto usa MySQL/TiDB. Configure uma URL mysql:// ou mysql2:// e rode pnpm db:push.";
 
 function throwDatabaseSetupError(cause?: unknown): never {
   throw new TRPCError({
@@ -43,9 +45,22 @@ function throwDatabaseSetupError(cause?: unknown): never {
   });
 }
 
+function throwDatabaseDialectError(): never {
+  throw new TRPCError({
+    code: "PRECONDITION_FAILED",
+    message: DATABASE_DIALECT_MESSAGE,
+  });
+}
+
 function assertDatabaseUrlConfigured() {
-  if (!process.env.DATABASE_URL) {
+  const databaseUrl = process.env.DATABASE_URL;
+
+  if (!databaseUrl) {
     throwDatabaseSetupError();
+  }
+
+  if (/^postgres(ql)?:\/\//i.test(databaseUrl)) {
+    throwDatabaseDialectError();
   }
 }
 
