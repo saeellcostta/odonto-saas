@@ -1,7 +1,9 @@
 import "dotenv/config";
 import express from "express";
-import { createServer } from "http";
+import { createServer, type Server as HttpServer } from "http";
 import net from "net";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
@@ -29,9 +31,17 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
   throw new Error(`No available port found starting from ${startPort}`);
 }
 
-async function startServer() {
+async function attachClient(app: express.Express, server: HttpServer) {
+  // development mode uses Vite, production mode uses static files
+  if (process.env.NODE_ENV === "development") {
+    await setupVite(app, server);
+  } else {
+    serveStatic(app);
+  }
+}
+
+export async function createApp(options: { serveClient?: boolean; server?: HttpServer } = {}) {
   const app = express();
-  const server = createServer(app);
   
   // Stripe webhook - MUST be before express.json() to get raw body for signature verification
   app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async (req, res) => {
@@ -220,12 +230,21 @@ async function startServer() {
       createContext,
     })
   );
-  // development mode uses Vite, production mode uses static files
-  if (process.env.NODE_ENV === "development") {
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
+
+  if (options.serveClient) {
+    if (!options.server) {
+      throw new Error("An HTTP server is required when serving the Vite/static client");
+    }
+    await attachClient(app, options.server);
   }
+
+  return app;
+}
+
+async function startServer() {
+  const app = await createApp({ serveClient: false });
+  const server = createServer(app);
+  await attachClient(app, server);
 
   const preferredPort = parseInt(process.env.PORT || "3000");
   const port = await findAvailablePort(preferredPort);
@@ -239,4 +258,10 @@ async function startServer() {
   });
 }
 
-startServer().catch(console.error);
+const isEntrypoint = process.argv[1]
+  ? fileURLToPath(import.meta.url) === path.resolve(process.argv[1])
+  : false;
+
+if (isEntrypoint) {
+  startServer().catch(console.error);
+}
