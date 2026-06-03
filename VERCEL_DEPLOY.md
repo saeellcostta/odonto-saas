@@ -22,7 +22,7 @@ Sem `DATABASE_URL`, o cadastro de clinica nao consegue criar as tabelas/usuarios
 Use os dados da tela **Connect to odonto-saas** do TiDB Cloud. Para o host informado:
 
 ```env
-DATABASE_URL="mysql://USUARIO:SENHA@gateway01.us-east-1.prod.aws.tidbcloud.com:4000/NOME_DO_BANCO?sslaccept=strict"
+DATABASE_URL="mysql://USUARIO:SENHA@gateway01.us-east-1.prod.aws.tidbcloud.com:4000/NOME_DO_BANCO?ssl=%7B%22minVersion%22%3A%22TLSv1.2%22%7D"
 ```
 
 Substitua:
@@ -32,6 +32,11 @@ Substitua:
 - `NOME_DO_BANCO`: banco escolhido na tela de conexao, normalmente `test` ou o banco que voce criou para o app.
 
 Se a senha tiver caracteres especiais como `@`, `#`, `/`, `?` ou `:`, codifique a senha para URL antes de colocar em `DATABASE_URL`.
+
+O TiDB Cloud precisa permitir o IP de quem vai conectar:
+
+- Para rodar migracoes a partir desta VM do Cursor, libere o IP `3.228.171.233` no TiDB Cloud.
+- Para o app na Vercel, libere `0.0.0.0/0` no TiDB Cloud ou configure uma solucao de IP fixo na Vercel; funcoes serverless comuns podem sair por IPs variaveis.
 
 ## Sobre Supabase
 
