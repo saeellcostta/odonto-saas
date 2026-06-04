@@ -2247,7 +2247,7 @@ export async function getQueueHistoryByEntry(queueEntryId: number) {
 
 
 // ==================== AUTENTICAÇÃO PRÓPRIA ====================
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 const SALT_ROUNDS = 10;
 

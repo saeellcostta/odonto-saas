@@ -1269,7 +1269,7 @@ __export(db_exports, {
 });
 import { eq, desc, and, gte, lte, lt, sql, like, or, asc, inArray, ne } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
