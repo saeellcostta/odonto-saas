@@ -30,7 +30,7 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
   throw new Error(`No available port found starting from ${startPort}`);
 }
 
-async function attachClient(app: express.Express, server: HttpServer) {
+async function attachClient(app: express.Application, server: HttpServer) {
   const { serveStatic, setupVite } = await import("./vite");
 
   // development mode uses Vite, production mode uses static files
