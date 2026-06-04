@@ -10778,7 +10778,7 @@ async function startServer() {
   });
 }
 var isEntrypoint = process.argv[1] ? fileURLToPath(import.meta.url) === path3.resolve(process.argv[1]) : false;
-if (isEntrypoint) {
+if (isEntrypoint && !process.env.VERCEL) {
   startServer().catch(console.error);
 }
 

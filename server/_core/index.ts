@@ -30,7 +30,7 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
   throw new Error(`No available port found starting from ${startPort}`);
 }
 
-async function attachClient(app: express.Application, server: HttpServer) {
+async function attachClient(app: express.Express, server: HttpServer) {
   const { serveStatic, setupVite } = await import("./vite");
 
   // development mode uses Vite, production mode uses static files
@@ -263,6 +263,6 @@ const isEntrypoint = process.argv[1]
   ? fileURLToPath(import.meta.url) === path.resolve(process.argv[1])
   : false;
 
-if (isEntrypoint) {
+if (isEntrypoint && !process.env.VERCEL) {
   startServer().catch(console.error);
 }
