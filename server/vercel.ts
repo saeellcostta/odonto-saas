@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { createApp } from "./_core/index";
+import { createApp } from "./_core/app";
 
 const appPromise = createApp({ serveClient: false });
 
