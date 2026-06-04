@@ -32,6 +32,54 @@ import { generateImage } from "./_core/imageGeneration";
 
 import { earningsRouter } from './routers/earningsRouter';
 
+const DATABASE_SETUP_MESSAGE =
+  "Banco de dados não configurado. Configure DATABASE_URL no Vercel, rode pnpm db:push e tente o cadastro novamente.";
+const DATABASE_DIALECT_MESSAGE =
+  "DATABASE_URL está usando PostgreSQL/Supabase, mas este projeto usa MySQL/TiDB. Configure uma URL mysql:// ou mysql2:// e rode pnpm db:push.";
+
+function throwDatabaseSetupError(cause?: unknown): never {
+  throw new TRPCError({
+    code: "PRECONDITION_FAILED",
+    message: DATABASE_SETUP_MESSAGE,
+    cause,
+  });
+}
+
+function throwDatabaseDialectError(): never {
+  throw new TRPCError({
+    code: "PRECONDITION_FAILED",
+    message: DATABASE_DIALECT_MESSAGE,
+  });
+}
+
+function assertDatabaseUrlConfigured() {
+  const databaseUrl = process.env.DATABASE_URL;
+
+  if (!databaseUrl) {
+    throwDatabaseSetupError();
+  }
+
+  if (/^postgres(ql)?:\/\//i.test(databaseUrl)) {
+    throwDatabaseDialectError();
+  }
+}
+
+function isDatabaseSetupError(error: unknown) {
+  if (!(error instanceof Error)) return false;
+
+  return /Database not available|ECONNREFUSED|ETIMEDOUT|ENOTFOUND|Access denied|Unknown database|getaddrinfo/i.test(
+    error.message
+  );
+}
+
+function rethrowWithDatabaseSetupMessage(error: unknown): never {
+  if (isDatabaseSetupError(error)) {
+    throwDatabaseSetupError(error);
+  }
+
+  throw error;
+}
+
 export const appRouter = router({
   system: systemRouter,
   earnings: earningsRouter,
@@ -54,55 +102,61 @@ export const appRouter = router({
         clinicName: z.string().optional(), // Se informado, cria uma clínica
       }))
       .mutation(async ({ input }) => {
-        // Verificar se email já existe
-        const existingUser = await db.getUserByEmail(input.email);
-        if (existingUser) {
-          throw new Error("Email já cadastrado");
-        }
-        
-        let clinicId: number | undefined;
-        
-        // Se informou nome da clínica, cria uma nova
-        if (input.clinicName) {
-          const slug = input.clinicName
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-|-$/g, '');
-          
-          const clinic = await db.createClinic({
-            name: input.clinicName,
-            slug: slug + '-' + Date.now(),
-            isActive: true,
-          });
-          clinicId = clinic.id;
-        }
-        
-        // Criar usuário
-        const user = await db.createUserWithPassword({
-          email: input.email,
-          password: input.password,
-          name: input.name,
-          phone: input.phone,
-          clinicId,
-          role: clinicId ? "admin" : "user", // Se criou clínica, é admin
-        });
-        
-        // Se criou clínica, adiciona como owner
-        if (clinicId) {
-          await db.addUserToClinic({
-            userId: user.id,
+        assertDatabaseUrlConfigured();
+
+        try {
+          // Verificar se email já existe
+          const existingUser = await db.getUserByEmail(input.email);
+          if (existingUser) {
+            throw new Error("Email já cadastrado");
+          }
+
+          let clinicId: number | undefined;
+
+          // Se informou nome da clínica, cria uma nova
+          if (input.clinicName) {
+            const slug = input.clinicName
+              .toLowerCase()
+              .normalize('NFD')
+              .replace(/[\u0300-\u036f]/g, '')
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/^-|-$/g, '');
+
+            const clinic = await db.createClinic({
+              name: input.clinicName,
+              slug: slug + '-' + Date.now(),
+              isActive: true,
+            });
+            clinicId = clinic.id;
+          }
+
+          // Criar usuário
+          const user = await db.createUserWithPassword({
+            email: input.email,
+            password: input.password,
+            name: input.name,
+            phone: input.phone,
             clinicId,
-            role: "owner",
-            isActive: true,
+            role: clinicId ? "admin" : "user", // Se criou clínica, é admin
           });
-          
-          // Inicializar permissões padrão para todos os cargos
-          await db.initializeDefaultPermissions();
+
+          // Se criou clínica, adiciona como owner
+          if (clinicId) {
+            await db.addUserToClinic({
+              userId: user.id,
+              clinicId,
+              role: "owner",
+              isActive: true,
+            });
+
+            // Inicializar permissões padrão para todos os cargos
+            await db.initializeDefaultPermissions();
+          }
+
+          return { success: true, userId: user.id, clinicId };
+        } catch (error) {
+          rethrowWithDatabaseSetupMessage(error);
         }
-        
-        return { success: true, userId: user.id, clinicId };
       }),
     
     // Login com email e senha
@@ -112,63 +166,69 @@ export const appRouter = router({
         password: z.string(),
       }))
       .mutation(async ({ input, ctx }) => {
-        const user = await db.getUserByEmail(input.email);
-        
-        if (!user || !user.passwordHash) {
-          throw new Error("Email ou senha inválidos");
-        }
-        
-        if (!user.isActive) {
-          throw new Error("Usuário desativado");
-        }
-        
-        // Verificar acesso da clínica (exceto superadmin)
-        if (user.role !== "superadmin" && user.clinicId) {
-          const accessInfo = await db.checkClinicAccess(user.clinicId);
-          if (!accessInfo.canAccess) {
-            throw new Error(accessInfo.reason || "Acesso bloqueado");
+        assertDatabaseUrlConfigured();
+
+        try {
+          const user = await db.getUserByEmail(input.email);
+
+          if (!user || !user.passwordHash) {
+            throw new Error("Email ou senha inválidos");
           }
-        }
-        
-        const validPassword = await db.verifyPassword(input.password, user.passwordHash);
-        if (!validPassword) {
-          throw new Error("Email ou senha inválidos");
-        }
-        
-        // Atualizar último login
-        await db.updateUserLastSignIn(user.id);
-        
-        // Criar sessão (cookie JWT)
-        const { SignJWT } = await import("jose");
-        const secret = new TextEncoder().encode(process.env.JWT_SECRET || "fallback-secret");
-        
-        const token = await new SignJWT({
-          userId: user.id,
-          email: user.email,
-          role: user.role,
-          clinicId: user.clinicId,
-        })
-          .setProtectedHeader({ alg: "HS256" })
-          .setIssuedAt()
-          .setExpirationTime("7d")
-          .sign(secret);
-        
-        const cookieOptions = getSessionCookieOptions(ctx.req);
-        ctx.res.cookie(COOKIE_NAME, token, {
-          ...cookieOptions,
-          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
-        });
-        
-        return {
-          success: true,
-          user: {
-            id: user.id,
+
+          if (!user.isActive) {
+            throw new Error("Usuário desativado");
+          }
+
+          // Verificar acesso da clínica (exceto superadmin)
+          if (user.role !== "superadmin" && user.clinicId) {
+            const accessInfo = await db.checkClinicAccess(user.clinicId);
+            if (!accessInfo.canAccess) {
+              throw new Error(accessInfo.reason || "Acesso bloqueado");
+            }
+          }
+
+          const validPassword = await db.verifyPassword(input.password, user.passwordHash);
+          if (!validPassword) {
+            throw new Error("Email ou senha inválidos");
+          }
+
+          // Atualizar último login
+          await db.updateUserLastSignIn(user.id);
+
+          // Criar sessão (cookie JWT)
+          const { SignJWT } = await import("jose");
+          const secret = new TextEncoder().encode(process.env.JWT_SECRET || "fallback-secret");
+
+          const token = await new SignJWT({
+            userId: user.id,
             email: user.email,
-            name: user.name,
             role: user.role,
             clinicId: user.clinicId,
-          },
-        };
+          })
+            .setProtectedHeader({ alg: "HS256" })
+            .setIssuedAt()
+            .setExpirationTime("7d")
+            .sign(secret);
+
+          const cookieOptions = getSessionCookieOptions(ctx.req);
+          ctx.res.cookie(COOKIE_NAME, token, {
+            ...cookieOptions,
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
+          });
+
+          return {
+            success: true,
+            user: {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              role: user.role,
+              clinicId: user.clinicId,
+            },
+          };
+        } catch (error) {
+          rethrowWithDatabaseSetupMessage(error);
+        }
       }),
     
     // Alterar senha
